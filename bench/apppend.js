@@ -11,7 +11,7 @@ let tree = undefined;
 for (let i = 0; i < n; ++i) {
   tree = Finger.append(i, tree);
 }
-console.log(tree.suffix[tree.suffix.length - 1]);
+console.log(tree.suffix.c);
 
 module.exports = Suite("append")
   .add("Array", function() {
@@ -54,6 +54,6 @@ module.exports = Suite("append")
     for (let i = 0; i < n; ++i) {
       tree = Finger.append(i, tree);
     }
-    return tree.suffix[tree.suffix.length - 1] === n - 1;
+    return tree.suffix.c === n - 1;
   })
   .run();

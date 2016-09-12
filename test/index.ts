@@ -1,7 +1,7 @@
 ///<reference path="./../typings/index.d.ts" />
 import {assert} from "chai";
 
-import {FingerTree, prepend, append, toArray} from "../finger";
+import {FingerTree, prepend, append, toArray} from "../src/finger";
 
 describe("Finger tree", () => {
   it("appends two elements", () => {

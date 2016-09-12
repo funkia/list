@@ -1,11 +1,33 @@
-type Affix<A> = [A] | [A, A] | [A, A, A] | [A, A, A, A];
+export class Affix<A>{
+  constructor(
+    public len: number,
+    public a: A,
+    public b?: A,
+    public c?: A,
+    public d?: A
+  ) {};
+  toArray(): A[] {
+    switch(this.len) {
+    case 1: return [this.a];
+    case 2: return [this.a, this.b];
+    case 3: return [this.a, this.b, this.c];
+    case 4: return [this.a, this.b, this.c, this.d];
+    }
+  }
+}
+
+// export type Affix<A> = [A] | [A, A] | [A, A, A] | [A, A, A, A];
 
 function affixPrepend<A>(a: A, as: Affix<A>): Affix<A> {
-  return <Affix<A>>[a, ...as];
+  return new Affix(as.len + 1, a, as.a, as.b, as.c);
 }
 
 function affixAppend<A>(a: A, as: Affix<A>): Affix<A> {
-  return <Affix<A>>[...as, a];
+  switch(as.len) {
+  case 1: return new Affix(2, as.a, a);
+  case 2: return new Affix(3, as.a, as.b, a);
+  case 3: return new Affix(4, as.a, as.b, as.c, a);
+  }
 }
 
 function flatten<A>(a: A[][]): A[] {
@@ -21,7 +43,7 @@ function flatten<A>(a: A[][]): A[] {
 export type FingerTree<A> = undefined | Single<A> | Deep<A>;
 
 // Node in a 2-3 tree
-type NNode<A> = [A, A] | [A, A, A];
+export type NNode<A> = [A, A] | [A, A, A];
 
 export class Single<A> {
   constructor(public a: A) {};
@@ -39,14 +61,14 @@ export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
   if (t === undefined) {
     return new Single(a);
   } else if (t instanceof Single) {
-    return new Deep([a], undefined, [t.a]);
+    return new Deep(new Affix(1, a), undefined, new Affix(1, t.a));
   } else {
     const p = t.prefix;
-    if (p.length < 4) {
+    if (p.len < 4) {
       return new Deep(affixPrepend(a, t.prefix), t.deeper, t.suffix);
     } else {
       return new Deep(
-        [a, p[0]], prepend(<[A, A, A]>[p[1], p[2], p[3]], t.deeper), t.suffix
+        new Affix(2, a, p.a), prepend(<[A, A, A]>[p.b, p.c, p.d], t.deeper), t.suffix
       );
     }
   }
@@ -56,15 +78,13 @@ export function append<A>(a: A, t: FingerTree<A>): FingerTree<A> {
   if (t === undefined) {
     return new Single(a);
   } else if (t instanceof Single) {
-    return new Deep([t.a], undefined, [a]);
+    return new Deep(new Affix(1, t.a), undefined, new Affix(1, a));
   } else {
     const s = t.suffix;
-    if (s.length < 4) {
+    if (s.len < 4) {
       return new Deep(t.prefix, t.deeper, affixAppend(a, t.suffix));
     } else {
-      return new Deep(
-        t.prefix, append(<[A, A, A]>[s[0], s[1], s[2]], t.deeper), [s[3], a]
-      );
+      return new Deep(t.prefix, append(<[A, A, A]>[s.a, s.b, s.c], t.deeper), new Affix(2, s.d, a));
     }
   }
 }
@@ -75,6 +95,6 @@ export function toArray<A>(t: FingerTree<A>): A[] {
   } else if (t instanceof Single) {
     return [t.a];
   } else {
-    return t.prefix.concat(flatten(toArray(t.deeper))).concat(t.suffix);
+    return t.prefix.toArray().concat(flatten(toArray(t.deeper))).concat(t.suffix.toArray());
   }
 }
