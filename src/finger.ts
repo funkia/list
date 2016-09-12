@@ -16,8 +16,6 @@ export class Affix<A>{
   }
 }
 
-// export type Affix<A> = [A] | [A, A] | [A, A, A] | [A, A, A, A];
-
 function affixPrepend<A>(a: A, as: Affix<A>): Affix<A> {
   return new Affix(as.len + 1, a, as.a, as.b, as.c);
 }
@@ -30,11 +28,14 @@ function affixAppend<A>(a: A, as: Affix<A>): Affix<A> {
   }
 }
 
-function flatten<A>(a: A[][]): A[] {
+function flatten<A>(a: NNode<A>[]): A[] {
   let arr: A[] = [];
   for (let i = 0; i < a.length; ++i) {
-    for (let j = 0; j < a[i].length; ++j) {
-      arr.push(a[i][j]);
+    const e = a[i];
+    arr.push(e.a);
+    arr.push(e.b);
+    if (e.three === true) {
+      arr.push(e.c);
     }
   }
   return arr;
@@ -43,7 +44,15 @@ function flatten<A>(a: A[][]): A[] {
 export type FingerTree<A> = undefined | Single<A> | Deep<A>;
 
 // Node in a 2-3 tree
-export type NNode<A> = [A, A] | [A, A, A];
+// export type NNode<A> = [A, A] | [A, A, A];
+export class NNode<A> {
+  constructor(
+    public three: boolean, // true is the node has three elements
+    public a: A,
+    public b: A,
+    public c: A,
+  ) {};
+}
 
 export class Single<A> {
   constructor(public a: A) {};
@@ -68,7 +77,7 @@ export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
       return new Deep(affixPrepend(a, t.prefix), t.deeper, t.suffix);
     } else {
       return new Deep(
-        new Affix(2, a, p.a), prepend(<[A, A, A]>[p.b, p.c, p.d], t.deeper), t.suffix
+        new Affix(2, a, p.a), prepend(new NNode(true, p.b, p.c, p.d), t.deeper), t.suffix
       );
     }
   }
@@ -84,7 +93,7 @@ export function append<A>(a: A, t: FingerTree<A>): FingerTree<A> {
     if (s.len < 4) {
       return new Deep(t.prefix, t.deeper, affixAppend(a, t.suffix));
     } else {
-      return new Deep(t.prefix, append(<[A, A, A]>[s.a, s.b, s.c], t.deeper), new Affix(2, s.d, a));
+      return new Deep(t.prefix, append(new NNode(true, s.a, s.b, s.c), t.deeper), new Affix(2, s.d, a));
     }
   }
 }
