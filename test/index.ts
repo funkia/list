@@ -1,7 +1,7 @@
 ///<reference path="./../typings/index.d.ts" />
 import {assert} from "chai";
 
-import {FingerTree, prepend, append, toArray} from "../src/finger";
+import {FingerTree, prepend, append, toArray, size, get} from "../src/finger";
 
 describe("Finger tree", () => {
   it("appends two elements", () => {
@@ -25,8 +25,18 @@ describe("Finger tree", () => {
     let list: FingerTree<number> = undefined;
     for (let i = 0; i < 1000; ++i) {
       list = append(i, list);
+      if (i === 12) console.log(list);
       arr.push(i);
     }
     assert.deepEqual(toArray(list), arr);
+  });
+  it("has proper size", () => {
+    const list = prepend(5, prepend(4, prepend(3, prepend(2, prepend(1, prepend(0, undefined))))));
+    assert.deepEqual(size(list), 6);
+  });
+  it("can index", () => {
+    const list = prepend(5, prepend(4, prepend(3, prepend(2, prepend(1, prepend(0, undefined))))));
+    assert.deepEqual(get(0, list), 0);
+    assert.deepEqual(get(2, list), 2);
   });
 });
