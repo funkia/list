@@ -46,4 +46,4 @@ module.exports = Suite("random access")
     }
     return sum === 9;
   })
-  .run();
+  .run({async: true});

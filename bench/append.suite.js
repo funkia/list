@@ -56,4 +56,4 @@ module.exports = Suite("append")
     }
     return tree.suffix.c === n - 1;
   })
-  .run();
+  .run({async: true});
