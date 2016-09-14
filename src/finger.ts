@@ -1,8 +1,4 @@
-export interface Sizeable {
-  size(): number;
-}
-
-export class Affix<A> implements Sizeable {
+export class Affix<A> {
   constructor(
     public len: number,
     public a: A,
@@ -35,7 +31,7 @@ function affixAppend<A>(a: A, as: Affix<A>): Affix<A> {
   }
 }
 
-function flatten<A extends Sizeable>(a: NNode<A>[]): A[] {
+function flatten<A>(a: NNode<A>[]): A[] {
   let arr: A[] = [];
   for (let i = 0; i < a.length; ++i) {
     const e = a[i];
@@ -61,21 +57,16 @@ export const nil = new Empty();
 
 // Node in a 2-3 tree
 // export type NNode<A> = [A, A] | [A, A, A];
-export class NNode<A extends Sizeable> implements Sizeable {
+export class NNode<A> {
   public _size: number;
   constructor(
     public three: boolean, // true is the node has three elements
     public a: A,
     public b: A,
     public c: A,
-  ) {
-    this._size = a.size() + b.size();
-    if (three) {
-      this._size += c.size();
-    }
-  };
+  ) {};
   size() {
-    return this._size;
+    return this.three ? 3 : 2;
   }
 }
 
@@ -93,10 +84,10 @@ export class Deep<A> {
 }
 
 export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
-  if (t === undefined) {
+  if (t instanceof Empty) {
     return new Single(a);
   } else if (t instanceof Single) {
-    return new Deep(2, new Affix(1, a), undefined, new Affix(1, t.a));
+    return new Deep(2, new Affix(1, a), nil, new Affix(1, t.a));
   } else {
     const n = t.size + 1;
     const p = t.prefix;
@@ -111,10 +102,10 @@ export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
 }
 
 export function append<A>(a: A, t: FingerTree<A>): FingerTree<A> {
-  if (t === undefined) {
+  if (t instanceof Empty) {
     return new Single(a);
   } else if (t instanceof Single) {
-    return new Deep(2, new Affix(1, t.a), undefined, new Affix(1, a));
+    return new Deep(2, new Affix(1, t.a), nil, new Affix(1, a));
   } else {
     const n = t.size + 1;
     const s = t.suffix;
@@ -133,24 +124,24 @@ function deepAppend<A>(a: any, t: FingerTree<any>, p: Deep<A>): void {
   while (t instanceof Deep && t.suffix.len === 4) {
     const s = t.suffix;
     const newDeep = new Deep(t.size + 1,
-      t.prefix, undefined, new Affix(2, s.d, a)
+      t.prefix, nil, new Affix(2, s.d, a)
     );
     p.deeper = newDeep;
     p = newDeep;
     a = [s.a, s.b, s.c];
     t = t.deeper;
   }
-  if (t === undefined) {
+  if (t instanceof Empty) {
     p.deeper = new Single(a);
   } else if (t instanceof Single) {
-    p.deeper = new Deep(4, new Affix(1, t.a), undefined, new Affix(1, a));
+    p.deeper = new Deep(4, new Affix(1, t.a), nil, new Affix(1, a));
   } else {
     p.deeper = new Deep(t.size + 1, t.prefix, t.deeper, affixAppend(a, t.suffix));
   }
 }
 
 export function size(t: FingerTree<any>): number {
-  if (t === undefined) {
+  if (t instanceof Empty) {
     return 0;
   } else if (t instanceof Single) {
     return 1;
@@ -160,7 +151,7 @@ export function size(t: FingerTree<any>): number {
 }
 
 export function get<A>(idx: number, t: FingerTree<A>): A {
-  if (t === undefined) {
+  if (t instanceof Empty) {
     return undefined;
   } else if (t instanceof Single) {
     return idx === 0 ? t.a : undefined;
@@ -170,7 +161,7 @@ export function get<A>(idx: number, t: FingerTree<A>): A {
 }
 
 export function toArray<A>(t: FingerTree<A>): A[] {
-  if (t === undefined) {
+  if (t instanceof Empty) {
     return [];
   } else if (t instanceof Single) {
     return [t.a];
