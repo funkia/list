@@ -21,15 +21,6 @@ function affixPrepend<A>(s: number, a: A, as: Affix<A>): Affix<A> {
   return new Affix(as.size + s, as.len + 1, a, as.a, as.b, as.c);
 }
 
-function affixAppend<A>(s: number, a: A, as: Affix<A>): Affix<A> {
-  const newSize = as.size + s;
-  switch (as.len) {
-  case 1: return new Affix(newSize, 2, as.a, a);
-  case 2: return new Affix(newSize, 3, as.a, as.b, a);
-  case 3: return new Affix(newSize, 4, as.a, as.b, as.c, a);
-  }
-}
-
 function flatten<A>(a: NNode<A>[]): A[] {
   let arr: A[] = [];
   for (let i = 0; i < a.length; ++i) {
@@ -124,11 +115,11 @@ function nrAppend<A>(n: boolean, s: number, a: A, t: FingerTree<A>): FingerTree<
 
 function nrAppendDeep<A>(suf: Affix<A>, n: boolean, m: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
   if (suf.len < 4) {
-    return deep(n, m, t.prefix, t.deeper, affixAppend(s, a, t.suffix));
+    return deep(n, m, t.prefix, t.deeper, affixPrepend(s, a, t.suffix));
   }
-  const num = n ? (<any>suf.d).size : 1;
-  const node = new NNode(suf.size - num, true, suf.a, suf.b, suf.c);
-  return deep(n, m, t.prefix, nrAppend(true, node.size, node, t.deeper), new Affix(num + s, 2, suf.d, a));
+  const num = n ? (<any>suf.a).size : 1;
+  const node = new NNode(suf.size - num, true, suf.d, suf.c, suf.b);
+  return deep(n, m, t.prefix, nrAppend(true, node.size, node, t.deeper), new Affix(num + s, 2, a, suf.a));
 }
 
 export function size(t: FingerTree<any>): number {
@@ -158,6 +149,38 @@ function affixGet<A>(idx: number, a: Affix<any>): A {
     }
     size += a.c.size;
     return nodeGet<A>(idx - size, a.d);
+  }
+}
+
+function affixGetRev<A>(idx: number, a: Affix<any>): A {
+  if (a.len === a.size) {
+    switch (a.len - 1 - idx) {
+    case 0: return a.a;
+    case 1: return a.b;
+    case 2: return a.c;
+    case 3: return a.d;
+    }
+  } else {
+    let size = 0;
+    if (a.len === 4) {
+      if (idx < a.d.size) {
+        return nodeGet<A>(idx - size, a.d);
+      }
+      size += a.d.size;
+    }
+    if (a.len >= 3) {
+      if (idx < size + a.c.size) {
+        return nodeGet<A>(idx - size, a.c);
+      }
+      size += a.c.size;
+    }
+    if (a.len >= 2) {
+      if (idx < size + a.b.size) {
+        return nodeGet<A>(idx - size, a.b);
+      }
+      size += a.b.size;
+    }
+    return nodeGet<A>(idx - size, a.a);
   }
 }
 
@@ -202,7 +225,7 @@ export function get<A>(idx: number, t: FingerTree<A>): A {
     } else if (idx < deep) {
       return get<A>(idx - prefSize, <any>t.deeper);
     } else {
-      return affixGet<A>(idx - deep, t.suffix);
+      return affixGetRev<A>(idx - deep, t.suffix);
     }
   }
 }
@@ -211,6 +234,6 @@ export function toArray<A>(t: FingerTree<A>): A[] {
   switch (t.type) {
   case 0: return [];
   case 1: return [singleA(t)];
-  case 2: return t.prefix.toArray().concat(flatten(toArray(t.deeper))).concat(t.suffix.toArray());
+  case 2: return t.prefix.toArray().concat(flatten(toArray(t.deeper))).concat(t.suffix.toArray().reverse());
   }
 }
