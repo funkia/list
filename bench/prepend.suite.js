@@ -3,6 +3,7 @@ const Immutable = require("immutable");
 const Denque = require("denque");
 
 const Finger = require("../dist/finger");
+const Oinger = require("./finger-old/dist/finger");
 const {Cons} = require("../dist/list");
 
 const n = 10000;
@@ -48,6 +49,13 @@ module.exports = Suite("prepend")
     for (let i = 0; i < n; ++i) {
       tree = Finger.prepend(i, tree);
     }
-    return tree.suffix[tree.suffix.length - 1] === n - 1;
+    return tree.suffix.c === n - 1;
+  })
+  .add("Old finger", function() {
+    let tree = Oinger.nil;
+    for (let i = 0; i < n; ++i) {
+      tree = Oinger.prepend(i, tree);
+    }
+    return tree.suffix.c === n - 1;
   })
   .run({async: true});

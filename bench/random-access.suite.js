@@ -3,7 +3,8 @@ const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const Denque = require("denque");
 
-const {nil, append, get} = require("../dist/finger");
+const Finger = require("../dist/finger");
+const Oinger = require("./finger-old/dist/finger");
 const {Cons} = require("../dist/list");
 
 const n = 10000;
@@ -12,10 +13,12 @@ let indices = [];
 let array = [];
 let denque = new Denque();
 let immut = new Immutable.List();
-let tree = nil;
+let tree = Finger.nil;
+let _tree = Oinger.nil;
 
 for (let i = 0; i < n; ++i) {
-  tree = append(i, tree);
+  tree = Finger.append(i, tree);
+  _tree = Oinger.append(i, _tree);
   denque.push(i);
   array.push(i);
   indices.push(i);
@@ -32,26 +35,33 @@ module.exports = Suite("random access")
     for (let i = 0; i < n; ++i) {
       sum += array[i];
     }
-    return sum === 9;
+    return sum === result;
   })
   .add("Immutable.js", function() {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
       sum += immut.get(i);
     }
-    return sum === 9;
+    return sum === result;
   })
   .add("Deque", function() {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
       sum += denque.peekAt(i);
     }
-    return sum === 9;
+    return sum === result;
   })
   .add("Finger", function() {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
-      sum += get(i, tree);
+      sum += Finger.get(i, tree);
+    }
+    return sum === result;
+  })
+  .add("Old finger", function() {
+    let sum = 0;
+    for (let i = 0; i < n; ++i) {
+      sum += Oinger.get(i, _tree);
     }
     return sum === result;
   })
