@@ -55,47 +55,34 @@ export class NNode<A> {
   ) {};
 }
 
-export type FingerTree<A> = Empty | Single<A> | Deep<A>;
-
-export class Empty {
-  public size: number = 0;
-  constructor() {};
-  isNil(): boolean {
-    return true;
-  }
-  getType(): 0 {
-    return 0;
-  }
-}
-
-export const nil = new Empty();
-
-function isNil(t: FingerTree<any>): t is Empty {
-  return t === nil;
-}
-
-export class Single<A> {
+export class FingerTree<A> {
   constructor(
-    public nested: boolean,
-    public size: number,
-    public a: A
-  ) {};
-  getType(): 1 {
-    return 1;
-  }
-}
-
-export class Deep<A> {
-  constructor(
+    public type: number,
     public nested: boolean,
     public size: number,
     public prefix: Affix<A>,
     public deeper: FingerTree<NNode<A>>,
     public suffix: Affix<A>
   ) {};
-  getType(): 2 {
-    return 2;
-  }
+}
+
+export const nil = new FingerTree<any>(
+  0, false, 0, undefined, undefined, undefined
+);
+
+function single<A>(nested: boolean, size: number, a: A): FingerTree<A> {
+  return new FingerTree<A>(1, nested, size, <any>a, nil, undefined);
+}
+
+function deep<A>(
+  nested: boolean, size: number, prefix: Affix<A>,
+  deeper: FingerTree<NNode<A>>, suffix: Affix<A>
+): FingerTree<A> {
+  return new FingerTree(2, nested, size, prefix, deeper, suffix);
+}
+
+function singleA<A>(t: FingerTree<A>): A {
+  return (<any>t).prefix;
 }
 
 export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
@@ -104,20 +91,20 @@ export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
 
 export function nrPrepend<A>(nested: boolean, s: number, a: A, t: FingerTree<A>): FingerTree<A> {
   const m = t.size + 1;
-  switch (t.getType()) {
-  case 0: return new Single(nested, s, a);
-  case 1: return new Deep(nested, t.size + s, new Affix(s, 1, a), nil, new Affix(t.size, 1, (<Single<A>>t).a));
-  case 2: return nrPrependDeep<A>((<Deep<A>>t).prefix, nested, m, <Deep<A>>t, s, a);
+  switch (t.type) {
+  case 0: return single(nested, s, a);
+  case 1: return deep(nested, t.size + s, new Affix(s, 1, a), nil, new Affix(t.size, 1, singleA(t)));
+  case 2: return nrPrependDeep<A>(t.prefix, nested, m, t, s, a);
   }
 }
 
-function nrPrependDeep<A>(p: Affix<A>, nested: boolean, m: number, t: Deep<A>, s: number, a: A): FingerTree<A> {
+function nrPrependDeep<A>(p: Affix<A>, nested: boolean, m: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
   if (p.len < 4) {
-    return new Deep(nested, m, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
+    return deep(nested, m, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
   } else {
     const num = nested ? (<any>p.a).size : 1;
     const node = new NNode(p.size - num, true, p.b, p.c, p.d);
-    return new Deep(
+    return deep(
       nested, m, new Affix(s + num, 2, a, p.a), nrPrepend(true, node.size, node, t.deeper), t.suffix
     );
   }
@@ -128,46 +115,21 @@ export function append<A>(a: A, t: FingerTree<A>): FingerTree<A> {
 }
 
 function nrAppend<A>(n: boolean, s: number, a: A, t: FingerTree<A>): FingerTree<A> {
-  const m = t.size + s;
-  switch (t.getType()) {
-  case 0: return new Single(n, s, a);
-  case 1: return new Deep(n, m, new Affix(t.size, 1, (<Single<A>>t).a), nil, new Affix(s, 1, a));
-  case 2: return nrAppendDeep<A>((<Deep<A>>t).suffix, n, m, <Deep<A>>t, s, a);
+  switch (t.type) {
+  case 0: return single(n, s, a);
+  case 1: return deep(n, t.size + s, new Affix(t.size, 1, singleA(t)), nil, new Affix(s, 1, a));
+  case 2: return nrAppendDeep<A>(t.suffix, n, t.size + s, t, s, a);
   }
 }
 
-function nrAppendDeep<A>(suf: Affix<A>, n: boolean, m: number, t: Deep<A>, s: number, a: A): FingerTree<A> {
+function nrAppendDeep<A>(suf: Affix<A>, n: boolean, m: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
   if (suf.len < 4) {
-    return new Deep(n, m, t.prefix, t.deeper, affixAppend(s, a, t.suffix));
-  } else {
-    const num = n ? (<any>suf.d).size : 1;
-    const node = new NNode(suf.size - num, true, suf.a, suf.b, suf.c);
-    return new Deep(n, m, t.prefix, nrAppend(true, node.size, node, t.deeper), new Affix(num + s, 2, suf.d, a));
+    return deep(n, m, t.prefix, t.deeper, affixAppend(s, a, t.suffix));
   }
+  const num = n ? (<any>suf.d).size : 1;
+  const node = new NNode(suf.size - num, true, suf.a, suf.b, suf.c);
+  return deep(n, m, t.prefix, nrAppend(true, node.size, node, t.deeper), new Affix(num + s, 2, suf.d, a));
 }
-// const result = new Deep(t.prefix, undefined, new Affix(2, s.d, a));
-// deepAppend(<[A, A, A]>[s.a, s.b, s.c], t.deeper, result);
-// return result;
-
-// function deepAppend<A>(a: any, t: FingerTree<any>, p: Deep<A>): void {
-//   while (t instanceof Deep && t.suffix.len === 4) {
-//     const s = t.suffix;
-//     const newDeep = new Deep(t.size + 1,
-//       t.prefix, nil, new Affix(2, s.d, a)
-//     );
-//     p.deeper = newDeep;
-//     p = newDeep;
-//     a = [s.a, s.b, s.c];
-//     t = t.deeper;
-//   }
-//   if (t instanceof Empty) {
-//     p.deeper = new Single(a);
-//   } else if (t instanceof Single) {
-//     p.deeper = new Deep(4, new Affix(1, t.a), nil, new Affix(1, a));
-//   } else {
-//     p.deeper = new Deep(t.size + 1, t.prefix, t.deeper, affixAppend(a, t.suffix));
-//   }
-// }
 
 export function size(t: FingerTree<any>): number {
   return t.size;
@@ -224,15 +186,15 @@ function nodeGet<A>(idx: number, n: NNode<any>): A {
 }
 
 export function get<A>(idx: number, t: FingerTree<A>): A {
-  if (t instanceof Empty) {
-    return undefined;
-  } else if (t instanceof Single) {
+  switch (t.type) {
+  case 0: return undefined;
+  case 1:
     if (t.nested === true) {
-      return nodeGet<A>(idx, <any>t.a);
+      return nodeGet<A>(idx, <any>singleA(t));
     } else {
-      return idx === 0 ? t.a : undefined;
+      return idx === 0 ? singleA(t) : undefined;
     }
-  } else {
+  case 2:
     const prefSize = t.prefix.size;
     const deep = prefSize + t.deeper.size;
     if (idx < prefSize) {
@@ -246,11 +208,9 @@ export function get<A>(idx: number, t: FingerTree<A>): A {
 }
 
 export function toArray<A>(t: FingerTree<A>): A[] {
-  if (t instanceof Empty) {
-    return [];
-  } else if (t instanceof Single) {
-    return [t.a];
-  } else {
-    return t.prefix.toArray().concat(flatten(toArray(t.deeper))).concat(t.suffix.toArray());
+  switch (t.type) {
+  case 0: return [];
+  case 1: return [singleA(t)];
+  case 2: return t.prefix.toArray().concat(flatten(toArray(t.deeper))).concat(t.suffix.toArray());
   }
 }
