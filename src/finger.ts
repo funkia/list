@@ -63,6 +63,9 @@ export class Empty {
   isNil(): boolean {
     return true;
   }
+  getType(): 0 {
+    return 0;
+  }
 }
 
 export const nil = new Empty();
@@ -77,6 +80,9 @@ export class Single<A> {
     public size: number,
     public a: A
   ) {};
+  getType(): 1 {
+    return 1;
+  }
 }
 
 export class Deep<A> {
@@ -87,29 +93,33 @@ export class Deep<A> {
     public deeper: FingerTree<NNode<A>>,
     public suffix: Affix<A>
   ) {};
+  getType(): 2 {
+    return 2;
+  }
 }
 
 export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
-  return nrPrepend(false,1, a, t);
+  return nrPrepend(false, 1, a, t);
 }
 
 export function nrPrepend<A>(nested: boolean, s: number, a: A, t: FingerTree<A>): FingerTree<A> {
-  if (isNil(t)) {
-    return new Single(nested, s, a);
-  } else if (t instanceof Single) {
-    return new Deep(nested, t.size + s, new Affix(s, 1, a), nil, new Affix(t.size, 1, t.a));
+  const m = t.size + 1;
+  switch (t.getType()) {
+  case 0: return new Single(nested, s, a);
+  case 1: return new Deep(nested, t.size + s, new Affix(s, 1, a), nil, new Affix(t.size, 1, (<Single<A>>t).a));
+  case 2: return nrPrependDeep<A>((<Deep<A>>t).prefix, nested, m, <Deep<A>>t, s, a);
+  }
+}
+
+function nrPrependDeep<A>(p: Affix<A>, nested: boolean, m: number, t: Deep<A>, s: number, a: A): FingerTree<A> {
+  if (p.len < 4) {
+    return new Deep(nested, m, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
   } else {
-    const m = t.size + 1;
-    const p = t.prefix;
-    if (p.len < 4) {
-      return new Deep(nested, m, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
-    } else {
-      const num = nested ? (<any>p.a).size : 1;
-      const node = new NNode(p.size - num, true, p.b, p.c, p.d)
-      return new Deep(
-        nested, m, new Affix(s + num, 2, a, p.a), nrPrepend(true, node.size, node, t.deeper), t.suffix
-      );
-    }
+    const num = nested ? (<any>p.a).size : 1;
+    const node = new NNode(p.size - num, true, p.b, p.c, p.d);
+    return new Deep(
+      nested, m, new Affix(s + num, 2, a, p.a), nrPrepend(true, node.size, node, t.deeper), t.suffix
+    );
   }
 }
 
@@ -117,26 +127,27 @@ export function append<A>(a: A, t: FingerTree<A>): FingerTree<A> {
   return nrAppend(false, 1, a, t);
 }
 
-function nrAppend<A>(nested: boolean, s: number, a: A, t: FingerTree<A>): FingerTree<A> {
-  if (t instanceof Empty) {
-    return new Single(nested, s, a);
-  } else if (t instanceof Single) {
-    return new Deep(nested, t.size + s, new Affix(t.size, 1, t.a), nil, new Affix(s, 1, a));
-  } else {
-    const m = t.size + s;
-    const suf = t.suffix;
-    if (suf.len < 4) {
-      return new Deep(nested, m, t.prefix, t.deeper, affixAppend(s, a, t.suffix));
-    } else {
-      const num = nested ? (<any>suf.d).size : 1;
-      const node = new NNode(suf.size - num, true, suf.a, suf.b, suf.c)
-      return new Deep(nested, m, t.prefix, nrAppend(true, node.size, node, t.deeper), new Affix(num + s, 2, suf.d, a));
-      // const result = new Deep(t.prefix, undefined, new Affix(2, s.d, a));
-      // deepAppend(<[A, A, A]>[s.a, s.b, s.c], t.deeper, result);
-      // return result;
-    }
+function nrAppend<A>(n: boolean, s: number, a: A, t: FingerTree<A>): FingerTree<A> {
+  const m = t.size + s;
+  switch (t.getType()) {
+  case 0: return new Single(n, s, a);
+  case 1: return new Deep(n, m, new Affix(t.size, 1, (<Single<A>>t).a), nil, new Affix(s, 1, a));
+  case 2: return nrAppendDeep<A>((<Deep<A>>t).suffix, n, m, <Deep<A>>t, s, a);
   }
 }
+
+function nrAppendDeep<A>(suf: Affix<A>, n: boolean, m: number, t: Deep<A>, s: number, a: A): FingerTree<A> {
+  if (suf.len < 4) {
+    return new Deep(n, m, t.prefix, t.deeper, affixAppend(s, a, t.suffix));
+  } else {
+    const num = n ? (<any>suf.d).size : 1;
+    const node = new NNode(suf.size - num, true, suf.a, suf.b, suf.c);
+    return new Deep(n, m, t.prefix, nrAppend(true, node.size, node, t.deeper), new Affix(num + s, 2, suf.d, a));
+  }
+}
+// const result = new Deep(t.prefix, undefined, new Affix(2, s.d, a));
+// deepAppend(<[A, A, A]>[s.a, s.b, s.c], t.deeper, result);
+// return result;
 
 // function deepAppend<A>(a: any, t: FingerTree<any>, p: Deep<A>): void {
 //   while (t instanceof Deep && t.suffix.len === 4) {
@@ -158,22 +169,8 @@ function nrAppend<A>(nested: boolean, s: number, a: A, t: FingerTree<A>): Finger
 //   }
 // }
 
-function test(t: FingerTree<any>) {
-  if (t instanceof Empty) {
-    return true;
-  } else {
-    t;
-  }
-}
-
 export function size(t: FingerTree<any>): number {
-  if (t instanceof Empty) {
-    return 0;
-  } else if (t instanceof Single) {
-    return 1;
-  } else {
-    return t.size;
-  }
+  return t.size;
 }
 
 function affixGet<A>(idx: number, a: Affix<any>): A {

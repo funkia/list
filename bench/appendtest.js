@@ -1,13 +1,19 @@
 const util = require('util');
-const Finger = require("../dist/finger");
+const {nil, append, get} = require("../dist/finger");
 
 const n = 10000;
 
-let tree = Finger.nil;
+let tree = nil;
 
 for (let i = 0; i < n; ++i) {
-  tree = Finger.append(i, tree);
+  tree = append(i, tree);
 }
 
-console.log(util.inspect(tree, {depth: 4}));
+let sum = 0;
+
+for (let i = 0; i < n; ++i) {
+  sum += get(i, tree);
+}
+
+console.log(sum);
 console.log(tree.suffix.c);
