@@ -7,7 +7,7 @@ const {Cons} = require("../dist/list");
 
 const n = 10000;
 
-let tree = undefined;
+let tree = Finger.nil;
 for (let i = 0; i < n; ++i) {
   tree = Finger.append(i, tree);
 }
@@ -50,7 +50,7 @@ module.exports = Suite("append")
     return cons.value === n - 1;
   })
   .add("Finger", function() {
-    let tree = undefined;
+    let tree = Finger.nil;
     for (let i = 0; i < n; ++i) {
       tree = Finger.append(i, tree);
     }

@@ -7,12 +7,6 @@ const {Cons} = require("../dist/list");
 
 const n = 10000;
 
-let tree = undefined;
-for (let i = 0; i < n; ++i) {
-  tree = Finger.append(i, tree);
-}
-console.log(tree.suffix[tree.suffix.length - 1]);
-
 module.exports = Suite("prepend")
   .add("Array", function() {
     let arr = [];
@@ -50,10 +44,10 @@ module.exports = Suite("prepend")
     return cons.value === n - 1;
   })
   .add("Finger", function() {
-    let tree = undefined;
+    let tree = Finger.nil;
     for (let i = 0; i < n; ++i) {
       tree = Finger.prepend(i, tree);
     }
     return tree.suffix[tree.suffix.length - 1] === n - 1;
   })
-  .run();
+  .run({async: true});

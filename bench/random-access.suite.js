@@ -3,7 +3,7 @@ const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const Denque = require("denque");
 
-const Finger = require("../dist/finger");
+const {nil, append, get} = require("../dist/finger");
 const {Cons} = require("../dist/list");
 
 const n = 10000;
@@ -12,15 +12,17 @@ let indices = [];
 let array = [];
 let denque = new Denque();
 let immut = new Immutable.List();
-let tree = undefined;
+let tree = nil;
 
 for (let i = 0; i < n; ++i) {
-  tree = Finger.append(i, tree);
+  tree = append(i, tree);
   denque.push(i);
   array.push(i);
   indices.push(i);
   immut = immut.push(i);
 }
+
+const result = 49995000;
 
 shuffle(indices);
 
@@ -45,5 +47,12 @@ module.exports = Suite("random access")
       sum += denque.peekAt(i);
     }
     return sum === 9;
+  })
+  .add("Finger", function() {
+    let sum = 0;
+    for (let i = 0; i < n; ++i) {
+      sum += get(i, tree);
+    }
+    return sum === result;
   })
   .run({async: true});
