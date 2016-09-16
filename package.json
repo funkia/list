@@ -10,7 +10,7 @@
     "build": "./node_modules/.bin/tsc",
     "test": "./node_modules/.bin/ts-node -P ./test/tsconfig.json node_modules/.bin/_mocha test/**/*.ts",
     "prebench": "./node_modules/.bin/tsc",
-    "bench": "node benchmark"
+    "bench": "node bench"
   },
   "author": "",
   "license": "MIT",

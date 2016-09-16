@@ -15,6 +15,22 @@ export class Affix<A> {
     case 4: return [this.a, this.b, this.c, this.d];
     }
   }
+  get(idx: number): A {
+    switch (idx) {
+    case 0: return this.a;
+    case 1: return this.b;
+    case 2: return this.c;
+    case 3: return this.d;
+    }
+  }
+  getRev(idx: number): A {
+    switch (this.len - 1 - idx) {
+    case 0: return this.a;
+    case 1: return this.b;
+    case 2: return this.c;
+    case 3: return this.d;
+    }
+  }
 }
 
 function affixPrepend<A>(s: number, a: A, as: Affix<A>): Affix<A> {
@@ -128,12 +144,7 @@ export function size(t: FingerTree<any>): number {
 
 function affixGet<A>(idx: number, a: Affix<any>): A {
   if (a.len === a.size) {
-    switch (idx) {
-    case 0: return a.a;
-    case 1: return a.b;
-    case 2: return a.c;
-    case 3: return a.d;
-    }
+    return a.get(idx);
   } else {
     let size = 0;
     if (idx < a.a.size) {
@@ -154,12 +165,7 @@ function affixGet<A>(idx: number, a: Affix<any>): A {
 
 function affixGetRev<A>(idx: number, a: Affix<any>): A {
   if (a.len === a.size) {
-    switch (a.len - 1 - idx) {
-    case 0: return a.a;
-    case 1: return a.b;
-    case 2: return a.c;
-    case 3: return a.d;
-    }
+    return a.getRev(idx);
   } else {
     let size = 0;
     if (a.len === 4) {
