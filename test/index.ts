@@ -1,5 +1,6 @@
-///<reference path="./../typings/index.d.ts" />
+/// <reference path="./../typings/index.d.ts" />
 import {assert} from "chai";
+import * as util from "util";
 
 import {FingerTree, prepend, append, toArray, size, get, nil} from "../src/finger";
 
@@ -35,6 +36,7 @@ describe("Finger tree", () => {
   });
   it("can index", () => {
     const list = prepend(5, prepend(4, prepend(3, prepend(2, prepend(1, prepend(0, nil))))));
+    // console.log(util.inspect(list, {depth: null}));
     assert.deepEqual(get(0, list), 5);
     assert.deepEqual(get(2, list), 3);
   });
