@@ -170,30 +170,22 @@ function affixGet<A>(depth: number, idx: number, a: Affix<any>): A {
 }
 
 function affixGetRev<A>(depth: number, idx: number, a: Affix<any>): A {
-  if (a.len === a.size) {
-    return a.getRev(idx);
-  } else {
-    let size = 0;
-    if (a.len === 4) {
-      if (idx < a.d.size) {
-        return nodeGet<A>(depth, idx - size, a.d);
-      }
-      size += a.d.size;
-    }
-    if (a.len >= 3) {
-      if (idx < size + a.c.size) {
-        return nodeGet<A>(depth, idx - size, a.c);
-      }
-      size += a.c.size;
-    }
-    if (a.len >= 2) {
-      if (idx < size + a.b.size) {
-        return nodeGet<A>(depth, idx - size, a.b);
-      }
-      size += a.b.size;
-    }
-    return nodeGet<A>(depth, idx - size, a.a);
+  if (depth === 0) { return a.getRev(idx); }
+  let child: NNode<any>;
+  switch (a.len) {
+  case 4:
+    if (idx < a.d.size) { child = a.d; break; }
+    idx -= a.d.size;
+  case 3:
+    if (idx < a.c.size) { child = a.c; break; }
+    idx -= a.c.size;
+  case 2:
+    if (idx < a.b.size) { child = a.b; break; }
+    idx -= a.b.size;
+  default:
+    child = a.a;
   }
+  return nodeGet<A>(depth, idx, child);
 }
 
 function nodeGet<A>(depth: number, idx: number, node: NNode<any>): A {
@@ -231,13 +223,15 @@ export function get<A>(idx: number, t: FingerTree<A>): A {
     }
   case 2:
     const prefSize = t.prefix.size;
+    const suffix = t.suffix;
     const deep = prefSize + t.deeper.size;
+    const depth = t.depth;
     if (idx < prefSize) {
       return affixGet<A>(t.depth, idx, t.prefix);
     } else if (idx < deep) {
       return get<A>(idx - prefSize, <any>t.deeper);
     } else {
-      return affixGetRev<A>(t.depth, idx - deep, t.suffix);
+      return affixGetRev<A>(depth, idx - deep, suffix);
     }
   }
 }
