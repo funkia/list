@@ -104,22 +104,21 @@ export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
 }
 
 export function nrPrepend<A>(depth: number, s: number, a: A, t: FingerTree<A>): FingerTree<A> {
-  const m = t.size + 1;
   switch (t.type) {
   case 0: return single(depth, s, a);
   case 1: return deep(depth, t.size + s, new Affix(s, 1, a), nil, new Affix(t.size, 1, singleA(t)));
-  case 2: return nrPrependDeep<A>(t.prefix, depth, m, t, s, a);
+  case 2: return nrPrependDeep<A>(t.prefix, depth, t, s, a);
   }
 }
 
-function nrPrependDeep<A>(p: Affix<A>, depth: number, m: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
+function nrPrependDeep<A>(p: Affix<A>, depth: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
   if (p.len < 4) {
-    return deep(depth, m, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
+    return deep(depth, t.size + s, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
   } else {
     const num = depth === 0 ? 1 : (<any>p.a).size;
     const node = new NNode(p.size - num, true, p.b, p.c, p.d);
     return deep(
-      depth, m, new Affix(s + num, 2, a, p.a), nrPrepend(depth + 1, node.size, node, t.deeper), t.suffix
+      depth, t.size + s, new Affix(s + num, 2, a, p.a), nrPrepend(depth + 1, node.size, node, t.deeper), t.suffix
     );
   }
 }
@@ -132,17 +131,17 @@ function nrAppend<A>(depth: number, s: number, a: A, t: FingerTree<A>): FingerTr
   switch (t.type) {
   case 0: return single(depth, s, a);
   case 1: return deep(depth, t.size + s, new Affix(t.size, 1, singleA(t)), nil, new Affix(s, 1, a));
-  case 2: return nrAppendDeep<A>(t.suffix, depth, t.size + s, t, s, a);
+  case 2: return nrAppendDeep<A>(t.suffix, depth, t, s, a);
   }
 }
 
-function nrAppendDeep<A>(suf: Affix<A>, depth: number, m: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
+function nrAppendDeep<A>(suf: Affix<A>, depth: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
   if (suf.len < 4) {
-    return deep(depth, m, t.prefix, t.deeper, affixPrepend(s, a, t.suffix));
+    return deep(depth, t.size + s, t.prefix, t.deeper, affixPrepend(s, a, t.suffix));
   }
   const num = depth ? (<any>suf.a).size : 1;
   const node = new NNode(suf.size - num, true, suf.d, suf.c, suf.b);
-  return deep(depth, m, t.prefix, nrAppend(depth + 1, node.size, node, t.deeper), new Affix(num + s, 2, a, suf.a));
+  return deep(depth, t.size + s, t.prefix, nrAppend(depth + 1, node.size, node, t.deeper), new Affix(num + s, 2, a, suf.a));
 }
 
 export function size(t: FingerTree<any>): number {

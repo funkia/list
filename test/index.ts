@@ -52,4 +52,16 @@ describe("Finger tree", () => {
     }
     assert.deepEqual(toArray(list), arr);
   });
+  it("can large index into prepend built tree", () => {
+    const n = 12;
+    let list: FingerTree<number> = nil;
+    for (let i = 0; i < n; ++i) {
+      list = prepend(i, list);
+    }
+    let arr: number[] = [];
+    for (let i = 0; i < n; ++i) {
+      arr.push(get(i, list));
+    }
+    assert.deepEqual(toArray(list), arr);
+  });
 });
