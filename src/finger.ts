@@ -20,15 +20,7 @@ export class Affix<A> {
       case 0: return this.a;
       case 1: return this.b;
       case 2: return this.c;
-      case 3: return this.d;
-    }
-  }
-  getRev(idx: number): A {
-    switch (this.len - 1 - idx) {
-      case 0: return this.a;
-      case 1: return this.b;
-      case 2: return this.c;
-      case 3: return this.d;
+      default: return this.d;
     }
   }
 }
@@ -170,7 +162,7 @@ function affixGet<A>(depth: number, idx: number, a: Affix<any>): A {
 }
 
 function affixGetRev<A>(depth: number, idx: number, a: Affix<any>): A {
-  if (depth === 0) { return a.getRev(idx); }
+  if (depth === 0) { return a.get(a.len - 1 - idx); }
   let child: NNode<any>;
   switch (a.len) {
     case 4:
@@ -221,21 +213,22 @@ export function get<A>(idx: number, tree: FingerTree<A>): A {
     prefSize = tree.prefix.size;
     deep = prefSize + tree.deeper.size;
   }
+  const {depth} = tree;
   switch (tree.type) {
-    case 0: return undefined;
+    case 2:
+      if (idx < prefSize) {
+        return affixGet<A>(depth, idx, tree.prefix);
+      } else {
+        return affixGetRev<A>(depth, idx - deep, tree.suffix);
+      }
     case 1:
-      if (tree.depth !== 0) {
-        return nodeGet<A>(tree.depth, idx, (<any>singleA(tree)));
+      if (depth !== 0) {
+        return nodeGet<A>(depth, idx, (<any>singleA(tree)));
       } else {
         return idx === 0 ? singleA(tree) : undefined;
       }
-    case 2:
-      const {suffix, depth} = tree;
-      if (idx < prefSize) {
-        return affixGet<A>(tree.depth, idx, tree.prefix);
-      } else {
-        return affixGetRev<A>(depth, idx - deep, suffix);
-      }
+    default: // 0
+      return undefined;
   }
 }
 
