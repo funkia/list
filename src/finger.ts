@@ -140,44 +140,47 @@ export function size(t: FingerTree<any>): number {
   return t.size;
 }
 
-function affixGet<A>(depth: number, idx: number, a: Affix<any>): A {
-  if (a.len === a.size) {
-    return a.get(idx);
+function affixGet<A>(depth: number, idx: number, affix: Affix<any>): A {
+  const {len, size, a, b, c, d} = affix;
+  if (len === size) {
+    return affix.get(idx);
   } else {
-    let size = 0;
-    if (idx < a.a.size) {
-      return nodeGet<A>(depth, idx - size, a.a);
+    let delta = 0;
+    if (idx < a.size) {
+      return nodeGet<A>(depth, idx - delta, a);
     }
-    size += a.a.size;
-    if (idx < size + a.b.size) {
-      return nodeGet<A>(depth, idx - size, a.b);
+    delta += a.size;
+    if (idx < delta + b.size) {
+      return nodeGet<A>(depth, idx - delta, b);
     }
-    size += a.b.size;
-    if (idx < size + a.c.size) {
-      return nodeGet<A>(depth, idx - size, a.c);
+    delta += b.size;
+    if (idx < delta + c.size) {
+      return nodeGet<A>(depth, idx - delta, c);
     }
-    size += a.c.size;
-    return nodeGet<A>(depth, idx - size, a.d);
+    delta += c.size;
+    return nodeGet<A>(depth, idx - delta, d);
   }
 }
 
-function affixGetRev<A>(depth: number, idx: number, a: Affix<any>): A {
-  if (depth === 0) { return a.get(a.len - 1 - idx); }
-  let child: NNode<any>;
-  switch (a.len) {
-    case 4:
-      if (idx < a.d.size) { child = a.d; break; }
-      idx -= a.d.size;
-    case 3:
-      if (idx < a.c.size) { child = a.c; break; }
-      idx -= a.c.size;
-    case 2:
-      if (idx < a.b.size) { child = a.b; break; }
-      idx -= a.b.size;
-    default:
-      child = a.a;
+function affixGetRev<A>(depth: number, idx: number, affix: Affix<any>): A {
+  const {len, size, a, b, c, d} = affix;
+  if (len === size) {
+    return affix.get(len - 1 - idx);
+  } else {
+    let delta = size - a.size;
+    if (delta <= idx) {
+      return nodeGet<A>(depth, idx - delta, a);
+    }
+    delta -= b.size;
+    if (delta <= idx) {
+      return nodeGet<A>(depth, idx - delta, b);
+    }
+    delta -= c.size;
+    if (delta <= idx) {
+      return nodeGet<A>(depth, idx - delta, c);
+    }
+    return nodeGet<A>(depth, idx, d);
   }
-  return nodeGet<A>(depth, idx, child);
 }
 
 function nodeGet<A>(depth: number, idx: number, node: NNode<any>): A {
