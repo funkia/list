@@ -9,18 +9,18 @@ export class Affix<A> {
   ) { };
   toArray(): A[] {
     switch (this.len) {
-      case 1: return [this.a];
-      case 2: return [this.a, this.b];
-      case 3: return [this.a, this.b, this.c];
-      case 4: return [this.a, this.b, this.c, this.d];
+    case 1: return [this.a];
+    case 2: return [this.a, this.b];
+    case 3: return [this.a, this.b, this.c];
+    case 4: return [this.a, this.b, this.c, this.d];
     }
   }
   get(idx: number): A {
     switch (idx) {
-      case 0: return this.a;
-      case 1: return this.b;
-      case 2: return this.c;
-      default: return this.d;
+    case 0: return this.a;
+    case 1: return this.b;
+    case 2: return this.c;
+    default: return this.d;
     }
   }
 }
@@ -232,6 +232,72 @@ export function get<A>(idx: number, tree: FingerTree<A>): A {
       }
     default: // 0
       return undefined;
+  }
+}
+
+// Fold
+
+function nodeFoldLeft<A, B>(f: (b: B, a: A) => B, initial: B, node: Affix<any>, depth: number): B {
+  if (depth === 1) {
+    return f(f(f(initial, node.a), node.b), node.c);
+  } else {
+    const foldedA = nodeFoldLeft(f, initial, node.a, depth - 1);
+    const foldedB = nodeFoldLeft(f, foldedA, node.b, depth - 1);
+    const foldedC = nodeFoldLeft(f, foldedB, node.c, depth - 1);
+    return foldedC;
+  }
+}
+
+function affixFoldl<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>, depth: number): B {
+  if (depth === 0) {
+    switch (affix.len) {
+    case 1: return f(initial, affix.a);
+    case 2: return f(f(initial, affix.a), affix.b);
+    case 3: return f(f(f(initial, affix.a), affix.b), affix.c);
+    default: return f(f(f(f(initial, affix.a), affix.b), affix.c), affix.d);
+    }
+  } else {
+    switch (affix.len) {
+    case 1: return nodeFoldLeft(f, initial, affix.a, depth);
+    case 2: return nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.a, depth), affix.b, depth);
+    case 3: return nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.a, depth), affix.b, depth), affix.c, depth);
+    default: return nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.a, depth), affix.b, depth), affix.c, depth), affix.d, depth);
+    }
+  }
+}
+
+function affixFoldlRev<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>, depth: number): B {
+  if (depth === 0) {
+    switch (affix.len) {
+    case 1: return f(initial, affix.a);
+    case 2: return f(f(initial, affix.b), affix.a);
+    case 3: return f(f(f(initial, affix.c), affix.b), affix.a);
+    default: return f(f(f(f(initial, affix.d), affix.c), affix.b), affix.a);
+    }
+  } else {
+    switch (affix.len) {
+    case 1: return nodeFoldLeft(f, initial, affix.a, depth);
+    case 2: return nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.b, depth), affix.a, depth);
+    case 3: return nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.c, depth), affix.b, depth), affix.a, depth);
+    default: return nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.d, depth), affix.c, depth), affix.b, depth), affix.a, depth);
+    }
+  }
+}
+
+export function foldl<A, B>(f: (b: B, a: A) => B, initial: B, list: FingerTree<A>): B {
+  const {size, prefix, deeper, suffix, depth, type} = list;
+  if (size === 0) {
+    return initial;
+  } else if (type === 1) {
+    if (depth > 0) {
+      return nodeFoldLeft(f, initial, <any>prefix, depth);
+    } else {
+      return f(initial, <any>prefix);
+    }
+  } else {
+    const foldedSuffix = suffix === undefined ? initial : affixFoldlRev(f, initial, suffix, depth);
+    const foldedMiddle = deeper === undefined ? foldedSuffix : foldl<A, B>(f, foldedSuffix, <any>deeper);
+    return prefix === undefined ? foldedMiddle : affixFoldl(f, foldedMiddle, prefix, depth);
   }
 }
 

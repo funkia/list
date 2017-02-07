@@ -2,7 +2,11 @@
 import {assert} from "chai";
 import * as util from "util";
 
-import {FingerTree, prepend, append, toArray, size, get, nil} from "../src/finger";
+import {FingerTree, prepend, append, toArray, size, get, nil, foldl} from "../src/finger";
+
+function subtract(n: number, m: number): number {
+  return n - m;
+}
 
 describe("Finger tree", () => {
   it("appends two elements", () => {
@@ -36,7 +40,6 @@ describe("Finger tree", () => {
   });
   it("can index", () => {
     const list = prepend(5, prepend(4, prepend(3, prepend(2, prepend(1, prepend(0, nil))))));
-    // console.log(util.inspect(list, {depth: null}));
     assert.deepEqual(get(0, list), 5);
     assert.deepEqual(get(2, list), 3);
   });
@@ -53,7 +56,7 @@ describe("Finger tree", () => {
     assert.deepEqual(toArray(list), arr);
   });
   it("can large index into prepend built tree", () => {
-    const n = 12;
+    const n = 10000;
     let list: FingerTree<number> = nil;
     for (let i = 0; i < n; ++i) {
       list = prepend(i, list);
@@ -62,6 +65,38 @@ describe("Finger tree", () => {
     for (let i = 0; i < n; ++i) {
       arr.push(get(i, list));
     }
-    assert.deepEqual(toArray(list), arr);
+    assert.deepEqual(arr, toArray(list));
+  });
+  describe("folding", () => {
+    describe("foldl", () => {
+      it("fold left over tree with no subtree", () => {
+        const list = append(5, append(4, prepend(0, prepend(1, prepend(2, prepend(3, nil))))));
+        assert.strictEqual(
+          foldl(subtract, 10, list),
+          [0, 1, 2, 3, 4, 5].reduce(subtract, 10)
+        );
+      });
+      it("folds left", () => {
+        const list = prepend(5, prepend(4, prepend(3, prepend(2, prepend(1, prepend(0, nil))))));
+        assert.strictEqual(
+          foldl(subtract, 10, list),
+          [5, 4, 3, 2, 1, 0].reduce(subtract, 10)
+        );
+      });
+      it("can fold left over large tree", () => {
+        const n = 10000;
+        let list: FingerTree<number> = nil;
+        let array: number[] = [];
+        for (let i = 0; i < n; ++i) {
+          list = prepend(i, list);
+          array.push(i);
+        }
+        array.reverse();
+        assert.strictEqual(
+          foldl(subtract, 10, list),
+          array.reduce(subtract, 10)
+        );
+      });
+    });
   });
 });
