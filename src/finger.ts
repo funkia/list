@@ -9,6 +9,7 @@ export class Affix<A> {
   ) { };
   toArray(): A[] {
     switch (this.len) {
+    case 0: return [];
     case 1: return [this.a];
     case 2: return [this.a, this.b];
     case 3: return [this.a, this.b, this.c];
@@ -24,6 +25,8 @@ export class Affix<A> {
     }
   }
 }
+
+const emptyAffix: Affix<any> = new Affix(0, 0, undefined);
 
 function affixPrepend<A>(size: number, a: A, as: Affix<A>): Affix<A> {
   return new Affix(as.size + size, as.len + 1, a, as.a, as.b, as.c);
@@ -63,7 +66,6 @@ export class NNode<A> {
 
 export class FingerTree<A> {
   constructor(
-    public type: number, // 0: nil, 1: single, 2: deep
     public depth: number,
     public size: number,
     public prefix: Affix<A>,
@@ -73,22 +75,14 @@ export class FingerTree<A> {
 }
 
 export const nil = new FingerTree<any>(
-  0, 0, 0, undefined, undefined, undefined
+  0, 0, undefined, undefined, undefined
 );
-
-function single<A>(depth: number, size: number, a: A): FingerTree<A> {
-  return new FingerTree<A>(1, depth, size, <any>a, nil, undefined);
-}
 
 function deep<A>(
   depth: number, size: number, prefix: Affix<A>,
   deeper: FingerTree<NNode<A>>, suffix: Affix<A>
 ): FingerTree<A> {
-  return new FingerTree(2, depth, size, prefix, deeper, suffix);
-}
-
-function singleA<A>(t: FingerTree<A>): A {
-  return (<any>t).prefix;
+  return new FingerTree(depth, size, prefix, deeper, suffix);
 }
 
 export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
@@ -96,16 +90,18 @@ export function prepend<A>(a: A, t: FingerTree<A>): FingerTree<A> {
 }
 
 export function nrPrepend<A>(depth: number, size: number, a: A, t: FingerTree<A>): FingerTree<A> {
-  switch (t.type) {
-    case 0: return single(depth, size, a);
-    case 1: return deep(depth, t.size + size, new Affix(size, 1, a), nil, new Affix(t.size, 1, singleA(t)));
-    case 2: return nrPrependDeep<A>(t.prefix, depth, t, size, a);
+  if (t.size === 0) {
+    return deep(depth, size, new Affix(size, 1, a), nil, emptyAffix);
+  } else {
+   return nrPrependDeep<A>(t.prefix, depth, t, size, a);
   }
 }
 
 function nrPrependDeep<A>(p: Affix<A>, depth: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
   if (p.len < 4) {
     return deep(depth, t.size + s, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
+  } else if (t.suffix === emptyAffix) {
+    return deep(depth, t.size + s, new Affix(s, 1, a), t.deeper, new Affix(p.size, 4, p.d, p.c, p.b, p.a));
   } else {
     const num = depth === 0 ? 1 : (<any>p.a).size;
     const node = new NNode(p.size - num, true, p.b, p.c, p.d);
@@ -119,21 +115,24 @@ export function append<A>(a: A, t: FingerTree<A>): FingerTree<A> {
   return nrAppend(0, 1, a, t);
 }
 
-function nrAppend<A>(depth: number, s: number, a: A, t: FingerTree<A>): FingerTree<A> {
-  switch (t.type) {
-    case 0: return single(depth, s, a);
-    case 1: return deep(depth, t.size + s, new Affix(t.size, 1, singleA(t)), nil, new Affix(s, 1, a));
-    case 2: return nrAppendDeep<A>(t.suffix, depth, t, s, a);
+function nrAppend<A>(depth: number, size: number, a: A, t: FingerTree<A>): FingerTree<A> {
+  if (t.size === 0) {
+    return deep(depth, size, emptyAffix, nil, new Affix(size, 1, a));
+  } else {
+    return nrAppendDeep<A>(t.suffix, depth, t, size, a);
   }
 }
 
 function nrAppendDeep<A>(suf: Affix<A>, depth: number, t: FingerTree<A>, s: number, a: A): FingerTree<A> {
   if (suf.len < 4) {
     return deep(depth, t.size + s, t.prefix, t.deeper, affixPrepend(s, a, t.suffix));
+  } else if (t.prefix === emptyAffix) {
+    return deep(depth, t.size + s, new Affix(suf.size, 4, suf.d, suf.c, suf.b, suf.a), t.deeper, new Affix(s, 1, a));
+  } else {
+    const num = depth ? (<any>suf.a).size : 1;
+    const node = new NNode(suf.size - num, true, suf.d, suf.c, suf.b);
+    return deep(depth, t.size + s, t.prefix, nrAppend(depth + 1, node.size, node, t.deeper), new Affix(num + s, 2, a, suf.a));
   }
-  const num = depth ? (<any>suf.a).size : 1;
-  const node = new NNode(suf.size - num, true, suf.d, suf.c, suf.b);
-  return deep(depth, t.size + s, t.prefix, nrAppend(depth + 1, node.size, node, t.deeper), new Affix(num + s, 2, a, suf.a));
 }
 
 export function size(t: FingerTree<any>): number {
@@ -144,43 +143,38 @@ function affixGet<A>(depth: number, idx: number, affix: Affix<any>): A {
   const {len, size, a, b, c, d} = affix;
   if (len === size) {
     return affix.get(idx);
-  } else {
-    let delta = 0;
-    if (idx < a.size) {
-      return nodeGet<A>(depth, idx - delta, a);
-    }
-    delta += a.size;
-    if (idx < delta + b.size) {
-      return nodeGet<A>(depth, idx - delta, b);
-    }
-    delta += b.size;
-    if (idx < delta + c.size) {
-      return nodeGet<A>(depth, idx - delta, c);
-    }
-    delta += c.size;
-    return nodeGet<A>(depth, idx - delta, d);
   }
+  let elm: any = a;
+  let delta = a.size;
+  while (idx >= delta) {
+    delta += b.size;
+    if (idx < delta) { elm = b; break; }
+    delta += c.size;
+    if (idx < delta) { elm = c; break; }
+    delta += d.size;
+    elm = d;
+    break;
+  }
+  return nodeGet<A>(depth, idx - delta + elm.size, elm);
 }
 
 function affixGetRev<A>(depth: number, idx: number, affix: Affix<any>): A {
   const {len, size, a, b, c, d} = affix;
   if (len === size) {
     return affix.get(len - 1 - idx);
-  } else {
-    let delta = size - a.size;
-    if (delta <= idx) {
-      return nodeGet<A>(depth, idx - delta, a);
-    }
-    delta -= b.size;
-    if (delta <= idx) {
-      return nodeGet<A>(depth, idx - delta, b);
-    }
-    delta -= c.size;
-    if (delta <= idx) {
-      return nodeGet<A>(depth, idx - delta, c);
-    }
-    return nodeGet<A>(depth, idx, d);
   }
+  let elm: any = a;
+  let delta = size - a.size;
+  while (idx < delta) {
+    delta -= b.size;
+    if (delta <= idx) { elm = b; break; }
+    delta -= c.size;
+    if (delta <= idx) { elm = c; break; }
+    delta -= d.size;
+    elm = d;
+    break;
+  }
+  return nodeGet<A>(depth, idx - delta, elm);
 }
 
 function nodeGet<A>(depth: number, idx: number, node: NNode<any>): A {
@@ -208,30 +202,24 @@ function nodeGet<A>(depth: number, idx: number, node: NNode<any>): A {
 }
 
 export function get<A>(idx: number, tree: FingerTree<A>): A {
+  let {size, prefix} = tree;
+  if (size === 0) {
+    return undefined;
+  }
   let prefSize = tree.prefix.size;
-  let deep = prefSize + tree.deeper.size;
-  while (tree.type === 2 && prefSize <= idx && idx < deep) {
+  let deepSize = prefSize + tree.deeper.size;
+  while (prefSize <= idx && idx < deepSize) {
     idx = idx - prefSize;
     tree = <any>tree.deeper;
-    prefSize = tree.prefix.size;
-    deep = prefSize + tree.deeper.size;
+    prefix = tree.prefix;
+    prefSize = prefix.size;
+    deepSize = prefSize + tree.deeper.size;
   }
   const {depth} = tree;
-  switch (tree.type) {
-    case 2:
-      if (idx < prefSize) {
-        return affixGet<A>(depth, idx, tree.prefix);
-      } else {
-        return affixGetRev<A>(depth, idx - deep, tree.suffix);
-      }
-    case 1:
-      if (depth !== 0) {
-        return nodeGet<A>(depth, idx, (<any>singleA(tree)));
-      } else {
-        return idx === 0 ? singleA(tree) : undefined;
-      }
-    default: // 0
-      return undefined;
+  if (idx < prefSize) {
+    return affixGet<A>(depth, idx, prefix);
+  } else {
+    return affixGetRev<A>(depth, idx - deepSize, tree.suffix);
   }
 }
 
@@ -251,6 +239,7 @@ function nodeFoldLeft<A, B>(f: (b: B, a: A) => B, initial: B, node: Affix<any>, 
 function affixFoldl<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>, depth: number): B {
   if (depth === 0) {
     switch (affix.len) {
+    case 0: return initial;
     case 1: return f(initial, affix.a);
     case 2: return f(f(initial, affix.a), affix.b);
     case 3: return f(f(f(initial, affix.a), affix.b), affix.c);
@@ -258,6 +247,7 @@ function affixFoldl<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>, d
     }
   } else {
     switch (affix.len) {
+    case 0: return initial;
     case 1: return nodeFoldLeft(f, initial, affix.a, depth);
     case 2: return nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.a, depth), affix.b, depth);
     case 3: return nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.a, depth), affix.b, depth), affix.c, depth);
@@ -269,6 +259,7 @@ function affixFoldl<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>, d
 function affixFoldlRev<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>, depth: number): B {
   if (depth === 0) {
     switch (affix.len) {
+    case 0: return initial;
     case 1: return f(initial, affix.a);
     case 2: return f(f(initial, affix.b), affix.a);
     case 3: return f(f(f(initial, affix.c), affix.b), affix.a);
@@ -276,6 +267,7 @@ function affixFoldlRev<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>
     }
   } else {
     switch (affix.len) {
+    case 0: return initial;
     case 1: return nodeFoldLeft(f, initial, affix.a, depth);
     case 2: return nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.b, depth), affix.a, depth);
     case 3: return nodeFoldLeft(f, nodeFoldLeft(f, nodeFoldLeft(f, initial, affix.c, depth), affix.b, depth), affix.a, depth);
@@ -285,15 +277,9 @@ function affixFoldlRev<A, B>(f: (b: B, a: A) => B, initial: B, affix: Affix<any>
 }
 
 export function foldl<A, B>(f: (b: B, a: A) => B, initial: B, list: FingerTree<A>): B {
-  const {size, prefix, deeper, suffix, depth, type} = list;
+  const {size, prefix, deeper, suffix, depth} = list;
   if (size === 0) {
     return initial;
-  } else if (type === 1) {
-    if (depth > 0) {
-      return nodeFoldLeft(f, initial, <any>prefix, depth);
-    } else {
-      return f(initial, <any>prefix);
-    }
   } else {
     const foldedSuffix = suffix === undefined ? initial : affixFoldlRev(f, initial, suffix, depth);
     const foldedMiddle = deeper === undefined ? foldedSuffix : foldl<A, B>(f, foldedSuffix, <any>deeper);
@@ -302,9 +288,9 @@ export function foldl<A, B>(f: (b: B, a: A) => B, initial: B, list: FingerTree<A
 }
 
 export function toArray<A>(t: FingerTree<A>): A[] {
-  switch (t.type) {
-    case 0: return [];
-    case 1: return [singleA(t)];
-    case 2: return t.prefix.toArray().concat(flatten(toArray(t.deeper))).concat(t.suffix.toArray().reverse());
+  if (t.size === 0) {
+    return [];
+  } else {
+    return t.prefix.toArray().concat(flatten(toArray(t.deeper))).concat(t.suffix.toArray().reverse());
   }
 }
