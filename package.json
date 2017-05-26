@@ -7,18 +7,36 @@
     "test": "test"
   },
   "scripts": {
-    "build": "./node_modules/.bin/tsc",
-    "test": "./node_modules/.bin/ts-node -P ./test/tsconfig.json node_modules/.bin/_mocha test/**/*.ts",
-    "prebench": "./node_modules/.bin/tsc",
+    "build": "tsc -P tsconfig-build.json",
+    "test": "nyc mocha --recursive test/**/*.ts",
+    "test-watch": "mocha -R progress --watch --compilers ts:ts-node/register test/**/*.ts",
+    "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench"
   },
-  "author": "",
+  "author": "Simon Friis Vindum",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^3.0.2",
+    "@types/chai": "^3.5.2",
+    "@types/mocha": "^2.2.41",
     "chai": "^3.5.0",
-    "ts-node": "^1.3.0",
-    "typescript": "^2.0.0",
-    "typings": "^1.0.4"
+    "mocha": "^3.4.2",
+    "ts-node": "^1.7.3",
+    "typescript": "^2.3.3",
+    "codecov": "^2.1.0",
+    "nyc": "^10.3.2"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register",
+      "source-map-support/register"
+    ],
+    "reporter": [
+      "json",
+      "html",
+      "text"
+    ]
   }
 }
