@@ -153,49 +153,62 @@ export function size(t: FingerTree<any>): number {
 // Concat
 
 const buffer = new Array(12);
+const digitBuffer = new Array(4);
+let digitSize = 0;
+let digitLen = 0;
 
-function nodes(suffix: Affix<any>, digit: Affix<NNode<any>>, prefix: Affix<any>): Affix<NNode<any>> {
-  const deep = digit !== emptyAffix;
-  let left = 0;
+function nodes(deep: boolean, suffix: Affix<any>, prefix: Affix<any>): void {
+  let left = suffix.len;
   affixIntoArrayRev(suffix, 0, buffer);
-  left += suffix.len;
-  affixIntoArray(digit, left, buffer);
-  left += digit.len;
+  buffer[left] = digitBuffer[0];
+  buffer[left + 1] = digitBuffer[1];
+  buffer[left + 2] = digitBuffer[2];
+  buffer[left + 3] = digitBuffer[3];
+  left += digitLen;
   affixIntoArray(prefix, left, buffer);
   left += prefix.len;
-  let result = emptyAffix;
-  while (left > 4) {
-    const size = deep === true ? buffer[left - 3].size + buffer[left - 2].size + buffer[left - 1].size : 3;
-    result = affixPrepend(size, new NNode(size, true, buffer[left - 3], buffer[left - 2], buffer[left - 1]), result);
+  let idx = 0;
+  digitLen = 0;
+  digitSize = 0;
+  while (left > 4 || left === 3) {
+    const size = deep === true ? buffer[idx].size + buffer[idx + 1].size + buffer[idx + 2].size : 3;
+    digitBuffer[digitLen++] = new NNode(size, true, buffer[idx], buffer[idx + 1], buffer[idx + 2]);
     left -= 3;
+    idx += 3;
+    digitSize += size;
   }
-  if (left === 2) {
-    const size = deep === true ? buffer[0].size + buffer[1].size : 2;
-    return affixPrepend(size, new NNode(size, false, buffer[0], buffer[1]), result);
-  } else if (left === 3) {
-    const size = deep === true ? buffer[0].size + buffer[1].size + buffer[2].size : 3;
-    return affixPrepend(size, new NNode(size, true, buffer[0], buffer[1], buffer[2]), result);
-  } else {
-    const size1 = deep === true ? buffer[0].size + buffer[1].size : 2;
-    const size2 = deep === true ? buffer[2].size + buffer[3].size : 2;
-    return affixPrepend(size1, new NNode(size1, false, buffer[0], buffer[1]), affixPrepend(size2, new NNode(size2, false, buffer[2], buffer[3]), result));
+  while (left !== 0) {
+    const size = deep === true ? buffer[idx].size + buffer[idx + 1].size : 2;
+    digitBuffer[digitLen++] = new NNode(size, false, buffer[idx], buffer[idx + 1]);
+    digitSize += size;
+    idx += 2;
+    left -= 2;
   }
 }
 
-function doConcat<A>(depth: number, t1: FingerTree<A>, digit: Affix<any>, t2: FingerTree<A>): FingerTree<A> {
+function doConcat<A>(depth: number, t1: FingerTree<A>, t2: FingerTree<A>): FingerTree<A> {
   if (t1 === nil) {
-    return affixFoldr<any, FingerTree<any>>((a, t) => nrPrepend(depth, a.size, a, t), t2, digit);
+    for (let i = digitLen - 1; i >= 0; --i) {
+      t2 = nrPrepend(depth, digitBuffer[i].size, digitBuffer[i], t2);
+    }
+    return t2;
   } else if (t2 === nil) {
-    return affixFoldl<any, FingerTree<any>>((t, a) => nrAppend(depth, a.size, a, t), t1, digit, 0);
+    for (let i = 0; i < digitLen; ++i) {
+      t1 = nrAppend(depth, digitBuffer[i].size, digitBuffer[i], t1);
+    }
+    return t1;
   } else {
+    const curDigitSize = digitSize;
+    nodes(depth !== 0, t1.suffix, t2.prefix);
     return deep(
-      depth, t1.size + t2.size + digit.size, t1.prefix, doConcat(depth + 1, t1.deeper, nodes(t1.suffix, digit, t2.prefix), t2.deeper), t2.suffix
+      depth, t1.size + t2.size + curDigitSize, t1.prefix, doConcat(depth + 1, t1.deeper, t2.deeper), t2.suffix
     );
   }
 }
 
 export function concat<A>(list1: FingerTree<A>, list2: FingerTree<A>): FingerTree<A> {
-  return doConcat(0, list1, emptyAffix, list2);
+  digitLen = digitSize = 0;
+  return doConcat(0, list1, list2);
 }
 
 // Get
