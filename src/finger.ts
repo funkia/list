@@ -157,13 +157,17 @@ const digitBuffer = new Array(4);
 let digitSize = 0;
 let digitLen = 0;
 
+function copy(b: any[], d: any[], left: number): void {
+  b[left] = d[0];
+  b[left + 1] = d[1];
+  b[left + 2] = d[2];
+  b[left + 3] = d[3];
+}
+
 function nodes(deep: boolean, suffix: Affix<any>, prefix: Affix<any>): void {
   let left = suffix.len;
   affixIntoArrayRev(suffix, 0, buffer);
-  buffer[left] = digitBuffer[0];
-  buffer[left + 1] = digitBuffer[1];
-  buffer[left + 2] = digitBuffer[2];
-  buffer[left + 3] = digitBuffer[3];
+  copy(buffer, digitBuffer, left);
   left += digitLen;
   affixIntoArray(prefix, left, buffer);
   left += prefix.len;
@@ -186,29 +190,39 @@ function nodes(deep: boolean, suffix: Affix<any>, prefix: Affix<any>): void {
   }
 }
 
-function doConcat<A>(depth: number, t1: FingerTree<A>, t2: FingerTree<A>): FingerTree<A> {
+export function concat<A>(t1: FingerTree<A>, t2: FingerTree<A>): FingerTree<A> {
+  if (t1 === nil) { return t2; }
+  if (t2 === nil) { return t1; }
+  digitSize = digitLen = 0;
+
+  let topTree = deep(0, t1.size + t2.size, t1.prefix, nil, t2.suffix);
+  nodes(false, t1.suffix, t2.prefix);
+  t1 = <any>t1.deeper;
+  t2 = <any>t2.deeper;
+  let curTree = topTree;
+  let depth = 1;
+
+  while (t1 !== nil && t2 !== nil) {
+    let newTree = deep(depth, t1.size + t2.size + digitSize, t1.prefix, nil, t2.suffix);
+    nodes(true, t1.suffix, t2.prefix);
+    t1 = <any>t1.deeper;
+    t2 = <any>t2.deeper;
+    curTree.deeper = <any>newTree;
+    curTree = newTree;
+    depth++;
+  }
   if (t1 === nil) {
     for (let i = digitLen - 1; i >= 0; --i) {
       t2 = nrPrepend(depth, digitBuffer[i].size, digitBuffer[i], t2);
     }
-    return t2;
-  } else if (t2 === nil) {
+    curTree.deeper = <any>t2;
+  } else {
     for (let i = 0; i < digitLen; ++i) {
       t1 = nrAppend(depth, digitBuffer[i].size, digitBuffer[i], t1);
     }
-    return t1;
-  } else {
-    const curDigitSize = digitSize;
-    nodes(depth !== 0, t1.suffix, t2.prefix);
-    return deep(
-      depth, t1.size + t2.size + curDigitSize, t1.prefix, doConcat(depth + 1, t1.deeper, t2.deeper), t2.suffix
-    );
+    curTree.deeper = <any>t1;
   }
-}
-
-export function concat<A>(list1: FingerTree<A>, list2: FingerTree<A>): FingerTree<A> {
-  digitLen = digitSize = 0;
-  return doConcat(0, list1, list2);
+  return topTree;
 }
 
 // Get
