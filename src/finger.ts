@@ -1,3 +1,5 @@
+import { assert } from "chai";
+
 // An affix is a list that can only have length 0 to 4. It is a
 // structure used internally in the finger tree.
 export class Affix<A> {
@@ -25,6 +27,26 @@ export class Affix<A> {
       case 2: return this.c;
       default: return this.d;
     }
+  }
+}
+
+function affixIntoArray<A>(affix: Affix<A>, offset: number, arr: A[]): void {
+  switch (affix.len) {
+    case 0: return;
+    case 1: arr[offset] = affix.a; return;
+    case 2: arr[offset] = affix.a, arr[offset + 1] = affix.b; return;
+    case 3: arr[offset] = affix.a, arr[offset + 1] = affix.b, arr[offset + 2] = affix.c; return;
+    default: arr[offset] = affix.a, arr[offset + 1] = affix.b, arr[offset + 2] = affix.c, arr[offset + 3] = affix.d; return;
+  }
+}
+
+function affixIntoArrayRev<A>(affix: Affix<A>, offset: number, arr: A[]): void {
+  switch (affix.len) {
+    case 0: return;
+    case 1: arr[offset] = affix.a; return;
+    case 2: arr[offset] = affix.b, arr[offset + 1] = affix.a; return;
+    case 3: arr[offset] = affix.c, arr[offset + 1] = affix.b, arr[offset + 2] = affix.a; return;
+    default: arr[offset] = affix.d, arr[offset + 1] = affix.c, arr[offset + 2] = affix.b, arr[offset + 3] = affix.a; return;
   }
 }
 
@@ -130,27 +152,33 @@ export function size(t: FingerTree<any>): number {
 
 // Concat
 
+const buffer = new Array(12);
+
 function nodes(suffix: Affix<any>, digit: Affix<NNode<any>>, prefix: Affix<any>): Affix<NNode<any>> {
   const deep = digit !== emptyAffix;
-  const array = suffix.toArray().reverse().concat(digit.toArray(), prefix.toArray());
-  let a; let b; let c; let d;
+  let left = 0;
+  affixIntoArrayRev(suffix, 0, buffer);
+  left += suffix.len;
+  affixIntoArray(digit, left, buffer);
+  left += digit.len;
+  affixIntoArray(prefix, left, buffer);
+  left += prefix.len;
   let result = emptyAffix;
-  let left = array.length; let nrOfNodes = 0;
   while (left > 4) {
-    const size = deep === true ? array[left - 3].size + array[left - 2].size + array[left - 1].size : 3;
-    result = affixPrepend(size, new NNode(size, true, array[left - 3], array[left - 2], array[left - 1]), result);
+    const size = deep === true ? buffer[left - 3].size + buffer[left - 2].size + buffer[left - 1].size : 3;
+    result = affixPrepend(size, new NNode(size, true, buffer[left - 3], buffer[left - 2], buffer[left - 1]), result);
     left -= 3;
   }
   if (left === 2) {
-    const size = deep === true ? array[0].size + array[1].size : 2;
-    return affixPrepend(size, new NNode(size, false, array[0], array[1]), result);
+    const size = deep === true ? buffer[0].size + buffer[1].size : 2;
+    return affixPrepend(size, new NNode(size, false, buffer[0], buffer[1]), result);
   } else if (left === 3) {
-    const size = deep === true ? array[0].size + array[1].size + array[2].size : 3;
-    return affixPrepend(size, new NNode(size, true, array[0], array[1], array[2]), result);
+    const size = deep === true ? buffer[0].size + buffer[1].size + buffer[2].size : 3;
+    return affixPrepend(size, new NNode(size, true, buffer[0], buffer[1], buffer[2]), result);
   } else {
-    const size1 = deep === true ? array[0].size + array[1].size : 2;
-    const size2 = deep === true ? array[2].size + array[3].size : 2;
-    return affixPrepend(size1, new NNode(size1, false, array[0], array[1]), affixPrepend(size2, new NNode(size2, false, array[2], array[3]), result));
+    const size1 = deep === true ? buffer[0].size + buffer[1].size : 2;
+    const size2 = deep === true ? buffer[2].size + buffer[3].size : 2;
+    return affixPrepend(size1, new NNode(size1, false, buffer[0], buffer[1]), affixPrepend(size2, new NNode(size2, false, buffer[2], buffer[3]), result));
   }
 }
 

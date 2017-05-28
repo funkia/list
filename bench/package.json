@@ -1,16 +1,17 @@
 {
-  "name": "bench",
+  "name": "benchmark",
+  "private": true,
   "version": "0.0.1",
   "description": "Benchmarks.",
-  "main": ".#apppend.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "benchmark": "^2.1.1",
-    "denque": "^1.0.3",
+    "benchmark": "^2.1.4",
+    "denque": "^1.1.1",
     "immutable": "^3.8.1",
     "knuth-shuffle": "^1.0.1"
   }
