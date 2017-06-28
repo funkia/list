@@ -5,3 +5,4 @@ bench/finger-old
 dist
 typings
 *~
+coverage
