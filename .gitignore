@@ -5,4 +5,5 @@ bench/finger-old
 dist
 typings
 *~
+.nyc_output
 coverage

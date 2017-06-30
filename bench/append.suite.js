@@ -1,6 +1,7 @@
 const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const Denque = require("denque");
+const mori = require("mori");
 
 const Finger = require("../dist/finger");
 const Oinger = require("./finger-old/dist/finger");
@@ -42,6 +43,13 @@ module.exports = Suite("append")
       denque.push(i);
     }
     return denque.length === n;
+  })
+  .add("mori", function () {
+    let list = mori.vector();
+    for (let i = 0; i < n; ++i) {
+      list = mori.conj(list, i);
+    }
+    return mori.count(list);
   })
   .add("Cons", function() {
     let cons = undefined;
