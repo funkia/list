@@ -1,5 +1,3 @@
-import { assert } from "chai";
-
 // An affix is a list that can only have length 0 to 4. It is a
 // structure used internally in the finger tree.
 export class Affix<A> {

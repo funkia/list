@@ -6,12 +6,15 @@ const mori = require("mori");
 const Finger = require("../dist/finger");
 const Oinger = require("./finger-old/dist/finger");
 const {Cons} = require("../dist/list");
+const Radix = require("../dist/radix");
 
 const n = 10000;
 
 let tree = Finger.nil;
+let radix = Radix.empty();
 for (let i = 0; i < n; ++i) {
   tree = Finger.append(i, tree);
+  radix = radix.append(i);
 }
 console.log(tree.suffix.c);
 
@@ -57,6 +60,13 @@ module.exports = Suite("append")
       cons = new Cons(i, cons);
     }
     return cons.value === n - 1;
+  })
+  .add("Radix", function () {
+    let radix = Radix.empty();
+    for (let i = 0; i < n; ++i) {
+      radix = radix.append(i);
+    }
+    return radix.size === n;
   })
   .add("Finger", function() {
     let tree = Finger.nil;
