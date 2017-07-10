@@ -1,12 +1,13 @@
 import { Cons } from "./list";
 
+const blockSize = 32;
 const mask = 31;
 
 function createPath(depth: number, value: any) {
-  const top = new Block(1, []);
+  const top = new Block([]);
   let current = top;
   for (let i = 0; i < depth; ++i) {
-    let temp = new Block(1, []);
+    let temp = new Block([]);
     current.array[0] = temp;
     current = temp;
   }
@@ -14,7 +15,7 @@ function createPath(depth: number, value: any) {
   return top;
 }
 
-function copyArray(source: any[]) {
+function copyArray(source: any[]): any[] {
   const array = [];
   for (let i = 0; i < source.length; ++i) {
     array[i] = source[i];
@@ -24,6 +25,7 @@ function copyArray(source: any[]) {
 
 class Block {
   private owner: boolean;
+  public sizes: number[];
   constructor(public array: any[]) {
     this.owner = true;
   }
@@ -76,16 +78,24 @@ class Block {
   }
 }
 
+function arrayFirst<A>(array: A[]): A {
+  return array[0];
+}
+
+function arrayLast<A>(array: A[]): A {
+  return array[array.length];
+}
+
 export class Radix<A> {
-  private constructor(
-    private depth: number,
-    private size: number,
-    private block: Block,
+  constructor(
+    public depth: number,
+    public size: number,
+    public block: Block,
     private suffix: Cons<A> | undefined,
     private suffixSize: number
   ) { }
   space(): number {
-    return (32 ** (this.depth + 1)) - (this.size - this.suffixSize);
+    return (blockSize ** (this.depth + 1)) - (this.size - this.suffixSize);
   }
   append(value: A): Radix<A> {
     if (this.suffixSize < 31) {
@@ -133,4 +143,70 @@ export class Radix<A> {
 
 export function empty(): Radix<any> {
   return Radix.empty();
+}
+
+const eMax = 2;
+
+function createConcatPlan(array: Block[]): number[] {
+  const sizes = [];
+  let sum = 0;
+  for (let i = 0; i < array.length; ++i) {
+    sum += array[i].array.length;
+    sizes[i] = array[i].array.length;
+  }
+  const optimalLength = Math.ceil(sum / blockSize);
+  let n = array.length;
+  let i = 0;
+  while (optimalLength + eMax < n) {
+    while (sizes[i] <= blockSize - (eMax / 2)) {
+      // Skip blocks that are already sufficiently balanced
+      ++i;
+    }
+    let r = sizes[i];
+    while (r > 0) {
+      const minSize = Math.min(r + sizes[i + 1], blockSize);
+      sizes[i] = minSize;
+      r = r + sizes[i + 1] - minSize;
+      ++i; // Maybe change to for-loop
+    }
+    for (let j = i; j <= n - 1; ++j) {
+      sizes[i] = sizes[i + 1];
+    }
+    --i;
+    --n;
+  }
+  sizes.length = n;
+  return sizes;
+}
+
+function rebalance<A>(
+  left: Radix<A>, center: Radix<A>, right: Radix<A>, top: boolean
+): Radix<A> {
+  return left;
+}
+
+function concatSubTrie<A>(left: Radix<A>, right: Radix<A>, top: boolean): Radix<A> {
+  if (left.depth > right.depth) {
+    const c = concatSubTrie(arrayLast(left.block.array), right, false);
+    return rebalance(left, c, undefined, false);
+  } else if (left.depth < right.depth) {
+    const c = concatSubTrie(left, arrayFirst(right.block.array), false);
+    return rebalance(undefined, c, right, false);
+  } else if (left.depth === 0) {
+    const array = [];
+    if (top && left.size + right.size <= blockSize) {
+      return new Radix(left.block.array.concat(right.block.array));
+    }
+  } else {
+    const c = concatSubTrie<A>(
+      arrayLast(left.block.array),
+      arrayFirst(right.block.array),
+      false
+    );
+    return rebalance(left, c, right, false);
+  }
+}
+
+export function concat<A>(left: Radix<A>, right: Radix<A>): Radix<A> {
+
 }

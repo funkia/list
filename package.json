@@ -19,11 +19,11 @@
     "@types/chai": "4.0.1",
     "@types/mocha": "2.2.41",
     "chai": "4.0.2",
-    "mocha": "3.4.2",
-    "ts-node": "3.1.0",
-    "typescript": "2.4.1",
     "codecov": "2.2.0",
-    "nyc": "11.0.3"
+    "mocha": "3.4.2",
+    "nyc": "11.0.3",
+    "ts-node": "3.1.0",
+    "typescript": "^2.4.1"
   },
   "nyc": {
     "extension": [
