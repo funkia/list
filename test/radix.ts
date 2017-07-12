@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { empty } from "../src/radix";
+import { empty, concat } from "../src/radix";
 
 describe("Radix", () => {
   describe("append", () => {
@@ -20,6 +20,13 @@ describe("Radix", () => {
       for (let i = 0; i < size; ++i) {
         assert.strictEqual(list.nth(i), i);
       }
+    });
+  });
+  describe("concat", () => {
+    const list = empty().append(1).append(2).append(3);
+    it("concats empty sides", () => {
+      assert.strictEqual(concat(list, empty()), list);
+      assert.strictEqual(concat(empty(), list), list);
     });
   });
 });

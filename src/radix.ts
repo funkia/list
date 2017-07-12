@@ -23,7 +23,7 @@ function copyArray(source: any[]): any[] {
   return array;
 }
 
-class Block {
+export class Block {
   private owner: boolean;
   public sizes: number[];
   constructor(public array: any[]) {
@@ -147,7 +147,7 @@ export function empty(): Radix<any> {
 
 const eMax = 2;
 
-function createConcatPlan(array: Block[]): number[] {
+function createConcatPlan(array: Block[]): number[] | undefined {
   const sizes = [];
   let sum = 0;
   for (let i = 0; i < array.length; ++i) {
@@ -157,6 +157,9 @@ function createConcatPlan(array: Block[]): number[] {
   const optimalLength = Math.ceil(sum / blockSize);
   let n = array.length;
   let i = 0;
+  if (optimalLength + eMax >= n) {
+    return undefined; // no rebalancing needed
+  }
   while (optimalLength + eMax < n) {
     while (sizes[i] <= blockSize - (eMax / 2)) {
       // Skip blocks that are already sufficiently balanced
@@ -179,28 +182,64 @@ function createConcatPlan(array: Block[]): number[] {
   return sizes;
 }
 
-function rebalance<A>(
-  left: Radix<A>, center: Radix<A>, right: Radix<A>, top: boolean
-): Radix<A> {
-  return left;
+function concatNodeMerge<A>(left: Block, center: Block, right: Block): any[] {
+  return left.array.slice(0, -1).concat(center.array, right.array.slice(1));
 }
 
-function concatSubTrie<A>(left: Radix<A>, right: Radix<A>, top: boolean): Radix<A> {
-  if (left.depth > right.depth) {
-    const c = concatSubTrie(arrayLast(left.block.array), right, false);
+function executeConcatPlan(merged: any[], plan: number[]): any[] {
+  let offset = 0;
+  const result = [];
+  for (const toMove of plan) {
+    const block = new Block([]);
+    for (let i = 0; i < toMove; ++i) {
+      block.array[i] = merged[offset++];
+    }
+    result.push(block);
+  }
+  return result;
+}
+
+function rebalance<A>(
+  left: Block, center: Block, right: Block, top: boolean
+): Block {
+  const merged = concatNodeMerge(left, center, right);
+  const plan = createConcatPlan(merged);
+  const balanced =
+    plan !== undefined ? executeConcatPlan(merged, plan) : merged;
+  if (balanced.length < blockSize) {
+    if (top === false) {
+      // Return a single block with extra height for balancing at next
+      // level
+      return new Block([new Block(balanced)]);
+    }
+  } else {
+    return new Block([
+      new Block(balanced.slice(0, blockSize)),
+      new Block(balanced.slice(blockSize))
+    ]);
+  }
+}
+
+function concatSubTrie<A>(
+  left: Block, lDepth: number, right: Block, rDepth: number, top: boolean
+): Block {
+  if (lDepth > rDepth) {
+    const c = concatSubTrie(arrayLast(left.array), lDepth - 1, right, rDepth, false);
     return rebalance(left, c, undefined, false);
-  } else if (left.depth < right.depth) {
-    const c = concatSubTrie(left, arrayFirst(right.block.array), false);
+  } else if (lDepth < rDepth) {
+    const c = concatSubTrie(left, lDepth, arrayFirst(right.array), rDepth - 1, false);
     return rebalance(undefined, c, right, false);
-  } else if (left.depth === 0) {
+  } else if (lDepth === 0) {
     const array = [];
-    if (top && left.size + right.size <= blockSize) {
-      return new Radix(left.block.array.concat(right.block.array));
+    if (top && left.array.length + right.array.length <= blockSize) {
+      return new Block(left.array.concat(right.array));
     }
   } else {
     const c = concatSubTrie<A>(
-      arrayLast(left.block.array),
-      arrayFirst(right.block.array),
+      arrayLast(left.array),
+      lDepth - 1,
+      arrayFirst(right.array),
+      rDepth - 1,
       false
     );
     return rebalance(left, c, right, false);
@@ -208,5 +247,11 @@ function concatSubTrie<A>(left: Radix<A>, right: Radix<A>, top: boolean): Radix<
 }
 
 export function concat<A>(left: Radix<A>, right: Radix<A>): Radix<A> {
-
+  if (left.size === 0) {
+    return right;
+  } else if (right.size === 0) {
+    return left;
+  } else {
+    return left;
+  }
 }
