@@ -3,7 +3,7 @@ import { Cons } from "./list";
 const blockSize = 32;
 const mask = 31;
 
-function createPath(depth: number, value: any) {
+function createPath(depth: number, value: any): Block {
   const top = new Block([]);
   let current = top;
   for (let i = 0; i < depth; ++i) {
@@ -46,7 +46,6 @@ export class Block {
   }
   update(depth: number, index: number, value: any): Block {
     const path = (index >> (depth * 5)) & mask;
-    // const result = this.copy();
     const array = this.getArray();
     if (depth === 0) {
       array[path] = value;
@@ -86,20 +85,20 @@ function arrayLast<A>(array: A[]): A {
   return array[array.length];
 }
 
-export class Radix<A> {
+export class List<A> {
   constructor(
     public depth: number,
     public size: number,
     public block: Block,
-    private suffix: Cons<A> | undefined,
-    private suffixSize: number
+    public suffix: Cons<A> | undefined,
+    public suffixSize: number
   ) { }
   space(): number {
     return (blockSize ** (this.depth + 1)) - (this.size - this.suffixSize);
   }
-  append(value: A): Radix<A> {
+  append(value: A): List<A> {
     if (this.suffixSize < 31) {
-      return new Radix<A>(
+      return new List<A>(
         this.depth,
         this.size + 1,
         this.block,
@@ -111,7 +110,7 @@ export class Radix<A> {
     suffixArray.push(value);
     const suffixBlock = new Block(suffixArray);
     if (this.size === 31) {
-      return new Radix<A>(
+      return new List<A>(
         0, this.size + 1, suffixBlock, undefined, 0
       );
     }
@@ -126,7 +125,7 @@ export class Radix<A> {
     } else {
       block = this.block.update(this.depth - 1, this.size >> 5, suffixBlock);
     }
-    return new Radix<A>(
+    return new List<A>(
       this.depth + (full ? 1 : 0), this.size + 1, block, undefined, 0
     );
   }
@@ -136,13 +135,17 @@ export class Radix<A> {
     }
     return this.block.nth(this.depth, index);
   }
-  static empty(): Radix<any> {
-    return new Radix(0, 0, new Block([]), undefined, 0);
+  static empty(): List<any> {
+    return new List(0, 0, new Block([]), undefined, 0);
   }
 }
 
-export function empty(): Radix<any> {
-  return Radix.empty();
+export function empty(): List<any> {
+  return List.empty();
+}
+
+export function nth<A>(index: number, list: List<A>): A | undefined {
+  return list.nth(index);
 }
 
 const eMax = 2;
@@ -221,18 +224,19 @@ function rebalance<A>(
 }
 
 function concatSubTrie<A>(
-  left: Block, lDepth: number, right: Block, rDepth: number, top: boolean
+  left: Block, lDepth: number, right: Block, rDepth: number, isTop: boolean
 ): Block {
   if (lDepth > rDepth) {
     const c = concatSubTrie(arrayLast(left.array), lDepth - 1, right, rDepth, false);
-    return rebalance(left, c, undefined, false);
+    return rebalance(left, c, undefined, isTop);
   } else if (lDepth < rDepth) {
     const c = concatSubTrie(left, lDepth, arrayFirst(right.array), rDepth - 1, false);
-    return rebalance(undefined, c, right, false);
+    return rebalance(undefined, c, right, isTop);
   } else if (lDepth === 0) {
-    const array = [];
-    if (top && left.array.length + right.array.length <= blockSize) {
-      return new Block(left.array.concat(right.array));
+    if (isTop && left.array.length + right.array.length <= blockSize) {
+      return new Block([new Block(left.array.concat(right.array))]);
+    } else {
+      return new Block([left, right]);
     }
   } else {
     const c = concatSubTrie<A>(
@@ -242,16 +246,42 @@ function concatSubTrie<A>(
       rDepth - 1,
       false
     );
-    return rebalance(left, c, right, false);
+    return rebalance(left, c, right, isTop);
   }
 }
 
-export function concat<A>(left: Radix<A>, right: Radix<A>): Radix<A> {
+function getHeight(node: Block): number {
+  if (node.array[0] instanceof Block) {
+    return 1 + getHeight(node.array[0]);
+  } else {
+    return 0;
+  }
+}
+
+/* Takes the old RRB- tree, the new RRB-tree, and the new tail. It
+  then mutates the new RRB - tree so that the tail it currently points
+  to is pushed down, sets the new tail as new tail, and returns the
+  new RRB.
+  */
+function pushDownTail<A>(
+  oldTree: List<A>, newTree: List<A>, newSuffix: Block
+): List<A> {
+  // return <any>12;
+  if (oldTree.size <= blockSize) {
+    // The old tree has all content in tail
+    newTree.suffix = newSuffix;
+  }
+}
+
+export function concat<A>(left: List<A>, right: List<A>): List<A> {
   if (left.size === 0) {
     return right;
   } else if (right.size === 0) {
     return left;
   } else {
-    return left;
+    const newSize = left.size + right.size;
+    const newBlock = concatSubTrie(left.block, left.depth, right.block, left.depth, true);
+    const newHeight = getHeight(newBlock);
+    return new List(newHeight, newSize, newBlock, right.suffix, right.suffixSize);
   }
 }
