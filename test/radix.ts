@@ -10,6 +10,14 @@ function createNumberListAppend(start: number, end: number): List<number> {
   return list;
 }
 
+function assertIndicesFromTo(
+  list: List<number>, from: number, to: number
+): void {
+  for (let i = from; i < to; ++i) {
+    assert.strictEqual(list.nth(i), i);
+  }
+}
+
 describe("Radix", () => {
   describe("append", () => {
     it("can append small", () => {
@@ -19,15 +27,21 @@ describe("Radix", () => {
       assert.strictEqual(list.nth(2), 3);
       assert.strictEqual(list.nth(3), 4);
     });
-    it("can append large", () => {
+    it("can append 1000 elements", () => {
       let list = empty();
-      const size = 10000;
+      const size = 1000;
       for (let i = 0; i < size; ++i) {
         list = list.append(i);
       }
+      assertIndicesFromTo(list, 0, 1000);
+    });
+    it("can append 97 elements", () => {
+      let list = empty();
+      const size = 97;
       for (let i = 0; i < size; ++i) {
-        assert.strictEqual(list.nth(i), i);
+        list = list.append(i);
       }
+      assertIndicesFromTo(list, 0, 97);
     });
   });
   describe("concat", () => {
@@ -36,25 +50,28 @@ describe("Radix", () => {
       assert.strictEqual(concat(list, empty()), list);
       assert.strictEqual(concat(empty(), list), list);
     });
-    it("concats two lists of length 32", () => {
-      let l1 = empty();
-      let l2 = empty();
-      for (let i = 0; i < 32; ++i) {
-        l1 = l1.append("1:" + i.toString());
-        l2 = l2.append("2:" + i.toString());
-      }
-      const catenated = concat(l1, l2);
-      assert.strictEqual(catenated.size, 64);
-    });
-    it("concats two list of combined size smaller than 32", () => {
-      let l1 = createNumberListAppend(0, 12);
-      let l2 = createNumberListAppend(12, 31);
-      const catenated = concat(l1, l2);
-      assert.strictEqual(catenated.size, 31);
-      const end = 31;
-      for (let i = 0; i < end; ++i) {
-        assert.strictEqual(nth(i, catenated), i);
-      }
+    describe("right is smaller than 32", () => {
+      it("combined size is smaller than 32", () => {
+        let l1 = createNumberListAppend(0, 12);
+        let l2 = createNumberListAppend(12, 31);
+        const catenated = concat(l1, l2);
+        assert.strictEqual(catenated.size, 31);
+        const end = 31;
+        for (let i = 0; i < end; ++i) {
+          assert.strictEqual(nth(i, catenated), i);
+        }
+      });
+      it("left suffix is full", () => {
+        [32, 32 * 4, 32 * 5, 32 * 12].forEach((leftSize) => {
+          let l1 = createNumberListAppend(0, leftSize);
+          let l2 = createNumberListAppend(leftSize, leftSize + 30);
+          const catenated = concat(l1, l2);
+          assert.strictEqual(catenated.size, leftSize + 30);
+          for (let i = 0; i < leftSize + 30; ++i) {
+            assert.strictEqual(nth(i, catenated), i);
+          }
+        });
+      });
     });
   });
 });
