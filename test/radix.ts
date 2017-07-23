@@ -72,6 +72,15 @@ describe("Radix", () => {
           }
         });
       });
+      it("left suffix is arbitrary size", () => {
+        [70, 183, 1092].forEach((leftSize) => {
+          let l1 = createNumberListAppend(0, leftSize);
+          let l2 = createNumberListAppend(leftSize, leftSize + 30);
+          const catenated = concat(l1, l2);
+          assert.strictEqual(catenated.size, leftSize + 30);
+          assertIndicesFromTo(catenated, 0, leftSize + 30);
+        });
+      });
     });
   });
 });

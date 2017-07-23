@@ -25,6 +25,14 @@ function copyArray(source: any[]): any[] {
   return array;
 }
 
+function copyIndices(
+  source: any[], sourceStart: number, target: any[], targetStart: number, length: number
+): void {
+  for (let i = 0; i < length; ++i) {
+    target[targetStart + i] = source[sourceStart + i];
+  }
+}
+
 export class Node {
   private owner: boolean;
   public sizes: number[];
@@ -276,10 +284,12 @@ function getHeight(node: Node): number {
   pushed down, sets the new tail as new tail, and returns the new RRB.
   */
 function pushDownTail<A>(
-  oldList: List<A>, newList: List<A>, newSuffix: Cons<A>, newSuffixSize: number
+  oldList: List<A>,
+  newList: List<A>,
+  suffixNode: Node,
+  newSuffix: Cons<A>,
+  newSuffixSize: number
 ): List<A> {
-  // this is the suffix that should be pushed down
-  const suffixNode = suffixToNode(newList.suffix);
   // install the new suffix in location
   newList.suffix = newSuffix;
   newList.suffixSize = newSuffixSize;
@@ -393,9 +403,18 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
       // left suffix is full and can be pushed down
       const newList = cloneList(left);
       newList.size += right.size;
-      return pushDownTail(left, newList, right.suffix, right.suffixSize);
+      return pushDownTail(left, newList, suffixToNode(newList.suffix), right.suffix, right.suffixSize);
     } else {
-      // todo
+      // we must merge the two suffixes and push down
+      const newList = cloneList(left);
+      newList.size += right.size;
+      const newNode = new Node([]);
+      const leftSize = left.suffixSize;
+      copyIndices(left.suffix.toArray().reverse(), 0, newNode.array, 0, left.suffixSize);
+      const rightSize = branchingFactor - leftSize;
+      copyIndices(right.suffix.toArray().reverse(), 0, newNode.array, leftSize, rightSize);
+      const newSuffixSize = right.suffixSize - rightSize;
+      return pushDownTail(left, newList, newNode, C.copyFirst(newSuffixSize, right.suffix), newSuffixSize);
     }
   } else {
     const newSize = left.size + right.size;
