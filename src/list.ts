@@ -18,6 +18,19 @@ export class Cons<A> {
   }
 }
 
+export function copyFirst<A>(n: number, list: Cons<A>): Cons<A> {
+  const newHead = new Cons(list.value, undefined);
+  let current = list;
+  let newCurrent = newHead;
+  while (--n > 0) {
+    current = current.next;
+    const cons = new Cons(current.value, undefined);
+    newCurrent.next = cons;
+    newCurrent = cons;
+  }
+  return newHead;
+}
+
 export function concat<A>(a: Cons<A>, b: Cons<A>): Cons<A> {
   let list = new Cons(a.value, undefined);
   let prev = list;

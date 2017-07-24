@@ -1,9 +1,10 @@
 const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const mori = require("mori");
+
 const {nil, append, concat} = require("../dist/finger");
 const C = require("../dist/list");
-
+const Radix = require("../dist/radix");
 const Oinger = require("./finger-old/dist/finger");
 
 const n = 200;
@@ -16,12 +17,16 @@ let oldTreeA = Oinger.nil;
 let oldTreeB = Oinger.nil;
 let consA = undefined;
 let consB = undefined;
+let radixA = Radix.empty();
+let radixB = Radix.empty();
 
 for (let i = 0; i < n; ++i) {
   arrayA.push(i);
   arrayB.push(i);
   treeA = append(i, treeA);
   treeB = append(i, treeB);
+  radixA = radixA.append(i);
+  radixB = radixB.append(i);
   oldTreeA = Oinger.append(i, oldTreeA);
   oldTreeB = Oinger.append(i, oldTreeB);
   consA = new C.Cons(i, consA);
@@ -46,5 +51,8 @@ module.exports = Suite("concat")
   })
   .add("Old finger", function () {
     return Oinger.concat(oldTreeA, oldTreeB).size;
+  })
+  .add("Radix", function () {
+    return Radix.concat(radixA, radixB).size;
   })
   .run({ async: true });

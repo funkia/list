@@ -35,7 +35,7 @@ function copyIndices(
 
 export class Node {
   private owner: boolean;
-  public sizes: number[];
+  sizes: number[];
   constructor(public array: any[]) {
     this.owner = true;
   }
@@ -70,11 +70,19 @@ export class Node {
     return new Node(array);
   }
   nth(depth: number, index: number): any {
-    const path = (index >> (depth * 5)) & mask;
-    if (depth === 0) {
-      return this.array[path];
+    let path = (index >> (depth * 5)) & mask;
+    if (this.sizes === undefined) {
+      if (depth === 0) {
+        return this.array[path];
+      } else {
+        return (this.array[path] as Node).nth(depth - 1, index);
+      }
     } else {
-      return (this.array[path] as Node).nth(depth - 1, index);
+      while (this.sizes[path] <= index) {
+        path++;
+      }
+      const traversed = path === 0 ? 0 : this.sizes[path - 1];
+      return this.array[path].nth(depth - 1, index - traversed);
     }
   }
   getArray(): any[] {
@@ -96,11 +104,39 @@ function arrayFirst<A>(array: A[]): A {
 }
 
 function arrayLast<A>(array: A[]): A {
-  return array[array.length];
+  return array[array.length - 1];
 }
 
 function suffixToNode<A>(suffix: Cons<A> | undefined): Node {
   return new Node(suffix.toArray().reverse());
+}
+
+function setSizes(node: Node, height: number): Node {
+  let sum = 0;
+  const sizeTable = [];
+  for (let i = 0; i < node.array.length; ++i) {
+    sum += sizeOfSubtree(node.array[i], height - 1);
+    sizeTable[i] = sum;
+  }
+  node.sizes = sizeTable;
+  return node;
+}
+
+/**
+ * Returns the number of elements stored in the node.
+ */
+function sizeOfSubtree(node: Node, height: number): number {
+  if (height !== 0) {
+    if (node.sizes !== undefined) {
+      return arrayLast(node.sizes);
+    } else {
+      // the node is leftwise dense so all all but the last child are full
+      const lastSize = sizeOfSubtree(arrayLast(node.array), height - 1);
+      return ((node.array.length - 1) << (height * bits)) + lastSize;
+    }
+  } else {
+    return node.array.length;
+  }
 }
 
 export class List<A> {
@@ -147,10 +183,7 @@ export class List<A> {
     );
   }
   nth(index: number): A | undefined {
-    if (index >= this.size - this.suffixSize) {
-      return this.suffix.nth(this.size - 1 - index);
-    }
-    return this.root.nth(this.depth, index);
+    return nth(index, this);
   }
   static empty(): List<any> {
     return new List(0, 0, undefined, undefined, 0);
@@ -166,7 +199,10 @@ export function empty(): List<any> {
 }
 
 export function nth<A>(index: number, list: List<A>): A | undefined {
-  return list.nth(index);
+  if (index >= list.size - list.suffixSize) {
+    return list.suffix.nth(list.size - 1 - index);
+  }
+  return list.root.nth(list.depth, index);
 }
 
 const eMax = 2;
@@ -210,7 +246,7 @@ function concatNodeMerge<A>(left: Node, center: Node, right: Node): any[] {
   return left.array.slice(0, -1).concat(center.array, right.array.slice(1));
 }
 
-function executeConcatPlan(merged: any[], plan: number[]): any[] {
+function executeConcatPlan(merged: any[], plan: number[], height: number): any[] {
   let offset = 0;
   const result = [];
   for (const toMove of plan) {
@@ -219,27 +255,30 @@ function executeConcatPlan(merged: any[], plan: number[]): any[] {
       node.array[i] = merged[offset++];
     }
     result.push(node);
+    setSizes(node, height - 1);
   }
   return result;
 }
 
 function rebalance<A>(
-  left: Node, center: Node, right: Node, top: boolean
+  left: Node, center: Node, right: Node, height: number, top: boolean
 ): Node {
   const merged = concatNodeMerge(left, center, right);
   const plan = createConcatPlan(merged);
   const balanced =
-    plan !== undefined ? executeConcatPlan(merged, plan) : merged;
+    plan !== undefined ? executeConcatPlan(merged, plan, height) : merged;
   if (balanced.length < branchingFactor) {
     if (top === false) {
       // Return a single node with extra height for balancing at next
       // level
-      return new Node([new Node(balanced)]);
+      return new Node([setSizes(new Node(balanced), height)]);
+    } else {
+      return new Node(balanced);
     }
   } else {
     return new Node([
-      new Node(balanced.slice(0, branchingFactor)),
-      new Node(balanced.slice(branchingFactor))
+      setSizes(new Node(balanced.slice(0, branchingFactor)), height),
+      setSizes(new Node(balanced.slice(branchingFactor)), height)
     ]);
   }
 }
@@ -249,10 +288,10 @@ function concatSubTrie<A>(
 ): Node {
   if (lDepth > rDepth) {
     const c = concatSubTrie(arrayLast(left.array), lDepth - 1, right, rDepth, false);
-    return rebalance(left, c, undefined, isTop);
+    return rebalance(left, c, undefined, lDepth, isTop);
   } else if (lDepth < rDepth) {
     const c = concatSubTrie(left, lDepth, arrayFirst(right.array), rDepth - 1, false);
-    return rebalance(undefined, c, right, isTop);
+    return rebalance(undefined, c, right, rDepth, isTop);
   } else if (lDepth === 0) {
     if (isTop && left.array.length + right.array.length <= branchingFactor) {
       return new Node([new Node(left.array.concat(right.array))]);
@@ -267,7 +306,7 @@ function concatSubTrie<A>(
       rDepth - 1,
       false
     );
-    return rebalance(left, c, right, isTop);
+    return rebalance(left, c, right, lDepth, isTop);
   }
 }
 
@@ -298,12 +337,16 @@ function pushDownTail<A>(
     newList.root = suffixNode;
     return newList;
   }
-  let index = oldList.size;
+  let index = oldList.size - 1;
   let nodesToCopy = 0;
   let nodesVisited = 0;
   let pos = 0;
   let shift = oldList.depth * 5;
   let currentNode = oldList.root;
+  if (32 ** (oldList.depth + 1) < index) {
+    shift = 0; // there is no room
+    nodesVisited = oldList.depth;
+  }
   while (shift > 5) {
     let childIndex: number;
     if (true) {
@@ -338,6 +381,10 @@ function pushDownTail<A>(
 
   if (nodesToCopy === 0) {
     // there was no room in the found node
+    const newPath = createPath(nodesVisited - 1, suffixNode);
+    const newRoot = new Node([newList.root, newPath]);
+    newList.root = newRoot;
+    newList.depth++;
   } else {
     const node = copyFirstK(oldList, newList, nodesToCopy);
     const leaf = appendEmpty(node, nodesVisited - nodesToCopy);
@@ -391,7 +438,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
   } else if (right.root === undefined) {
     // right is nothing but a suffix
     if (right.suffixSize + left.suffixSize <= branchingFactor) {
-      // affixes can fit inside one
+      // the two suffixes can be combined into one
       return new List(
         right.depth,
         left.size + right.size,
@@ -418,8 +465,10 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     }
   } else {
     const newSize = left.size + right.size;
-    const newNode = concatSubTrie(left.root, left.depth, right.root, left.depth, true);
+    const newLeft = pushDownTail(left, cloneList(left), suffixToNode(left.suffix), undefined, 0);
+    const newNode = concatSubTrie(newLeft.root, newLeft.depth, right.root, right.depth, true);
     const newHeight = getHeight(newNode);
+    setSizes(newNode, newHeight);
     return new List(newHeight, newSize, newNode, right.suffix, right.suffixSize);
   }
 }

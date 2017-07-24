@@ -43,6 +43,11 @@ describe("Radix", () => {
       }
       assertIndicesFromTo(list, 0, 97);
     });
+    it("can append tree of depth 2", () => {
+      const size = 32 * 32 * 32 + 32;
+      const list = createNumberListAppend(0, size);
+      assertIndicesFromTo(list, 0, size);
+    });
   });
   describe("concat", () => {
     const list = empty().append(1).append(2).append(3);
@@ -63,14 +68,23 @@ describe("Radix", () => {
       });
       it("left suffix is full", () => {
         [32, 32 * 4, 32 * 5, 32 * 12].forEach((leftSize) => {
-          let l1 = createNumberListAppend(0, leftSize);
-          let l2 = createNumberListAppend(leftSize, leftSize + 30);
+          const l1 = createNumberListAppend(0, leftSize);
+          const l2 = createNumberListAppend(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
           assert.strictEqual(catenated.size, leftSize + 30);
           for (let i = 0; i < leftSize + 30; ++i) {
             assert.strictEqual(nth(i, catenated), i);
           }
         });
+      });
+      it("left is full tree", () => {
+        const leftSize = 32 * 32 * 32 + 32;
+        const l1 = createNumberListAppend(0, leftSize);
+        assertIndicesFromTo(l1, 0, leftSize);
+        const l2 = createNumberListAppend(leftSize, leftSize + 30);
+        const catenated = concat(l1, l2);
+        assert.strictEqual(catenated.size, leftSize + 30);
+        assertIndicesFromTo(catenated, 0, leftSize + 30);
       });
       it("left suffix is arbitrary size", () => {
         [70, 183, 1092].forEach((leftSize) => {
@@ -79,6 +93,16 @@ describe("Radix", () => {
           const catenated = concat(l1, l2);
           assert.strictEqual(catenated.size, leftSize + 30);
           assertIndicesFromTo(catenated, 0, leftSize + 30);
+        });
+      });
+    });
+    describe("both are large", () => {
+      it("concats properly", () => {
+        [[83, 128], [2381, 3720]].forEach(([leftSize, rightSize]) => {
+          let l1 = createNumberListAppend(0, leftSize);
+          let l2 = createNumberListAppend(leftSize, leftSize + rightSize);
+          const catenated = concat(l1, l2);
+          assertIndicesFromTo(catenated, 0, leftSize + rightSize);
         });
       });
     });
