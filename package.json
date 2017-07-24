@@ -1,7 +1,7 @@
 {
   "name": "@funkia/list",
   "version": "0.0.1",
-  "description": "",
+  "description": "Fast purely functional immutable lists.",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -23,8 +23,8 @@
     "mocha": "3.4.2",
     "nyc": "11.0.3",
     "source-map-support": "^0.4.15",
-    "ts-node": "3.2.0",
-    "typescript": "^2.4.1"
+    "ts-node": "3.2.1",
+    "typescript": "^2.4.2"
   },
   "nyc": {
     "extension": [
