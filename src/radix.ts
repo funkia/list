@@ -245,7 +245,21 @@ function createConcatPlan(array: Node[]): number[] | undefined {
 }
 
 function concatNodeMerge<A>(left: Node, center: Node, right: Node): any[] {
-  return left.array.slice(0, -1).concat(center.array, right.array.slice(1));
+  const array = [];
+  if (left !== undefined) {
+    for (let i = 0; i < left.array.length - 1; ++i) {
+      array.push(left.array[i]);
+    }
+  }
+  for (let i = 0; i < center.array.length; ++i) {
+    array.push(center.array[i]);
+  }
+  if (right !== undefined) {
+    for (let i = 1; i < right.array.length; ++i) {
+      array.push(right.array[i]);
+    }
+  }
+  return array;
 }
 
 function executeConcatPlan(merged: any[], plan: number[], height: number): any[] {
@@ -383,7 +397,9 @@ function pushDownTail<A>(
 
   if (nodesToCopy === 0) {
     // there was no room in the found node
-    const newPath = createPath(nodesVisited - 1, suffixNode);
+    const newPath = nodesVisited === 0
+      ? suffixNode
+      : createPath(nodesVisited - 1, suffixNode);
     const newRoot = new Node([newList.root, newPath]);
     newList.root = newRoot;
     newList.depth++;

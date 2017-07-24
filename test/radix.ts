@@ -88,8 +88,8 @@ describe("Radix", () => {
       });
       it("left suffix is arbitrary size", () => {
         [70, 183, 1092].forEach((leftSize) => {
-          let l1 = createNumberListAppend(0, leftSize);
-          let l2 = createNumberListAppend(leftSize, leftSize + 30);
+          const l1 = createNumberListAppend(0, leftSize);
+          const l2 = createNumberListAppend(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
           assert.strictEqual(catenated.size, leftSize + 30);
           assertIndicesFromTo(catenated, 0, leftSize + 30);
@@ -97,13 +97,22 @@ describe("Radix", () => {
       });
     });
     describe("both are large", () => {
-      it("concats properly", () => {
-        [[83, 128], [2381, 3720]].forEach(([leftSize, rightSize]) => {
-          let l1 = createNumberListAppend(0, leftSize);
-          let l2 = createNumberListAppend(leftSize, leftSize + rightSize);
+      it("concats once properly", () => {
+        [[40, 33], [83, 128], [2381, 3720]].forEach(([leftSize, rightSize]) => {
+          const l1 = createNumberListAppend(0, leftSize);
+          const l2 = createNumberListAppend(leftSize, leftSize + rightSize);
           const catenated = concat(l1, l2);
           assertIndicesFromTo(catenated, 0, leftSize + rightSize);
         });
+      });
+      it("rebalances", () => {
+        const firstSize = 40;
+        const secondSize = 33;
+        const l1 = createNumberListAppend(0, firstSize);
+        const l2 = createNumberListAppend(firstSize, firstSize + secondSize);
+        const l3 = createNumberListAppend(18 + 20, 18 + 20 + 17);
+        const concatenated = concat(l1, l2);
+        assert.strictEqual(concatenated.size, firstSize + secondSize);
       });
     });
   });

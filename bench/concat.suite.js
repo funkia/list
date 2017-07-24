@@ -5,9 +5,10 @@ const mori = require("mori");
 const {nil, append, concat} = require("../dist/finger");
 const C = require("../dist/list");
 const Radix = require("../dist/radix");
+const OldRadix = require("./finger-old/dist/radix");
 const Oinger = require("./finger-old/dist/finger");
 
-const n = 200;
+const n = 20000;
 
 let arrayA = [];
 let arrayB = [];
@@ -19,6 +20,8 @@ let consA = undefined;
 let consB = undefined;
 let radixA = Radix.empty();
 let radixB = Radix.empty();
+let oldRadixA = OldRadix.empty();
+let oldRadixB = OldRadix.empty();
 
 for (let i = 0; i < n; ++i) {
   arrayA.push(i);
@@ -27,6 +30,8 @@ for (let i = 0; i < n; ++i) {
   treeB = append(i, treeB);
   radixA = radixA.append(i);
   radixB = radixB.append(i);
+  oldRadixA = oldRadixA.append(i);
+  oldRadixB = oldRadixB.append(i);
   oldTreeA = Oinger.append(i, oldTreeA);
   oldTreeB = Oinger.append(i, oldTreeB);
   consA = new C.Cons(i, consA);
@@ -54,5 +59,8 @@ module.exports = Suite("concat")
   })
   .add("Radix", function () {
     return Radix.concat(radixA, radixB).size;
+  })
+  .add("Old radix", function () {
+    return OldRadix.concat(oldRadixA, oldRadixB).size;
   })
   .run({ async: true });
