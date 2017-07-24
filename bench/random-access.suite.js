@@ -2,8 +2,9 @@ const shuffle = require("knuth-shuffle").knuthShuffle;
 const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const Denque = require("denque");
-const Radix = require("../dist/radix");
 
+const Radix = require("../dist/radix");
+const OldRadix = require("./finger-old/dist/radix");
 const Finger = require("../dist/finger");
 const Oinger = require("./finger-old/dist/finger");
 const {Cons} = require("../dist/list");
@@ -17,11 +18,13 @@ let immut = new Immutable.List();
 let tree = Finger.nil;
 let _tree = Oinger.nil;
 let radix = Radix.empty();
+let oldRadix = OldRadix.empty();
 
 for (let i = 0; i < n; ++i) {
   tree = Finger.append(i, tree);
   _tree = Oinger.append(i, _tree);
   radix = radix.append(i);
+  oldRadix = oldRadix.append(i);
   denque.push(i);
   array.push(i);
   indices.push(i);
@@ -58,6 +61,13 @@ module.exports = Suite("random access")
     let sum = 0;
     for (let i = 0; i < n; ++i) {
       sum += radix.nth(i);
+    }
+    return sum === result;
+  })
+  .add("Old radix", function () {
+    let sum = 0;
+    for (let i = 0; i < n; ++i) {
+      sum += oldRadix.nth(i);
     }
     return sum === result;
   })

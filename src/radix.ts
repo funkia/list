@@ -69,22 +69,6 @@ export class Node {
     }
     return new Node(array);
   }
-  nth(depth: number, index: number): any {
-    let path = (index >> (depth * 5)) & mask;
-    if (this.sizes === undefined) {
-      if (depth === 0) {
-        return this.array[path];
-      } else {
-        return (this.array[path] as Node).nth(depth - 1, index);
-      }
-    } else {
-      while (this.sizes[path] <= index) {
-        path++;
-      }
-      const traversed = path === 0 ? 0 : this.sizes[path - 1];
-      return this.array[path].nth(depth - 1, index - traversed);
-    }
-  }
   getArray(): any[] {
     if (this.owner) {
       this.owner = false;
@@ -92,6 +76,24 @@ export class Node {
     } else {
       return copyArray(this.array);
     }
+  }
+}
+
+function nodeNth(node: Node, depth: number, index: number): any {
+  let path = (index >> (depth * 5)) & mask;
+  if (node.sizes === undefined) {
+    let current = node;
+    for (; depth >= 0; --depth) {
+      path = (index >> (depth * 5)) & mask;
+      current = current.array[path];
+    }
+    return current;
+  } else {
+    while (node.sizes[path] <= index) {
+      path++;
+    }
+    const traversed = path === 0 ? 0 : node.sizes[path - 1];
+    return nodeNth(node.array[path], depth - 1, index - traversed);
   }
 }
 
@@ -202,7 +204,7 @@ export function nth<A>(index: number, list: List<A>): A | undefined {
   if (index >= list.size - list.suffixSize) {
     return list.suffix.nth(list.size - 1 - index);
   }
-  return list.root.nth(list.depth, index);
+  return nodeNth(list.root, list.depth, index);
 }
 
 const eMax = 2;
