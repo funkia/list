@@ -95,24 +95,38 @@ describe("Radix", () => {
           assertIndicesFromTo(catenated, 0, leftSize + 30);
         });
       });
-    });
-    describe("both are large", () => {
-      it("concats once properly", () => {
-        [[40, 33], [83, 128], [2381, 3720]].forEach(([leftSize, rightSize]) => {
+      it("suffix has to be pushed down without room for it", () => {
+        [[40, 33]].forEach(([leftSize, rightSize]) => {
           const l1 = createNumberListAppend(0, leftSize);
           const l2 = createNumberListAppend(leftSize, leftSize + rightSize);
           const catenated = concat(l1, l2);
           assertIndicesFromTo(catenated, 0, leftSize + rightSize);
         });
       });
-      it("rebalances", () => {
-        const firstSize = 40;
-        const secondSize = 33;
-        const l1 = createNumberListAppend(0, firstSize);
-        const l2 = createNumberListAppend(firstSize, firstSize + secondSize);
-        const l3 = createNumberListAppend(18 + 20, 18 + 20 + 17);
-        const concatenated = concat(l1, l2);
-        assert.strictEqual(concatenated.size, firstSize + secondSize);
+    });
+    describe("both are large", () => {
+      it("concats once properly", () => {
+        [[83, 128], [2381, 3720]].forEach(([leftSize, rightSize]) => {
+          const l1 = createNumberListAppend(0, leftSize);
+          const l2 = createNumberListAppend(leftSize, leftSize + rightSize);
+          const catenated = concat(l1, l2);
+          assertIndicesFromTo(catenated, 0, leftSize + rightSize);
+        });
+      });
+      it("does balancing", () => {
+        const size = 4 * 32 + 1;
+        const firstSize = 5 * 32 + 1;
+        const secondSize = 5 * 32 + 1;
+        const thirdSize = 5 * 32 + 1;
+        const totalSize = firstSize + secondSize + thirdSize;
+        const l1 = createNumberListAppend(0, size * 1);
+        const l2 = createNumberListAppend(size * 1, size * 2);
+        const l3 = createNumberListAppend(size * 2, size * 3);
+        const l4 = createNumberListAppend(size * 3, size * 4);
+        const l5 = createNumberListAppend(size * 4, size * 5);
+        const catenated = concat(concat(concat(concat(l1, l2), l3), l4), l5);
+        assert.strictEqual(catenated.size, size * 5);
+        assertIndicesFromTo(catenated, 0, totalSize + size);
       });
     });
   });
