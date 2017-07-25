@@ -1,16 +1,17 @@
 # @funkia/list
 
-An immutable lists.
+A fast immutable lists. Purely functional general purpose replacement
+for arrays.
 
 ## Status
 
-Experimental :construction:. There is bugs and basic functionality is
-missing. Benchmarks are promising.
+Experimental :construction: Basic functionality is missing. Benchmarks
+of implemented functions look promising.
 
 ## Goals
 
 * Very good performance
-* Functional Ramda-like API
+* Functional Ramda-like API. Curried functions, etc.
 * TypeScript support
 * Fantasy Land support
 * Full compatibility with tree-shaking. Only pay in size for the
@@ -29,6 +30,18 @@ Creates a list based on the arguments given.
 ```js
 const l = list(1, 2, 3, 4); // creates a list of four elements
 const l2 = list("foo"); // creates a singleton
+```
+
+### `empty`
+
+Returns an empty list.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+const emptyList = empty(); //=> list()
 ```
 
 ### `concat`
@@ -52,11 +65,11 @@ Appends an element to the end of a list and returns the new list.
 **Example**
 
 ```js
-const newList = append(foo, list(0, 1, 2)); //=> list(0, 1, 2, 0)
+const newList = append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
 ```
 ### `nth`
 
-Get's the `n`th element of the list.
+Gets the `n`th element of the list.
 
 **Complexity**: `O(logn)`, practically constant
 
@@ -65,4 +78,14 @@ Get's the `n`th element of the list.
 ```js
 const l = list(0, 1, 2, 3, 4);
 nth(2, l); //=> 2
+```
+
+## Benchmarks
+
+Run the benchmarks like this.
+
+```
+cd bench
+./prepare-benchmarks.sh
+npm run bench
 ```
