@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { List, empty, concat, nth } from "../src/radix";
+import { List, list, empty, concat, nth } from "../src/radix";
 
 function createNumberListAppend(start: number, end: number): List<number> {
   let list = empty();
@@ -47,6 +47,12 @@ describe("Radix", () => {
       const size = 32 * 32 * 32 + 32;
       const list = createNumberListAppend(0, size);
       assertIndicesFromTo(list, 0, size);
+    });
+  });
+  describe("list", () => {
+    it("creates a list with the given elements", () => {
+      const l = list(0, 1, 2, 3);
+      assertIndicesFromTo(l, 0, 4);
     });
   });
   describe("concat", () => {

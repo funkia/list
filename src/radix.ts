@@ -200,6 +200,18 @@ function cloneList<A>(list: List<A>): List<A> {
   return new List(list.depth, list.length, list.root, list.suffix, list.suffixSize);
 }
 
+export function append<A>(element: A, list: List<A>): List<A> {
+  return list.append(element);
+}
+
+export function list<A>(...elements: A[]): List<A> {
+  let l = empty();
+  for (const element of elements) {
+    l = append(element, l);
+  }
+  return l;
+}
+
 export function empty(): List<any> {
   return List.empty();
 }
