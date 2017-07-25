@@ -1,6 +1,3 @@
-import { Cons } from "./list";
-import * as C from "./list";
-
 const branchingFactor = 32;
 const bits = 5;
 const mask = 31;
@@ -34,29 +31,17 @@ function copyIndices(
 }
 
 export class Node {
-  private owner: boolean;
   sizes: number[];
   constructor(public array: any[]) {
-    this.owner = true;
-  }
-  copy(): Node {
-    const result = new Node(copyArray(this.array));
-    return result;
   }
   append(value: any): Node {
-    let array;
-    if (this.owner) {
-      this.owner = false;
-      array = this.array;
-    } else {
-      array = copyArray(this.array);
-    }
+    const array = copyArray(this.array);
     array.push(value);
     return new Node(array);
   }
   update(depth: number, index: number, value: any): Node {
     const path = (index >> (depth * 5)) & mask;
-    const array = this.getArray();
+    const array = copyArray(this.array);
     if (depth === 0) {
       array[path] = value;
     } else {
@@ -68,14 +53,6 @@ export class Node {
       }
     }
     return new Node(array);
-  }
-  getArray(): any[] {
-    if (this.owner) {
-      this.owner = false;
-      return this.array;
-    } else {
-      return copyArray(this.array);
-    }
   }
 }
 
@@ -98,7 +75,7 @@ function nodeNth(node: Node, depth: number, index: number): any {
 }
 
 function cloneNode(node: Node): Node {
-  return new Node(node.getArray());
+  return new Node(copyArray(node.array));
 }
 
 function arrayFirst<A>(array: A[]): A {
@@ -109,8 +86,8 @@ function arrayLast<A>(array: A[]): A {
   return array[array.length - 1];
 }
 
-function suffixToNode<A>(suffix: Cons<A> | undefined): Node {
-  return new Node(suffix.toArray().reverse());
+function suffixToNode<A>(suffix: Affix<A>): Node {
+  return new Node(suffix.array);
 }
 
 function setSizes(node: Node, height: number): Node {
@@ -141,12 +118,31 @@ function sizeOfSubtree(node: Node, height: number): number {
   }
 }
 
+export class Affix<A> {
+  constructor(
+    public owned: boolean,
+    public array: A[]
+  ) {}
+}
+
+function affixPush<A>(a: A, {owned, array}: Affix<A>): Affix<A> {
+  if (owned === true) {
+    owned = false;
+    array.push(a);
+    return new Affix(true, array);
+  } else {
+    const newArray = copyArray(array);
+    newArray.push(a);
+    return new Affix(true, newArray);
+  }
+}
+
 export class List<A> {
   constructor(
     public depth: number,
     public size: number,
     public root: Node,
-    public suffix: Cons<A> | undefined,
+    public suffix: Affix<A>,
     public suffixSize: number
   ) { }
   space(): number {
@@ -158,11 +154,11 @@ export class List<A> {
         this.depth,
         this.size + 1,
         this.root,
-        new Cons(value, this.suffix),
+        affixPush(value, this.suffix),
         this.suffixSize + 1
       );
     }
-    const newSuffix = new Cons(value, undefined);
+    const newSuffix = new Affix(true, [value]);
     const suffixNode = suffixToNode(this.suffix);
     if (this.size === 32) {
       return new List<A>(
@@ -188,7 +184,7 @@ export class List<A> {
     return nth(index, this);
   }
   static empty(): List<any> {
-    return new List(0, 0, undefined, undefined, 0);
+    return new List(0, 0, undefined, new Affix(true, []), 0);
   }
 }
 
@@ -202,7 +198,7 @@ export function empty(): List<any> {
 
 export function nth<A>(index: number, list: List<A>): A | undefined {
   if (index >= list.size - list.suffixSize) {
-    return list.suffix.nth(list.size - 1 - index);
+    return list.suffix.array[index - (list.size - list.suffixSize)];
   }
   return nodeNth(list.root, list.depth, index);
 }
@@ -342,7 +338,7 @@ function pushDownTail<A>(
   oldList: List<A>,
   newList: List<A>,
   suffixNode: Node,
-  newSuffix: Cons<A>,
+  newSuffix: Affix<A>,
   newSuffixSize: number
 ): List<A> {
   // install the new suffix in location
@@ -461,7 +457,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
         right.depth,
         left.size + right.size,
         left.root,
-        C.concat(right.suffix, left.suffix),
+        new Affix(true, left.suffix.array.concat(right.suffix.array)),
         left.suffixSize + right.size
       );
     } else if (left.suffixSize === branchingFactor) {
@@ -475,11 +471,12 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
       newList.size += right.size;
       const newNode = new Node([]);
       const leftSize = left.suffixSize;
-      copyIndices(left.suffix.toArray().reverse(), 0, newNode.array, 0, left.suffixSize);
+      copyIndices(left.suffix.array, 0, newNode.array, 0, left.suffixSize);
       const rightSize = branchingFactor - leftSize;
-      copyIndices(right.suffix.toArray().reverse(), 0, newNode.array, leftSize, rightSize);
+      copyIndices(right.suffix.array, 0, newNode.array, leftSize, rightSize);
       const newSuffixSize = right.suffixSize - rightSize;
-      return pushDownTail(left, newList, newNode, C.copyFirst(newSuffixSize, right.suffix), newSuffixSize);
+      const newSuffix = new Affix(true, right.suffix.array.slice(rightSize));
+      return pushDownTail(left, newList, newNode, newSuffix, newSuffixSize);
     }
   } else {
     const newSize = left.size + right.size;
