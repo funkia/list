@@ -60,7 +60,7 @@ describe("Radix", () => {
         let l1 = createNumberListAppend(0, 12);
         let l2 = createNumberListAppend(12, 31);
         const catenated = concat(l1, l2);
-        assert.strictEqual(catenated.size, 31);
+        assert.strictEqual(catenated.length, 31);
         const end = 31;
         for (let i = 0; i < end; ++i) {
           assert.strictEqual(nth(i, catenated), i);
@@ -71,7 +71,7 @@ describe("Radix", () => {
           const l1 = createNumberListAppend(0, leftSize);
           const l2 = createNumberListAppend(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
-          assert.strictEqual(catenated.size, leftSize + 30);
+          assert.strictEqual(catenated.length, leftSize + 30);
           for (let i = 0; i < leftSize + 30; ++i) {
             assert.strictEqual(nth(i, catenated), i);
           }
@@ -83,7 +83,7 @@ describe("Radix", () => {
         assertIndicesFromTo(l1, 0, leftSize);
         const l2 = createNumberListAppend(leftSize, leftSize + 30);
         const catenated = concat(l1, l2);
-        assert.strictEqual(catenated.size, leftSize + 30);
+        assert.strictEqual(catenated.length, leftSize + 30);
         assertIndicesFromTo(catenated, 0, leftSize + 30);
       });
       it("left suffix is arbitrary size", () => {
@@ -91,7 +91,7 @@ describe("Radix", () => {
           const l1 = createNumberListAppend(0, leftSize);
           const l2 = createNumberListAppend(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
-          assert.strictEqual(catenated.size, leftSize + 30);
+          assert.strictEqual(catenated.length, leftSize + 30);
           assertIndicesFromTo(catenated, 0, leftSize + 30);
         });
       });
@@ -125,7 +125,7 @@ describe("Radix", () => {
         const l4 = createNumberListAppend(size * 3, size * 4);
         const l5 = createNumberListAppend(size * 4, size * 5);
         const catenated = concat(concat(concat(concat(l1, l2), l3), l4), l5);
-        assert.strictEqual(catenated.size, size * 5);
+        assert.strictEqual(catenated.length, size * 5);
         assertIndicesFromTo(catenated, 0, totalSize + size);
       });
     });

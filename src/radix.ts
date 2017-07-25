@@ -148,19 +148,19 @@ function affixPush<A>(a: A, { owned, array }: Affix<A>): Affix<A> {
 export class List<A> {
   constructor(
     public depth: number,
-    public size: number,
+    public length: number,
     public root: Node,
     public suffix: Affix<A>,
     public suffixSize: number
   ) { }
   space(): number {
-    return (branchingFactor ** (this.depth + 1)) - (this.size - this.suffixSize);
+    return (branchingFactor ** (this.depth + 1)) - (this.length - this.suffixSize);
   }
   append(value: A): List<A> {
     if (this.suffixSize < 32) {
       return new List<A>(
         this.depth,
-        this.size + 1,
+        this.length + 1,
         this.root,
         affixPush(value, this.suffix),
         this.suffixSize + 1
@@ -168,9 +168,9 @@ export class List<A> {
     }
     const newSuffix = new Affix(true, [value]);
     const suffixNode = suffixToNode(this.suffix);
-    if (this.size === 32) {
+    if (this.length === 32) {
       return new List<A>(
-        0, this.size + 1, suffixNode, newSuffix, 1
+        0, this.length + 1, suffixNode, newSuffix, 1
       );
     }
     const full = this.space() === 0;
@@ -182,10 +182,10 @@ export class List<A> {
         node = new Node([this.root, createPath(this.depth - 1, suffixNode)]);
       }
     } else {
-      node = this.root.update(this.depth - 1, (this.size - 1) >> 5, suffixNode);
+      node = this.root.update(this.depth - 1, (this.length - 1) >> 5, suffixNode);
     }
     return new List<A>(
-      this.depth + (full ? 1 : 0), this.size + 1, node, newSuffix, 1
+      this.depth + (full ? 1 : 0), this.length + 1, node, newSuffix, 1
     );
   }
   nth(index: number): A | undefined {
@@ -197,7 +197,7 @@ export class List<A> {
 }
 
 function cloneList<A>(list: List<A>): List<A> {
-  return new List(list.depth, list.size, list.root, list.suffix, list.suffixSize);
+  return new List(list.depth, list.length, list.root, list.suffix, list.suffixSize);
 }
 
 export function empty(): List<any> {
@@ -205,8 +205,8 @@ export function empty(): List<any> {
 }
 
 export function nth<A>(index: number, list: List<A>): A | undefined {
-  if (index >= list.size - list.suffixSize) {
-    return list.suffix.array[index - (list.size - list.suffixSize)];
+  if (index >= list.length - list.suffixSize) {
+    return list.suffix.array[index - (list.length - list.suffixSize)];
   }
   return nodeNth(list.root, list.depth, index);
 }
@@ -373,12 +373,12 @@ function pushDownTail<A>(
   // install the new suffix in location
   newList.suffix = newSuffix;
   newList.suffixSize = newSuffixSize;
-  if (oldList.size <= branchingFactor) {
+  if (oldList.length <= branchingFactor) {
     // The old tree has no content in tree, all content is in affixes
     newList.root = suffixNode;
     return newList;
   }
-  let index = oldList.size - 1;
+  let index = oldList.length - 1;
   let nodesToCopy = 0;
   let nodesVisited = 0;
   let pos = 0;
@@ -474,9 +474,9 @@ function appendEmpty(node: Node, depth: number): Node {
 }
 
 export function concat<A>(left: List<A>, right: List<A>): List<A> {
-  if (left.size === 0) {
+  if (left.length === 0) {
     return right;
-  } else if (right.size === 0) {
+  } else if (right.length === 0) {
     return left;
   } else if (right.root === undefined) {
     // right is nothing but a suffix
@@ -484,20 +484,20 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
       // the two suffixes can be combined into one
       return new List(
         right.depth,
-        left.size + right.size,
+        left.length + right.length,
         left.root,
         new Affix(true, left.suffix.array.concat(right.suffix.array)),
-        left.suffixSize + right.size
+        left.suffixSize + right.length
       );
     } else if (left.suffixSize === branchingFactor) {
       // left suffix is full and can be pushed down
       const newList = cloneList(left);
-      newList.size += right.size;
+      newList.length += right.length;
       return pushDownTail(left, newList, suffixToNode(newList.suffix), right.suffix, right.suffixSize);
     } else {
       // we must merge the two suffixes and push down
       const newList = cloneList(left);
-      newList.size += right.size;
+      newList.length += right.length;
       const newNode = new Node([]);
       const leftSize = left.suffixSize;
       copyIndices(left.suffix.array, 0, newNode.array, 0, left.suffixSize);
@@ -508,7 +508,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
       return pushDownTail(left, newList, newNode, newSuffix, newSuffixSize);
     }
   } else {
-    const newSize = left.size + right.size;
+    const newSize = left.length + right.length;
     const newLeft = pushDownTail(left, cloneList(left), suffixToNode(left.suffix), undefined, 0);
     const newNode = concatSubTree(newLeft.root, newLeft.depth, right.root, right.depth, true);
     const newHeight = getHeight(newNode);

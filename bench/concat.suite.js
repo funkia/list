@@ -58,9 +58,9 @@ module.exports = Suite("concat")
     return Oinger.concat(oldTreeA, oldTreeB).size;
   })
   .add("Radix", function () {
-    return Radix.concat(radixA, radixB).size;
+    return Radix.concat(radixA, radixB).length;
   })
   .add("Old radix", function () {
-    return OldRadix.concat(oldRadixA, oldRadixB).size;
+    return OldRadix.concat(oldRadixA, oldRadixB).length;
   })
   .run({ async: true });
