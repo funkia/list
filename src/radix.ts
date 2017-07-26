@@ -64,22 +64,30 @@ export class Node {
   }
 }
 
+function nodeNthDense(node: Node, depth: number, index: number): any {
+  let path;
+  let current = node;
+  for (; depth >= 0; --depth) {
+    path = (index >> (depth * 5)) & mask;
+    current = current.array[path];
+  }
+  return current;
+}
+
 function nodeNth(node: Node, depth: number, index: number): any {
-  let path = (index >> (depth * 5)) & mask;
-  if (node.sizes === undefined) {
-    let current = node;
-    for (; depth >= 0; --depth) {
-      path = (index >> (depth * 5)) & mask;
-      current = current.array[path];
-    }
-    return current;
-  } else {
-    while (node.sizes[path] <= index) {
+  let path;
+  let current = node;
+  while (current.sizes !== undefined) {
+    path = (index >> (depth * 5)) & mask;
+    while (current.sizes[path] <= index) {
       path++;
     }
-    const traversed = path === 0 ? 0 : node.sizes[path - 1];
-    return nodeNth(node.array[path], depth - 1, index - traversed);
+    const traversed = path === 0 ? 0 : current.sizes[path - 1];
+    index -= traversed;
+    depth--;
+    current = current.array[path];
   }
+  return nodeNthDense(current, depth, index);
 }
 
 function cloneNode(node: Node): Node {
@@ -292,7 +300,7 @@ export function nth<A>(index: number, list: List<A>): A | undefined {
   if (index >= list.length - list.suffixSize) {
     return list.suffix.array[index - (list.length - list.suffixSize)];
   }
-  return nodeNth(list.root, list.depth, index);
+  return list.root.sizes === undefined ? nodeNthDense(list.root, list.depth, index) : nodeNth(list.root, list.depth, index);
 }
 
 // map
