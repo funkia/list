@@ -67,6 +67,7 @@ Appends an element to the end of a list and returns the new list.
 ```js
 const newList = append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
 ```
+
 ### `nth`
 
 Gets the `n`th element of the list.
@@ -78,6 +79,33 @@ Gets the `n`th element of the list.
 ```js
 const l = list(0, 1, 2, 3, 4);
 nth(2, l); //=> 2
+```
+
+### `map`
+
+Applies a function to each element in the given list and returns a new
+list with the values that the function return.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+map((n) => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
+```
+
+### `foldl`
+
+Folds a function over a list.
+
+**Aliases**: `reduce`
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+foldl((n, m) => n - m, 1, list(2, 3, 4, 5)); //=> -8
 ```
 
 ## Benchmarks
