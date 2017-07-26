@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { List, list, empty, concat, nth } from "../src/radix";
+import { concat, empty, List, list, map, nth } from '../src/radix';
 
 function createNumberListAppend(start: number, end: number): List<number> {
   let list = empty();
@@ -134,6 +134,25 @@ describe("Radix", () => {
         assert.strictEqual(catenated.length, size * 5);
         assertIndicesFromTo(catenated, 0, totalSize + size);
       });
+    });
+  });
+  describe("map", () => {
+    it("maps function over list", () => {
+      [30, 100, 32 * 4 + 1].forEach((n) => {
+        const l = createNumberListAppend(0, n);
+        const mapped = map((m) => m * m, l);
+        for (let i = 0; i < n; ++i) {
+          assert.strictEqual(nth(i, mapped), i * i);
+        }
+      });
+    });
+    it("has Fantasy Land method", () => {
+      const n = 50;
+      const l = createNumberListAppend(0, n);
+      const mapped = l["fantasy-land/map"]((m) => m * m);
+      for (let i = 0; i < n; ++i) {
+        assert.strictEqual(nth(i, mapped), i * i);
+      }
     });
   });
   describe("iteration", () => {

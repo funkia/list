@@ -14,6 +14,7 @@
     "denque": "^1.1.1",
     "immutable": "^3.8.1",
     "knuth-shuffle": "^1.0.1",
+    "lodash": "^4.17.4",
     "mori": "^0.3.2"
   }
 }
