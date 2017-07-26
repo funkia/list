@@ -82,10 +82,17 @@ nth(2, l); //=> 2
 
 ## Benchmarks
 
-Run the benchmarks like this.
+The benchmarks are located in the [`bench` directory](/bench).
+
+Run the benchmarks like this (starting with CWD in the root).
 
 ```
+npm install
+npm run build
 cd bench
+npm install
 ./prepare-benchmarks.sh
 npm run bench
 ```
+
+Note that in the output `Radix` corresponds to @funkia/list.

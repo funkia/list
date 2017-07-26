@@ -13,6 +13,7 @@
     "benchmark": "^2.1.4",
     "denque": "^1.1.1",
     "immutable": "^3.8.1",
-    "knuth-shuffle": "^1.0.1"
+    "knuth-shuffle": "^1.0.1",
+    "mori": "^0.3.2"
   }
 }

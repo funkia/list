@@ -7,16 +7,9 @@ const Finger = require("../dist/finger");
 const Oinger = require("./finger-old/dist/finger");
 const {Cons} = require("../dist/list");
 const Radix = require("../dist/radix");
+const OldRadix = require("./finger-old/dist/radix");
 
-const n = 10000;
-
-let tree = Finger.nil;
-let radix = Radix.empty();
-for (let i = 0; i < n; ++i) {
-  tree = Finger.append(i, tree);
-  radix = radix.append(i);
-}
-console.log(tree.suffix.c);
+const n = 100;
 
 module.exports = Suite("append")
   .add("Array", function() {
@@ -66,7 +59,14 @@ module.exports = Suite("append")
     for (let i = 0; i < n; ++i) {
       radix = radix.append(i);
     }
-    return radix.size === n;
+    return radix.length === n;
+  })
+  .add("Old Radix", function () {
+    let radix = OldRadix.empty();
+    for (let i = 0; i < n; ++i) {
+      radix = radix.append(i);
+    }
+    return radix.length === n;
   })
   .add("Finger", function() {
     let tree = Finger.nil;
