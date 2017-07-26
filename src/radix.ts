@@ -345,6 +345,39 @@ export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
   );
 }
 
+// fold
+
+export function foldlArray<A, B>(
+  f: (acc: B, value: A) => B, initial: B, array: A[]
+): B {
+  let acc = initial;
+  for (let i = 0; i < array.length; ++i) {
+    acc = f(acc, array[i]);
+  }
+  return acc;
+}
+
+function foldlNode<A, B>(
+  f: (acc: B, value: A) => B, initial: B, node: Node, depth: number
+): B {
+  const { array } = node;
+  if (depth === 0) {
+    return foldlArray(f, initial, array);
+  }
+  let acc = initial;
+  for (let i = 0; i < array.length; ++i) {
+    acc = foldlNode(f, acc, array[i], depth - 1);
+  }
+  return acc;
+}
+
+export function foldl<A, B>(f: (acc: B, value: A) => B, initial: B, l: List<A>): B {
+  const foldedSuffix = foldlArray(f, initial, l.suffix.array);
+  return l.root === undefined ? foldedSuffix : foldlNode(f, foldedSuffix, l.root, l.depth);
+}
+
+export const reduce = foldl;
+
 const eMax = 2;
 
 function createConcatPlan(array: Node[]): number[] | undefined {
