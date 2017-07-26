@@ -156,6 +156,9 @@ export class List<A> {
   space(): number {
     return (branchingFactor ** (this.depth + 1)) - (this.length - this.suffixSize);
   }
+  [Symbol.iterator](): Iterator<A> {
+    return new ListIterator(this);
+  }
   append(value: A): List<A> {
     if (this.suffixSize < 32) {
       return new List<A>(
@@ -198,6 +201,74 @@ export class List<A> {
 
 function cloneList<A>(list: List<A>): List<A> {
   return new List(list.depth, list.length, list.root, list.suffix, list.suffixSize);
+}
+
+const iteratorDone: IteratorResult<any> = { done: true, value: undefined };
+
+class ListIterator<A> implements Iterator<A> {
+  // leaf: A[];
+  // nodeIdx: number;
+  stack: any[][];
+  indices: number[];
+  constructor(private list: List<A>) {
+    // this.nodeIdx = 0;
+    this.stack = [];
+    this.indices = [];
+    if (list.root !== undefined) {
+      let currentNode = list.root.array;
+      for (let i = 0; i < list.depth + 1; ++i) {
+        this.stack.push(currentNode);
+        this.indices.push(0);
+        currentNode = arrayFirst(currentNode).array;
+      }
+      this.indices[this.indices.length - 1] = -1;
+    } else {
+      this.indices.push(-1);
+    }
+  }
+  goUp(): void {
+    this.stack.pop();
+    this.indices.pop();
+  }
+  remaining(): number {
+    const node = arrayLast(this.stack);
+    const idx = arrayLast(this.indices);
+    return node.length - idx - 1;
+  }
+  incrementIndex(): number {
+    return ++this.indices[this.indices.length - 1];
+  }
+  nextInTree(): void {
+    while (this.remaining() === 0) {
+      this.goUp();
+      if (this.stack.length === 0) {
+        return;
+      }
+    }
+    this.incrementIndex();
+    for (let i = this.indices.length - 1; i < this.list.depth; ++i) {
+      this.stack.push(arrayLast(this.stack)[arrayLast(this.indices)].array);
+      this.indices.push(0);
+    }
+  }
+  next(): IteratorResult<A> {
+    if (this.stack.length !== 0) {
+      this.nextInTree();
+      if (this.stack.length !== 0) {
+        const leaf = arrayLast(this.stack);
+        const idx = arrayLast(this.indices);
+        const value = leaf[idx];
+        return { done: false, value };
+      } else {
+        this.indices.push(-1);
+      }
+    }
+    if (this.indices[0] < this.list.suffixSize - 1) {
+      const idx = this.incrementIndex();
+      return { done: false, value: this.list.suffix.array[idx] };
+    }
+    return iteratorDone;
+  }
 }
 
 export function append<A>(element: A, list: List<A>): List<A> {

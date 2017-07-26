@@ -136,4 +136,22 @@ describe("Radix", () => {
       });
     });
   });
+  describe("iteration", () => {
+    it("iterates over leftwise dense list", () => {
+      [
+        20, // a list where there is no elements in tree
+        50, // tree has depth 0
+        1000, // a tree with larger depth,
+        32 ** 2 + 3 // an even larger tree
+      ].forEach((n) => {
+        const l = createNumberListAppend(0, n);
+        let last = -1;
+        for (const element of l) {
+          assert.strictEqual(element, last + 1);
+          last = element;
+        }
+        assert.strictEqual(last, n - 1);
+      });
+    });
+  });
 });
