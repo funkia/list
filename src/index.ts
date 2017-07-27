@@ -292,12 +292,20 @@ export function list<A>(...elements: A[]): List<A> {
   return l;
 }
 
+export function pair<A>(first: A, second: A): List<A> {
+  return new List(0, 2, undefined, new Affix(false, [first, second]), 2);
+}
+
 export function empty(): List<any> {
   return List.empty();
 }
 
 export function length(l: List<any>): number {
   return l.length;
+}
+
+export function last(l: List<any>): number {
+  return l.length === 0 ? undefined : arrayLast(l.suffix.array);
 }
 
 export function nth<A>(index: number, list: List<A>): A | undefined {

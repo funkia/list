@@ -11,23 +11,34 @@ of implemented functions look promising.
 ## Goals
 
 * Very good performance
-* Functional Ramda-like API. Curried functions, etc.
+* API centered around functions with arguments ordered for
+  currying/partial application
+* Seamless Ramda integration by duplicating their API for arrays
 * TypeScript support
 * Fantasy Land support
 * Full compatibility with tree-shaking. Only pay in size for the
-  functions that you actually use.
+  functions that you actually use
 
 ## Progress
 
-This keeps track of how many of the Ramda functions for Arrays that has currently been implemented on the immutable list: 7/115
+### Fantasy Land
+
+Implemented: Functor
+
+Not implemented yet: Setoid, semigroup, monoid, apply, applicative,
+foldable, traversable, chain, monad.
+
+### Rambda compatibility
+
+This keeps track of how many of the Ramda functions for Arrays that has currently been implemented on the immutable list: 9/115
 
 adjust, all, any, aperture, ~~append~~, chain, ~~concat~~, contains,
 drop, dropLast, dropLastWhile, dropRepeats, dropRepeatsWith,
 dropWhile, endsWith, filter, find, findIndex, findLast, findLastIndex,
 flatten, fromPairs, groupBy, groupWith, head, indexBy, indexOf, init,
-insert, insertAll, intersperse, join, last, lastIndexOf, ~~length~~,
-~~map~~, mapAccum, mapAccumRight, mergeAll, none, ~~nth~~, pair,
-partition, pluck, prepend, ~~range~~, ~~reduce~~, reduceBy,
+insert, insertAll, intersperse, join, ~~last~~, lastIndexOf,
+~~length~~, ~~map~~, mapAccum, mapAccumRight, mergeAll, none, ~~nth~~,
+~~pair~~, partition, pluck, prepend, ~~range~~, ~~reduce~~, reduceBy,
 reduceRight, reduceWhile, reject, remove, repeat, reverse, scan,
 sequence, slice, sort, splitAt, splitEvery, splitWhen, startsWith,
 tail, take, takeLast, takeLastWhile, takeWhile, times, transpose,
@@ -59,6 +70,18 @@ Returns an empty list.
 
 ```js
 const emptyList = empty(); //=> list()
+```
+
+### `pair`
+
+Takes two arguments and returns a list that contains them.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+pair("foo", "bar"); //=> list("foo", "bar")
 ```
 
 ### `concat`
@@ -122,6 +145,20 @@ contains.
 
 ```js
 length(list(0, 1, 2, 3)); //=> 4
+```
+
+### `last`
+
+Returns the last element of the list. If the list is empty the
+function returns undefined.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+last(list(0, 1, 2, 3)); //=> 3
+last(list()); //=> undefined
 ```
 
 ### `map`

@@ -1,7 +1,7 @@
 import { assert } from "chai";
 
 import {
-  length, range, concat, empty, List, list, map, nth, foldl
+  length, range, concat, empty, List, list, map, nth, foldl, last, pair
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -55,6 +55,25 @@ describe("List", () => {
     it("creates a list with the given elements", () => {
       const l = list(0, 1, 2, 3);
       assertIndicesFromTo(l, 0, 4);
+    });
+  });
+  describe("pair", () => {
+    it("creates a list of two elements", () => {
+      const p = pair("foo", "bar");
+      assert.strictEqual(length(p), 2);
+      assert.strictEqual(nth(0, p), "foo");
+      assert.strictEqual(nth(1, p), "bar");
+    });
+  });
+  describe("last", () => {
+    it("gets the last element of a short list", () => {
+      assert.strictEqual(last(list(0, 1, 2, 3)), 3);
+    });
+    it("gets the last element of a long list", () => {
+      assert.strictEqual(last(range(0, 100)), 99);
+    });
+    it("returns undefined on empty list", () => {
+      assert.strictEqual(last(list()), undefined);
     });
   });
   describe("concat", () => {
