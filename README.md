@@ -17,6 +17,23 @@ of implemented functions look promising.
 * Full compatibility with tree-shaking. Only pay in size for the
   functions that you actually use.
 
+## Progress
+
+This keeps track of how many of the Ramda functions for Arrays that has currently been implemented on the immutable list: 7/115
+
+adjust, all, any, aperture, ~~append~~, chain, ~~concat~~, contains,
+drop, dropLast, dropLastWhile, dropRepeats, dropRepeatsWith,
+dropWhile, endsWith, filter, find, findIndex, findLast, findLastIndex,
+flatten, fromPairs, groupBy, groupWith, head, indexBy, indexOf, init,
+insert, insertAll, intersperse, join, last, lastIndexOf, ~~length~~,
+~~map~~, mapAccum, mapAccumRight, mergeAll, none, ~~nth~~, pair,
+partition, pluck, prepend, ~~range~~, ~~reduce~~, reduceBy,
+reduceRight, reduceWhile, reject, remove, repeat, reverse, scan,
+sequence, slice, sort, splitAt, splitEvery, splitWhen, startsWith,
+tail, take, takeLast, takeLastWhile, takeWhile, times, transpose,
+traverse, unfold, uniq, uniqBy, uniqWith, unnest, update, without,
+xprod, zip, zipObj, zipWith
+
 ## API
 
 ### `list`
@@ -92,6 +109,19 @@ exclusive upper bound.
 
 ```js
 range(3, 8); //=> list(3, 4, 5, 6, 7)
+```
+
+### `length`
+
+Returns the length of a list. I.e. the number of elements that it
+contains.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+length(list(0, 1, 2, 3)); //=> 4
 ```
 
 ### `map`

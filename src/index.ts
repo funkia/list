@@ -296,6 +296,10 @@ export function empty(): List<any> {
   return List.empty();
 }
 
+export function length(l: List<any>): number {
+  return l.length;
+}
+
 export function nth<A>(index: number, list: List<A>): A | undefined {
   if (index >= list.length - list.suffixSize) {
     return list.suffix.array[index - (list.length - list.suffixSize)];

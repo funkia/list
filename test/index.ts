@@ -1,6 +1,8 @@
 import { assert } from "chai";
 
-import { range, concat, empty, List, list, map, nth, foldl } from '../src/index';
+import {
+  length, range, concat, empty, List, list, map, nth, foldl
+} from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -66,7 +68,7 @@ describe("List", () => {
         let l1 = range(0, 12);
         let l2 = range(12, 31);
         const catenated = concat(l1, l2);
-        assert.strictEqual(catenated.length, 31);
+        assert.strictEqual(length(catenated), 31);
         const end = 31;
         for (let i = 0; i < end; ++i) {
           assert.strictEqual(nth(i, catenated), i);
