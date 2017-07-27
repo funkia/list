@@ -81,6 +81,19 @@ const l = list(0, 1, 2, 3, 4);
 nth(2, l); //=> 2
 ```
 
+### `range`
+
+Returns a list of numbers between an an inclusive lower bound to an
+exclusive upper bound.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+range(3, 8); //=> list(3, 4, 5, 6, 7)
+```
+
 ### `map`
 
 Applies a function to each element in the given list and returns a new

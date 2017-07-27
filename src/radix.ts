@@ -345,6 +345,14 @@ export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
   );
 }
 
+export function range(start: number, end: number): List<number> {
+  let list = empty();
+  for (let i = start; i < end; ++i) {
+    list = list.append(i);
+  }
+  return list;
+}
+
 // fold
 
 export function foldlArray<A, B>(
