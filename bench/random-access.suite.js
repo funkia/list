@@ -3,10 +3,10 @@ const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const Denque = require("denque");
 
-const Radix = require("../dist/radix");
-const OldRadix = require("./finger-old/dist/radix");
+const List = require("../dist/index");
+const OldList = require("./list-old/dist/index");
 const Finger = require("../dist/finger");
-const Oinger = require("./finger-old/dist/finger");
+const OldFinger = require("./list-old/dist/finger");
 const {Cons} = require("../dist/list");
 
 const n = 10000;
@@ -16,15 +16,15 @@ let array = [];
 let denque = new Denque();
 let immut = new Immutable.List();
 let tree = Finger.nil;
-let _tree = Oinger.nil;
-let radix = Radix.empty();
-let oldRadix = OldRadix.empty();
+let _tree = OldFinger.nil;
+let list = List.empty();
+let oldList = OldList.empty();
 
 for (let i = 0; i < n; ++i) {
   tree = Finger.append(i, tree);
-  _tree = Oinger.append(i, _tree);
-  radix = radix.append(i);
-  oldRadix = oldRadix.append(i);
+  _tree = OldFinger.append(i, _tree);
+  list = list.append(i);
+  oldList = oldList.append(i);
   denque.push(i);
   array.push(i);
   indices.push(i);
@@ -57,17 +57,17 @@ module.exports = Suite("random access")
     }
     return sum === result;
   })
-  .add("Radix", function () {
+  .add("List", function () {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
-      sum += radix.nth(i);
+      sum += list.nth(i);
     }
     return sum === result;
   })
-  .add("Old radix", function () {
+  .add("Old list", function () {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
-      sum += oldRadix.nth(i);
+      sum += oldList.nth(i);
     }
     return sum === result;
   })
@@ -81,7 +81,7 @@ module.exports = Suite("random access")
   .add("Old finger", function() {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
-      sum += Oinger.get(i, _tree);
+      sum += OldFinger.get(i, _tree);
     }
     return sum === result;
   })

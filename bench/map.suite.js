@@ -2,8 +2,8 @@ const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const _ = require("lodash");
 
-const Radix = require("../dist/radix");
-const OldRadix = require("./finger-old/dist/radix");
+const List = require("../dist/index");
+const OldList = require("./list-old/dist/index");
 
 const result = 1;
 
@@ -16,12 +16,12 @@ function square(n) {
 function addBenchmark(n) {
   let array = [];
   let immut = new Immutable.List();
-  let radix = Radix.empty();
-  let oldRadix = OldRadix.empty();
+  let list = List.empty();
+  let oldList = OldList.empty();
 
   for (let i = 0; i < n; ++i) {
-    radix = radix.append(i);
-    oldRadix = oldRadix.append(i);
+    list = list.append(i);
+    oldList = oldList.append(i);
     array.push(i);
     immut = immut.push(i);
   }
@@ -37,10 +37,10 @@ function addBenchmark(n) {
       return immut.map(square);
     })
     .add("mapArray " + n, function () {
-      return Radix.mapArray(square, array);
+      return List.mapArray(square, array);
     })
-    .add("Radix " + n, function () {
-      return Radix.map(square, radix);
+    .add("List " + n, function () {
+      return List.map(square, list);
     });
 }
 

@@ -1,7 +1,7 @@
 node_modules/
 bench/hydrogen-*
 bench/code.asm
-bench/finger-old
+bench/list-old
 dist
 typings
 *~

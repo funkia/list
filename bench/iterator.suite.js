@@ -1,8 +1,8 @@
 const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 
-const Radix = require("../dist/radix");
-const OldRadix = require("./finger-old/dist/radix");
+const List = require("../dist/index");
+const OldList = require("./list-old/dist/index");
 
 const result = 1;
 
@@ -11,12 +11,12 @@ const suite = Suite("Iterator");
 function addBenchmark(n) {
   let array = [];
   let immut = new Immutable.List();
-  let radix = Radix.empty();
-  let oldRadix = OldRadix.empty();
+  let list = List.empty();
+  let oldList = OldList.empty();
 
   for (let i = 0; i < n; ++i) {
-    radix = radix.append(i);
-    oldRadix = oldRadix.append(i);
+    list = list.append(i);
+    oldList = oldList.append(i);
     array.push(i);
     immut = immut.push(i);
   }
@@ -36,9 +36,9 @@ function addBenchmark(n) {
       }
       return sum === result;
     })
-    .add("Radix " + n, function () {
+    .add("List " + n, function () {
       let sum = 0;
-      for (const n of radix) {
+      for (const n of list) {
         sum += n;
       }
       return sum === result;

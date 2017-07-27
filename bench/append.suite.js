@@ -4,10 +4,10 @@ const Denque = require("denque");
 const mori = require("mori");
 
 const Finger = require("../dist/finger");
-const Oinger = require("./finger-old/dist/finger");
+const OldFinger = require("./list-old/dist/finger");
 const {Cons} = require("../dist/list");
-const Radix = require("../dist/radix");
-const OldRadix = require("./finger-old/dist/radix");
+const List = require("../dist/index");
+const OldList = require("./list-old/dist/index");
 
 const n = 100;
 
@@ -54,19 +54,19 @@ module.exports = Suite("append")
     }
     return cons.value === n - 1;
   })
-  .add("Radix", function () {
-    let radix = Radix.empty();
+  .add("List", function () {
+    let list = List.empty();
     for (let i = 0; i < n; ++i) {
-      radix = radix.append(i);
+      list = list.append(i);
     }
-    return radix.length === n;
+    return list.length === n;
   })
-  .add("Old Radix", function () {
-    let radix = OldRadix.empty();
+  .add("Old List", function () {
+    let list = OldList.empty();
     for (let i = 0; i < n; ++i) {
-      radix = radix.append(i);
+      list = list.append(i);
     }
-    return radix.length === n;
+    return list.length === n;
   })
   .add("Finger", function() {
     let tree = Finger.nil;
@@ -76,9 +76,9 @@ module.exports = Suite("append")
     return tree.suffix.c === n - 1;
   })
   .add("Old finger", function() {
-    let tree = Oinger.nil;
+    let tree = OldFinger.nil;
     for (let i = 0; i < n; ++i) {
-      tree = Oinger.append(i, tree);
+      tree = OldFinger.append(i, tree);
     }
     return tree.suffix.c === n - 1;
   })

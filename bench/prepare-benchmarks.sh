@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-OLD_DIR="finger-old"
+OLD_DIR="list-old"
 
 cd $(dirname $0)
 

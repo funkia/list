@@ -136,4 +136,4 @@ npm install
 npm run bench
 ```
 
-Note that in the output `Radix` corresponds to @funkia/list.
+Note that in the output `List` corresponds to @funkia/list.

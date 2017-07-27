@@ -5,25 +5,25 @@ const mori = require("mori");
 const _ = require("lodash");
 
 const Finger = require("../dist/finger");
-const Oinger = require("./finger-old/dist/finger");
+const OldFinger = require("./list-old/dist/finger");
 const { Cons } = require("../dist/list");
 
-const Radix = require("../dist/radix");
+const List = require("../dist/index");
 
 const n = 10000;
 
 let array = [];
 let tree = Finger.nil;
-let list = new Immutable.List();
+let immut = new Immutable.List();
 let mlist = mori.vector();
-let radix = Radix.empty();
+let list = List.empty();
 
 for (let i = 0; i < n; ++i) {
   tree = Finger.append(i, tree);
-  list = list.push(i);
+  immut = immut.push(i);
   mlist = mori.conj(mlist, i);
   array.push(i);
-  radix = radix.append(i);
+  list = list.append(i);
 }
 
 function arrayFold(f, initial, array) {
@@ -49,7 +49,7 @@ module.exports = Suite("foldl")
     return _.reduce(array, subtract, 10);
   })
   .add("Immutable.js", function () {
-    return list.reduce(subtract, 10);
+    return immut.reduce(subtract, 10);
   })
   .add("Mori", function () {
     return mori.reduce(subtract, 10, mlist);
@@ -57,7 +57,7 @@ module.exports = Suite("foldl")
   .add("Finger", function () {
     return Finger.foldl(subtract, 10, tree);
   })
-  .add("Radix", function () {
-    return Radix.foldl(subtract, 10, radix);
+  .add("List", function () {
+    return List.foldl(subtract, 10, list);
   })
   .run({ async: true });
