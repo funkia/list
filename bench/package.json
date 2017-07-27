@@ -5,16 +5,24 @@
   "description": "Benchmarks.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "create-report-data": "ts-node report.ts"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@types/benchmark": "^1.0.30",
+    "@types/lodash": "^4.14.71",
+    "@types/node": "^8.0.17",
+    "@types/plotly.js": "^1.28.2",
     "benchmark": "^2.1.4",
     "denque": "^1.1.1",
     "immutable": "^3.8.1",
     "knuth-shuffle": "^1.0.1",
     "lodash": "^4.17.4",
-    "mori": "^0.3.2"
+    "mori": "^0.3.2",
+    "plotly.js": "^1.29.2",
+    "ramda": "^0.24.1",
+    "ts-loader": "^2.3.2",
+    "webpack": "^3.4.1"
   }
 }

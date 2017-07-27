@@ -2,6 +2,7 @@ node_modules/
 bench/hydrogen-*
 bench/code.asm
 bench/list-old
+bench/data.json
 dist
 typings
 *~
