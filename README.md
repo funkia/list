@@ -3,10 +3,16 @@
 A fast immutable lists. Purely functional general purpose replacement
 for arrays.
 
+[![Gitter](https://img.shields.io/gitter/room/funkia/General.svg)](https://gitter.im/funkia/General)
+[![Build Status](https://travis-ci.org/funkia/list.svg?branch=master)](https://travis-ci.org/funkia/list)
+[![codecov](https://codecov.io/gh/funkia/list/branch/master/graph/badge.svg)](https://codecov.io/gh/funkia/list)
+
 ## Status
 
-Experimental :construction: Basic functionality is missing. Benchmarks
-of implemented functions look promising.
+Experimental :construction:
+
+Basic functionality is missing. Benchmarks of implemented functions
+look promising.
 
 ## Goals
 

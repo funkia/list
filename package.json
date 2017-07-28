@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -P tsconfig-build.json",
     "test": "nyc mocha --recursive test/**/*.ts",
-    "test-jest": "jest",
+    "test-jest": "jest --coverage",
     "test-watch": "mocha -R progress --watch --compilers ts:ts-node/register test/**/*.ts",
     "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench"
