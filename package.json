@@ -18,7 +18,6 @@
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "4.0.1",
-    "@types/jest": "^20.0.5",
     "@types/mocha": "2.2.41",
     "chai": "^4.1.0",
     "codecov": "2.2.0",
