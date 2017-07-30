@@ -14,6 +14,8 @@ function createPath(depth: number, value: any): Node {
   return top;
 }
 
+// Array helper functions
+
 function copyArray(source: any[]): any[] {
   const array = [];
   for (let i = 0; i < source.length; ++i) {
@@ -38,8 +40,35 @@ function copyIndices(
   }
 }
 
+function arrayPrepend<A>(value: A, array: A[]): A[] {
+  const newLength = array.length + 1;
+  const result = new Array(newLength);
+  result[0] = value;
+  for (let i = 1; i < newLength; ++i) {
+    result[i] = array[i - 1];
+  }
+  return result;
+}
+
+function arrayAppend<A>(value: A, array: A[]): A[] {
+  const { length } = array;
+  const result = new Array(length + 1);
+  for (let i = 0; i < length; ++i) {
+    result[i] = array[i];
+  }
+  result[length] = value;
+  return result;
+}
+
+function arrayFirst<A>(array: A[]): A {
+  return array[0];
+}
+
+function arrayLast<A>(array: A[]): A {
+  return array[array.length - 1];
+}
+
 export class Node {
-  // sizes: number[];
   constructor(public sizes: number[], public array: any[]) {
   }
   append(value: any): Node {
@@ -47,28 +76,43 @@ export class Node {
     array.push(value);
     return new Node(undefined, array);
   }
-  update(depth: number, index: number, value: any): Node {
-    const path = (index >> (depth * 5)) & mask;
-    const array = copyArray(this.array);
-    if (depth === 0) {
+  update(depth: number, index: number, offset: number, value: any): Node {
+    const curOffset = (offset >> (depth * bits)) & mask;
+    const path = ((index >> (depth * bits)) & mask) - curOffset;
+    let array;
+    if (depth === 0) { // fix this if
+      if (path < 0) {
+        array = arrayPrepend(value, this.array);
+      } else {
+        array = copyArray(this.array);
+      }
       array[path] = value;
     } else {
-      let child = this.array[path];
-      if (child === undefined) {
-        array[path] = createPath(depth - 1, value);
+      if (path < 0) {
+        array = arrayPrepend(createPath(depth - 1, value), this.array);
+      } else if (this.array.length <= path) {
+        array = arrayAppend(createPath(depth - 1, value), this.array);
       } else {
-        array[path] = child.update(depth - 1, index, value);
+        array = copyArray(this.array);
+        array[path] = array[path].update(depth - 1, index, path === 0 ? offset : 0, value);
       }
     }
     return new Node(this.sizes, array);
   }
 }
 
-function nodeNthDense(node: Node, depth: number, index: number): any {
+function nodeNthDense(
+  node: Node, depth: number, index: number, offset: number
+): any {
+  index += offset;
   let path;
   let current = node;
   for (; depth >= 0; --depth) {
-    path = (index >> (depth * 5)) & mask;
+    path =
+      ((index >> (depth * bits)) & mask) - ((offset >> (depth * bits)) & mask);
+    if (path !== 0) {
+      offset = 0;
+    }
     current = current.array[path];
   }
   return current;
@@ -87,23 +131,19 @@ function nodeNth(node: Node, depth: number, index: number): any {
     depth--;
     current = current.array[path];
   }
-  return nodeNthDense(current, depth, index);
+  return nodeNthDense(current, depth, index, 0);
 }
 
 function cloneNode(node: Node): Node {
   return new Node(node.sizes, copyArray(node.array));
 }
 
-function arrayFirst<A>(array: A[]): A {
-  return array[0];
-}
-
-function arrayLast<A>(array: A[]): A {
-  return array[array.length - 1];
-}
-
 function suffixToNode<A>(suffix: Affix<A>): Node {
   return new Node(undefined, suffix.array);
+}
+
+function prefixToNode<A>(suffix: Affix<A>): Node {
+  return new Node(undefined, suffix.array.reverse());
 }
 
 function setSizes(node: Node, height: number): Node {
@@ -141,6 +181,8 @@ export class Affix<A> {
   ) { }
 }
 
+const emptyAffix = new Affix(false, []);
+
 function affixPush<A>(a: A, { owned, array }: Affix<A>): Affix<A> {
   if (owned === true) {
     owned = false;
@@ -156,10 +198,13 @@ function affixPush<A>(a: A, { owned, array }: Affix<A>): Affix<A> {
 export class List<A> {
   constructor(
     public depth: number,
+    public offset: number,
     public length: number,
     public root: Node,
     public suffix: Affix<A>,
-    public suffixSize: number
+    public suffixSize: number,
+    public prefix: Affix<A>,
+    public prefixSize: number
   ) { }
   space(): number {
     return (branchingFactor ** (this.depth + 1)) - (this.length - this.suffixSize);
@@ -174,17 +219,22 @@ export class List<A> {
     if (this.suffixSize < 32) {
       return new List<A>(
         this.depth,
+        0,
         this.length + 1,
         this.root,
         affixPush(value, this.suffix),
-        this.suffixSize + 1
+        this.suffixSize + 1,
+        emptyAffix,
+        0
       );
     }
     const newSuffix = new Affix(true, [value]);
     const suffixNode = suffixToNode(this.suffix);
     if (this.length === 32) {
       return new List<A>(
-        0, this.length + 1, suffixNode, newSuffix, 1
+        0, 0, this.length + 1, suffixNode, newSuffix, 1,
+        emptyAffix,
+        0
       );
     }
     const full = this.space() === 0;
@@ -196,22 +246,24 @@ export class List<A> {
         node = new Node(undefined, [this.root, createPath(this.depth - 1, suffixNode)]);
       }
     } else {
-      node = this.root.update(this.depth - 1, (this.length - 1) >> 5, suffixNode);
+      node = this.root.update(this.depth - 1, (this.length - 1) >> 5, 0, suffixNode);
     }
     return new List<A>(
-      this.depth + (full ? 1 : 0), this.length + 1, node, newSuffix, 1
+      this.depth + (full ? 1 : 0), 0, this.length + 1, node, newSuffix, 1,
+      emptyAffix,
+      0
     );
   }
   nth(index: number): A | undefined {
     return nth(index, this);
   }
   static empty(): List<any> {
-    return new List(0, 0, undefined, new Affix(true, []), 0);
+    return new List(0, 0, 0, undefined, new Affix(true, []), 0, emptyAffix, 0);
   }
 }
 
-function cloneList<A>(list: List<A>): List<A> {
-  return new List(list.depth, list.length, list.root, list.suffix, list.suffixSize);
+function cloneList<A>(l: List<A>): List<A> {
+  return new List(l.depth, l.offset, l.length, l.root, l.suffix, l.suffixSize, l.prefix, l.prefixSize);
 }
 
 const iteratorDone: IteratorResult<any> = { done: true, value: undefined };
@@ -280,8 +332,58 @@ class ListIterator<A> implements Iterator<A> {
   }
 }
 
-export function append<A>(element: A, list: List<A>): List<A> {
-  return list.append(element);
+export function prepend<A>(value: A, l: List<A>): List<A> {
+  const { prefixSize, depth } = l;
+  if (prefixSize < 32) {
+    return new List<A>(
+      l.depth,
+      l.offset,
+      l.length + 1,
+      l.root,
+      l.suffix,
+      l.suffixSize,
+      affixPush(value, l.prefix),
+      prefixSize + 1
+    );
+  }
+  const newPrefix = new Affix(true, [value]);
+  const prefixNode = prefixToNode(l.prefix);
+  if (l.length === 32) {
+    return new List(
+      0, 0, l.length + 1, prefixNode, emptyAffix, 0, newPrefix, 1
+    );
+  }
+  let full = l.offset === 0;
+  let root;
+  let newOffset = 0;
+  if (full === true) {
+    if (l.depth === 0) { // todo: fix this special case, here and in append
+      root = new Node(undefined, [prefixNode, l.root]);
+    } else if (l.root.array.length < branchingFactor) {
+      // there is space in the root
+      newOffset = 32 ** (depth + 0) - 32;
+      full = false;
+      if (depth === 1) {
+        root = new Node(undefined, arrayPrepend(prefixNode, l.root.array));
+      } else {
+        root = new Node(undefined, arrayPrepend(createPath(l.depth - 2, prefixNode), l.root.array));
+      }
+    } else {
+      // we need to create a new root
+      newOffset = (32 ** (depth + 1)) - 32;
+      root = new Node(undefined, [createPath(l.depth - 1, prefixNode), l.root]);
+    }
+  } else {
+    newOffset = l.offset - branchingFactor;
+    root = l.root.update(l.depth - 1, (l.offset - 1) >> 5, l.offset >> 5, prefixNode);
+  }
+  return new List<A>(
+    l.depth + (full ? 1 : 0), newOffset, l.length + 1, root, l.suffix, l.suffixSize, newPrefix, 1
+  );
+}
+
+export function append<A>(element: A, l: List<A>): List<A> {
+  return l.append(element);
 }
 
 export function list<A>(...elements: A[]): List<A> {
@@ -293,7 +395,9 @@ export function list<A>(...elements: A[]): List<A> {
 }
 
 export function pair<A>(first: A, second: A): List<A> {
-  return new List(0, 2, undefined, new Affix(false, [first, second]), 2);
+  return new List(0, 0, 2, undefined, new Affix(false, [first, second]), 2,
+    emptyAffix,
+    0);
 }
 
 export function empty(): List<any> {
@@ -309,10 +413,15 @@ export function last(l: List<any>): number {
 }
 
 export function nth<A>(index: number, list: List<A>): A | undefined {
-  if (index >= list.length - list.suffixSize) {
+  const { prefixSize, offset } = list;
+  if (index < prefixSize) {
+    return list.prefix.array[prefixSize - index - 1];
+  } else if (index >= list.length - list.suffixSize) {
     return list.suffix.array[index - (list.length - list.suffixSize)];
   }
-  return list.root.sizes === undefined ? nodeNthDense(list.root, list.depth, index) : nodeNth(list.root, list.depth, index);
+  return list.root.sizes === undefined
+    ? nodeNthDense(list.root, list.depth, index - prefixSize, offset)
+    : nodeNth(list.root, list.depth, index - prefixSize);
 }
 
 // map
@@ -350,10 +459,12 @@ function mapSuffix<A, B>(
 
 export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
   return new List(
-    l.depth, l.length,
+    l.depth, 0, l.length,
     l.root === undefined ? undefined : mapNode(f, l.root, l.depth),
     mapSuffix(f, l.suffix, l.suffixSize),
-    l.suffixSize
+    l.suffixSize,
+    emptyAffix,
+    0
   );
 }
 
@@ -670,11 +781,11 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     if (right.suffixSize + left.suffixSize <= branchingFactor) {
       // the two suffixes can be combined into one
       return new List(
-        right.depth,
+        right.depth, 0,
         left.length + right.length,
         left.root,
         new Affix(true, left.suffix.array.concat(right.suffix.array)),
-        left.suffixSize + right.length
+        left.suffixSize + right.length, emptyAffix, 0
       );
     } else if (left.suffixSize === branchingFactor) {
       // left suffix is full and can be pushed down
@@ -700,6 +811,6 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     const newNode = concatSubTree(newLeft.root, newLeft.depth, right.root, right.depth, true);
     const newHeight = getHeight(newNode);
     setSizes(newNode, newHeight);
-    return new List(newHeight, newSize, newNode, right.suffix, right.suffixSize);
+    return new List(newHeight, 0, newSize, newNode, right.suffix, right.suffixSize, emptyAffix, 0);
   }
 }

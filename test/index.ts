@@ -1,7 +1,7 @@
 import { assert } from "chai";
 
 import {
-  length, range, concat, empty, List, list, map, nth, foldl, last, pair
+  length, range, concat, empty, List, list, map, nth, foldl, last, pair, prepend
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -16,18 +16,15 @@ function assertIndicesFromTo(
   list: List<number>, from: number, to: number
 ): void {
   for (let i = from; i < to; ++i) {
-    assert.strictEqual(list.nth(i), i);
+    assert.strictEqual(nth(i, list), i);
   }
 }
 
 describe("List", () => {
   describe("append", () => {
     it("can append small", () => {
-      const list = empty().append(1).append(2).append(3).append(4);
-      assert.strictEqual(list.nth(0), 1);
-      assert.strictEqual(list.nth(1), 2);
-      assert.strictEqual(list.nth(2), 3);
-      assert.strictEqual(list.nth(3), 4);
+      const list = empty().append(0).append(1).append(2).append(3);
+      assertIndicesFromTo(list, 0, 4);
     });
     it("can append 1000 elements", () => {
       let list = empty();
@@ -49,6 +46,35 @@ describe("List", () => {
       const size = 32 * 32 * 32 + 32;
       const list = range(0, size);
       assertIndicesFromTo(list, 0, size);
+    });
+  });
+  describe("prepend", () => {
+    it("prepends items", () => {
+      [
+        32, // everything sits in prefix
+        32 ** 2 + 32 + 1, // depth is 2 and tail is pushed down
+        32 ** 2 + 2 * 32 + 1,
+        2081,
+        32 ** 3 + 2 * 32 + 1
+      ].forEach((n) => {
+        let l = empty();
+        for (let i = n - 1; i >= 0; --i) {
+          l = prepend(i, l);
+        }
+        assertIndicesFromTo(l, 0, n);
+      });
+    });
+    it("prepends many items", () => {
+      [
+        32
+        // 1048641 // large
+      ].forEach((n) => {
+        let l = empty();
+        for (let i = n - 1; i >= 0; --i) {
+          l = prepend(i, l);
+        }
+        assertIndicesFromTo(l, 0, n);
+      });
     });
   });
   describe("list", () => {

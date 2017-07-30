@@ -2,6 +2,7 @@ const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const Denque = require("denque");
 
+const L = require("../dist/index");
 const Finger = require("../dist/finger");
 const OldFinger = require("./list-old/dist/finger");
 const {Cons} = require("../dist/list");
@@ -43,6 +44,13 @@ module.exports = Suite("prepend")
       cons = new Cons(i, cons);
     }
     return cons.value === n - 1;
+  })
+  .add("List", function () {
+    let list = L.empty();
+    for (let i = 0; i < n; ++i) {
+      list = L.prepend(i, list);
+    }
+    return list.length === n - 1;
   })
   .add("Finger", function() {
     let tree = Finger.nil;
