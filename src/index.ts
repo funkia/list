@@ -67,31 +67,17 @@ function arrayLast<A>(array: A[]): A {
 export class Node {
   constructor(public sizes: number[], public array: any[]) {
   }
-  append(value: any): Node {
-    const array = copyArray(this.array);
-    array.push(value);
-    return new Node(undefined, array);
-  }
   update(depth: number, index: number, offset: number, value: any): Node {
     const curOffset = (offset >> (depth * bits)) & mask;
     const path = ((index >> (depth * bits)) & mask) - curOffset;
     let array;
-    if (depth === 0) { // fix this if
-      if (path < 0) {
-        array = arrayPrepend(value, this.array);
-      } else {
-        array = copyArray(this.array);
-      }
-      array[path] = value;
+    if (path < 0) {
+      array = arrayPrepend(createPath(depth, value), this.array);
+    } else if (this.array.length <= path) {
+      array = arrayAppend(createPath(depth, value), this.array);
     } else {
-      if (path < 0) {
-        array = arrayPrepend(createPath(depth, value), this.array);
-      } else if (this.array.length <= path) {
-        array = arrayAppend(createPath(depth, value), this.array);
-      } else {
-        array = copyArray(this.array);
-        array[path] = array[path].update(depth - 1, index, path === 0 ? offset : 0, value);
-      }
+      array = copyArray(this.array);
+      array[path] = array[path].update(depth - 1, index, path === 0 ? offset : 0, value);
     }
     return new Node(this.sizes, array);
   }
@@ -323,7 +309,9 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
       newOffset = 32 ** (depth + 0) - 32;
       full = false;
       root = new Node(
-        undefined, arrayPrepend(createPath(l.depth - 1, prefixNode), l.root.array));
+        undefined,
+        arrayPrepend(createPath(l.depth - 1, prefixNode), l.root.array)
+      );
     } else {
       // we need to create a new root
       newOffset = l.depth === 0 ? 0 : (32 ** (depth + 1)) - 32;
@@ -361,7 +349,7 @@ export function append<A>(value: A, l: List<A>): List<A> {
   }
   const full = l.space() <= 0;
   let node;
-  if (full) {
+  if (full === true) {
     node = new Node(undefined, [l.root, createPath(l.depth, suffixNode)]);
   } else {
     const rootContent = l.length - l.suffixSize - l.prefixSize;
