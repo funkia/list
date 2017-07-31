@@ -36,22 +36,23 @@ foldable, traversable, chain, monad.
 
 ### Rambda compatibility
 
-This keeps track of how many of the Ramda functions for Arrays that has currently been implemented on the immutable list: 9/115
+This keeps track of how many of the Ramda functions for Arrays that has currently been implemented on the immutable list: 11/115
 
 adjust, all, any, aperture, ~~append~~, chain, ~~concat~~, contains,
 drop, dropLast, dropLastWhile, dropRepeats, dropRepeatsWith,
 dropWhile, endsWith, filter, find, findIndex, findLast, findLastIndex,
-flatten, fromPairs, groupBy, groupWith, head, indexBy, indexOf, init,
-insert, insertAll, intersperse, join, ~~last~~, lastIndexOf,
+flatten, fromPairs, groupBy, groupWith, ~~head~~, indexBy, indexOf,
+init, insert, insertAll, intersperse, join, ~~last~~, lastIndexOf,
 ~~length~~, ~~map~~, mapAccum, mapAccumRight, mergeAll, none, ~~nth~~,
-~~pair~~, partition, pluck, prepend, ~~range~~, ~~reduce~~, reduceBy,
-reduceRight, reduceWhile, reject, remove, repeat, reverse, scan,
-sequence, slice, sort, splitAt, splitEvery, splitWhen, startsWith,
-tail, take, takeLast, takeLastWhile, takeWhile, times, transpose,
-traverse, unfold, uniq, uniqBy, uniqWith, unnest, update, without,
-xprod, zip, zipObj, zipWith
+~~pair~~, partition, pluck, ~~prepend~~, ~~range~~, ~~reduce~~,
+reduceBy, reduceRight, reduceWhile, reject, remove, repeat, reverse,
+scan, sequence, slice, sort, splitAt, splitEvery, splitWhen,
+startsWith, tail, take, takeLast, takeLastWhile, takeWhile, times,
+transpose, traverse, unfold, uniq, uniqBy, uniqWith, unnest, update,
+without, xprod, zip, zipObj, zipWith
 
 ## API
+
 
 ### `list`
 
@@ -100,6 +101,18 @@ Concatenates two lists.
 
 ```js
 concat(list(0, 1, 2), list(3, 4)); //=> list(0, 1, 2, 3, 4)
+```
+
+### `prepend`
+
+Prepends an element to the front of a list and returns the new list.
+
+**Complexity**: `O(logn)`, practically constant
+
+**Example**
+
+```js
+const newList = prepend(0, list(1, 2, 3)); //=> list(0, 1, 2, 3)
 ```
 
 ### `append`
@@ -153,10 +166,26 @@ contains.
 length(list(0, 1, 2, 3)); //=> 4
 ```
 
+### `first`
+
+Returns the first element of the list. If the list is empty the
+function returns `undefined`.
+
+**Aliases**: `head`
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+first(list(0, 1, 2, 3)); //=> 0
+first(list()); //=> undefined
+```
+
 ### `last`
 
 Returns the last element of the list. If the list is empty the
-function returns undefined.
+function returns `undefined`.
 
 **Complexity**: `O(1)`
 

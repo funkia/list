@@ -382,8 +382,20 @@ export function length(l: List<any>): number {
   return l.length;
 }
 
+export function first<A>(l: List<A>): A | undefined {
+  if (l.prefixSize !== 0) {
+    return arrayLast(l.prefix.array);
+  } else if (l.suffixSize !== 0) {
+    return arrayFirst(l.suffix.array);
+  }
+}
+
 export function last(l: List<any>): number {
-  return l.length === 0 ? undefined : arrayLast(l.suffix.array);
+  if (l.suffixSize !== 0) {
+    return arrayLast(l.suffix.array);
+  } else if (l.prefixSize !== 0) {
+    return arrayFirst(l.prefix.array);
+  }
 }
 
 export function nth<A>(index: number, list: List<A>): A | undefined {

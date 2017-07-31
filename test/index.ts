@@ -2,7 +2,7 @@ import { assert } from "chai";
 
 import {
   length, range, concat, empty, List, list, map, nth, foldl, last,
-  pair, prepend, append
+  pair, prepend, append, first
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -133,7 +133,7 @@ describe("List", () => {
       assert.strictEqual(nth(1, p), "bar");
     });
   });
-  describe("last", () => {
+  describe("first and last", () => {
     it("gets the last element of a short list", () => {
       assert.strictEqual(last(list(0, 1, 2, 3)), 3);
     });
@@ -142,6 +142,18 @@ describe("List", () => {
     });
     it("returns undefined on empty list", () => {
       assert.strictEqual(last(list()), undefined);
+    });
+    it("gets the last element of prepended list", () => {
+      const l = prepend(0, prepend(1, prepend(2, empty())));
+      assert.strictEqual(last(l), 2);
+    });
+    it("gets first element of prepended list", () => {
+      const l = prepend(0, prepend(1, prepend(2, empty())));
+      assert.strictEqual(first(l), 0);
+    });
+    it("gets first element of appended list", () => {
+      const l = append(3, append(2, append(1, append(0, empty()))));
+      assert.strictEqual(first(l), 0);
     });
   });
   describe("concat", () => {
