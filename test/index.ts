@@ -1,7 +1,8 @@
 import { assert } from "chai";
 
 import {
-  length, range, concat, empty, List, list, map, nth, foldl, last, pair, prepend
+  length, range, concat, empty, List, list, map, nth, foldl, last,
+  pair, prepend, append
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -75,6 +76,47 @@ describe("List", () => {
         }
         assertIndicesFromTo(l, 0, n);
       });
+    });
+  });
+  describe("append and prepend", () => {
+    it("prepend to 32 size appended", () => {
+      let l = empty();
+      const n = 32;
+      for (let i = 1; i < n + 1; ++i) {
+        l = append(i, l);
+      }
+      l = prepend(0, l);
+      assertIndicesFromTo(l, 0, n + 1);
+    });
+    it("can append and prepend", () => {
+      let l = empty();
+      const n = 1000;
+      for (let i = 0; i < n; ++i) {
+        l = prepend(n - i - 1, l);
+        l = append(n + i, l);
+      }
+    });
+    it("can append when there is offset", () => {
+      let l = empty();
+      const n = 32 ** 2 + 32 * 2;
+      const m = (32 ** 2); // * 31 - 32 * 3;
+      const nm = 33;
+      // first we prepend enough elements to grow the tree to height
+      // 2, then we push additionally 64 elements to arrive at a list
+      // with an offset
+      for (let i = n - 1; i >= 0; --i) {
+        l = prepend(i + nm, l);
+      }
+      // next we append elements to fill the right space up
+      for (let i = 0; i < m; ++i) {
+        l = append(n + nm + i, l);
+      }
+      // finally we push enough elements to trigger one more prefix to
+      // be pushed down
+      for (let i = nm - 1; 0 <= i; --i) {
+        l = prepend(i, l);
+      }
+      assertIndicesFromTo(l, 0, n + m + nm);
     });
   });
   describe("list", () => {
@@ -231,4 +273,4 @@ describe("List", () => {
       });
     });
   });
-});  
+});
