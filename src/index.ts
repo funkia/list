@@ -1,5 +1,5 @@
 const branchingFactor = 32;
-const bits = 5;
+const branchBits = 5;
 const mask = 31;
 
 function createPath(depth: number, value: any): any {
@@ -68,8 +68,8 @@ export class Node {
   constructor(public sizes: number[], public array: any[]) {
   }
   update(depth: number, index: number, offset: number, value: any): Node {
-    const curOffset = (offset >> (depth * bits)) & mask;
-    const path = ((index >> (depth * bits)) & mask) - curOffset;
+    const curOffset = (offset >> (depth * branchBits)) & mask;
+    const path = ((index >> (depth * branchBits)) & mask) - curOffset;
     let array;
     if (path < 0) {
       array = arrayPrepend(createPath(depth, value), this.array);
@@ -91,7 +91,7 @@ function nodeNthDense(
   let current = node;
   for (; depth >= 0; --depth) {
     path =
-      ((index >> (depth * bits)) & mask) - ((offset >> (depth * bits)) & mask);
+      ((index >> (depth * branchBits)) & mask) - ((offset >> (depth * branchBits)) & mask);
     if (path !== 0) {
       offset = 0;
     }
@@ -149,7 +149,7 @@ function sizeOfSubtree(node: Node, height: number): number {
     } else {
       // the node is leftwise dense so all all but the last child are full
       const lastSize = sizeOfSubtree(arrayLast(node.array), height - 1);
-      return ((node.array.length - 1) << (height * bits)) + lastSize;
+      return ((node.array.length - 1) << (height * branchBits)) + lastSize;
     }
   } else {
     return node.array.length;
@@ -177,20 +177,66 @@ function affixPush<A>(a: A, { owned, array }: Affix<A>): Affix<A> {
   }
 }
 
+// We store a bitfield in list. From right to left, the first five
+// bits are suffix length, the next five are prefix length and the
+// rest is depth. The functions below are for working with the bits in
+// a sane way.
+
+const affixMask = 0b111111;
+const affixBits = 6;
+
+function getSuffixSize(l: List<any>): number {
+  return l.bits & affixMask;
+}
+
+function getPrefixSize(l: List<any>): number {
+  return (l.bits >> affixBits) & affixMask;
+}
+
+function getDepth(l: List<any>): number {
+  return l.bits >> (affixBits * 2);
+}
+
+function setPrefix(size: number, bits: number): number {
+  return (size << affixBits) | (bits & ~(affixMask << affixBits));
+}
+
+function setSuffix(size: number, bits: number): number {
+  return size | (bits & ~affixMask);
+}
+
+function setDepth(depth: number, bits: number): number {
+  return (depth << (affixBits * 2)) | (bits & (affixMask & (affixMask << affixBits)));
+}
+
+function incrementPrefix(bits: number): number {
+  return bits + (1 << affixBits);
+}
+
+function incrementSuffix(bits: number): number {
+  return bits + 1;
+}
+
+function incrementDepth(bits: number): number {
+  return bits + (1 << (affixBits * 2));
+}
+
+function createBits(depth: number, prefixSize: number, suffixSize: number): number {
+  return (depth << (affixBits * 2)) | (prefixSize << affixBits) | suffixSize;
+}
+
 export class List<A> {
   constructor(
-    public depth: number,
+    public bits: number,
     public offset: number,
     public length: number,
     public root: Node,
     public suffix: Affix<A>,
-    public suffixSize: number,
-    public prefix: Affix<A>,
-    public prefixSize: number
+    public prefix: Affix<A>
   ) { }
   space(): number {
-    return (branchingFactor ** (this.depth + 1))
-      - (this.length - this.suffixSize - this.prefixSize + this.offset);
+    return (branchingFactor ** (getDepth(this) + 1))
+      - (this.length - getSuffixSize(this) - getPrefixSize(this) + this.offset);
   }
   [Symbol.iterator](): Iterator<A> {
     return new ListIterator(this);
@@ -205,12 +251,12 @@ export class List<A> {
     return nth(index, this);
   }
   static empty(): List<any> {
-    return new List(-1, 0, 0, undefined, new Affix(true, []), 0, emptyAffix, 0);
+    return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
   }
 }
 
 function cloneList<A>(l: List<A>): List<A> {
-  return new List(l.depth, l.offset, l.length, l.root, l.suffix, l.suffixSize, l.prefix, l.prefixSize);
+  return new List(l.bits, l.offset, l.length, l.root, l.suffix, l.prefix);
 }
 
 const iteratorDone: IteratorResult<any> = { done: true, value: undefined };
@@ -224,7 +270,8 @@ class ListIterator<A> implements Iterator<A> {
     this.indices = [];
     if (list.root !== undefined) {
       let currentNode = list.root.array;
-      for (let i = 0; i < list.depth + 1; ++i) {
+      const depth = getDepth(list);
+      for (let i = 0; i < depth + 1; ++i) {
         this.stack.push(currentNode);
         this.indices.push(0);
         currentNode = arrayFirst(currentNode).array;
@@ -254,7 +301,8 @@ class ListIterator<A> implements Iterator<A> {
       }
     }
     this.incrementIndex();
-    for (let i = this.indices.length - 1; i < this.list.depth; ++i) {
+    const depth = getDepth(this.list);
+    for (let i = this.indices.length - 1; i < depth; ++i) {
       this.stack.push(arrayLast(this.stack)[arrayLast(this.indices)].array);
       this.indices.push(0);
     }
@@ -271,7 +319,8 @@ class ListIterator<A> implements Iterator<A> {
         this.indices.push(-1);
       }
     }
-    if (this.indices[0] < this.list.suffixSize - 1) {
+    const suffixSize = getSuffixSize(this.list);
+    if (this.indices[0] < suffixSize - 1) {
       const idx = this.incrementIndex();
       return { done: false, value: this.list.suffix.array[idx] };
     }
@@ -280,24 +329,24 @@ class ListIterator<A> implements Iterator<A> {
 }
 
 export function prepend<A>(value: A, l: List<A>): List<A> {
-  const { prefixSize, depth } = l;
+  const prefixSize = getPrefixSize(l);
+  const depth = getDepth(l);
   if (prefixSize < 32) {
     return new List<A>(
-      l.depth,
+      incrementPrefix(l.bits),
       l.offset,
       l.length + 1,
       l.root,
       l.suffix,
-      l.suffixSize,
-      affixPush(value, l.prefix),
-      prefixSize + 1
+      affixPush(value, l.prefix)
     );
   }
   const newPrefix = new Affix(true, [value]);
   const prefixNode = prefixToNode(l.prefix);
+  let bits = setPrefix(1, l.bits);
   if (l.root === undefined) {
     return new List(
-      0, 0, l.length + 1, prefixNode, l.suffix, l.suffixSize, newPrefix, 1
+      bits, 0, l.length + 1, prefixNode, l.suffix, newPrefix
     );
   }
   let full = l.offset === 0;
@@ -310,53 +359,57 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
       full = false;
       root = new Node(
         undefined,
-        arrayPrepend(createPath(l.depth - 1, prefixNode), l.root.array)
+        arrayPrepend(createPath(depth - 1, prefixNode), l.root.array)
       );
     } else {
       // we need to create a new root
-      newOffset = l.depth === 0 ? 0 : (32 ** (depth + 1)) - 32;
-      root = new Node(undefined, [createPath(l.depth, prefixNode), l.root]);
+      newOffset = depth === 0 ? 0 : (32 ** (depth + 1)) - 32;
+      root = new Node(undefined, [createPath(depth, prefixNode), l.root]);
     }
   } else {
     newOffset = l.offset - branchingFactor;
-    root = l.root.update(l.depth - 1, (l.offset - 1) >> 5, l.offset >> 5, prefixNode);
+    root = l.root.update(depth - 1, (l.offset - 1) >> 5, l.offset >> 5, prefixNode);
   }
-  return new List(
-    l.depth + (full ? 1 : 0), newOffset, l.length + 1, root, l.suffix, l.suffixSize, newPrefix, 1
-  );
+  if (full === true) {
+    bits = incrementDepth(bits);
+  }
+  return new List(bits, newOffset, l.length + 1, root, l.suffix, newPrefix);
 }
 
 export function append<A>(value: A, l: List<A>): List<A> {
-  const { suffixSize, depth } = l;
+  const suffixSize = getSuffixSize(l);
+  const depth = getDepth(l);
   if (suffixSize < 32) {
     return new List(
-      l.depth,
+      incrementSuffix(l.bits),
       l.offset,
       l.length + 1,
       l.root,
       affixPush(value, l.suffix),
-      suffixSize + 1,
-      l.prefix,
-      l.prefixSize
+      l.prefix
     );
   }
   const newSuffix = new Affix(true, [value]);
   const suffixNode = suffixToNode(l.suffix);
+  let bits = setSuffix(1, l.bits);
   if (l.root === undefined) {
     return new List(
-      0, l.offset, l.length + 1, suffixNode, newSuffix, 1, l.prefix, l.prefixSize
+      bits, l.offset, l.length + 1, suffixNode, newSuffix, l.prefix
     );
   }
   const full = l.space() <= 0;
   let node;
   if (full === true) {
-    node = new Node(undefined, [l.root, createPath(l.depth, suffixNode)]);
+    node = new Node(undefined, [l.root, createPath(depth, suffixNode)]);
   } else {
-    const rootContent = l.length - l.suffixSize - l.prefixSize;
-    node = l.root.update(l.depth - 1, (l.offset + rootContent) >> 5, l.offset >> 5, suffixNode);
+    const rootContent = l.length - suffixSize - getPrefixSize(l);
+    node = l.root.update(depth - 1, (l.offset + rootContent) >> 5, l.offset >> 5, suffixNode);
+  }
+  if (full === true) {
+    bits = incrementDepth(bits);
   }
   return new List(
-    l.depth + (full ? 1 : 0), l.offset, l.length + 1, node, newSuffix, 1, l.prefix, l.prefixSize
+    bits, l.offset, l.length + 1, node, newSuffix, l.prefix
   );
 }
 
@@ -369,9 +422,9 @@ export function list<A>(...elements: A[]): List<A> {
 }
 
 export function pair<A>(first: A, second: A): List<A> {
-  return new List(0, 0, 2, undefined, new Affix(false, [first, second]), 2,
-    emptyAffix,
-    0);
+  return new List(
+    2, 0, 2, undefined, new Affix(false, [first, second]), emptyAffix
+  );
 }
 
 export function empty(): List<any> {
@@ -383,31 +436,34 @@ export function length(l: List<any>): number {
 }
 
 export function first<A>(l: List<A>): A | undefined {
-  if (l.prefixSize !== 0) {
+  if (getPrefixSize(l) !== 0) {
     return arrayLast(l.prefix.array);
-  } else if (l.suffixSize !== 0) {
+  } else if (getSuffixSize(l) !== 0) {
     return arrayFirst(l.suffix.array);
   }
 }
 
 export function last(l: List<any>): number {
-  if (l.suffixSize !== 0) {
+  if (getSuffixSize(l) !== 0) {
     return arrayLast(l.suffix.array);
-  } else if (l.prefixSize !== 0) {
+  } else if (getPrefixSize(l) !== 0) {
     return arrayFirst(l.prefix.array);
   }
 }
 
-export function nth<A>(index: number, list: List<A>): A | undefined {
-  const { prefixSize, offset } = list;
+export function nth<A>(index: number, l: List<A>): A | undefined {
+  const prefixSize = getPrefixSize(l);
+  const suffixSize = getSuffixSize(l);
+  const { offset } = l;
   if (index < prefixSize) {
-    return list.prefix.array[prefixSize - index - 1];
-  } else if (index >= list.length - list.suffixSize) {
-    return list.suffix.array[index - (list.length - list.suffixSize)];
+    return l.prefix.array[prefixSize - index - 1];
+  } else if (index >= l.length - suffixSize) {
+    return l.suffix.array[index - (l.length - suffixSize)];
   }
-  return list.root.sizes === undefined
-    ? nodeNthDense(list.root, list.depth, index - prefixSize, offset)
-    : nodeNth(list.root, list.depth, index - prefixSize);
+  const depth = getDepth(l);
+  return l.root.sizes === undefined
+    ? nodeNthDense(l.root, depth, index - prefixSize, offset)
+    : nodeNth(l.root, depth, index - prefixSize);
 }
 
 // map
@@ -445,12 +501,12 @@ function mapSuffix<A, B>(
 
 export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
   return new List(
-    l.depth, 0, l.length,
-    l.root === undefined ? undefined : mapNode(f, l.root, l.depth),
-    mapSuffix(f, l.suffix, l.suffixSize),
-    l.suffixSize,
-    emptyAffix,
-    0
+    l.bits,
+    0,
+    l.length,
+    l.root === undefined ? undefined : mapNode(f, l.root, getDepth(l)),
+    mapSuffix(f, l.suffix, getSuffixSize(l)),
+    emptyAffix
   );
 }
 
@@ -490,7 +546,9 @@ function foldlNode<A, B>(
 
 export function foldl<A, B>(f: (acc: B, value: A) => B, initial: B, l: List<A>): B {
   const foldedSuffix = foldlArray(f, initial, l.suffix.array);
-  return l.root === undefined ? foldedSuffix : foldlNode(f, foldedSuffix, l.root, l.depth);
+  return l.root === undefined
+    ? foldedSuffix
+    : foldlNode(f, foldedSuffix, l.root, getDepth(l));
 }
 
 export const reduce = foldl;
@@ -654,12 +712,12 @@ function pushDownTail<A>(
   newSuffix: Affix<A>,
   newSuffixSize: number
 ): List<A> {
+  const depth = getDepth(oldList);
   // install the new suffix in location
   newList.suffix = newSuffix;
-  newList.suffixSize = newSuffixSize;
+  newList.bits = setSuffix(newSuffixSize, newList.bits);
   if (oldList.length <= branchingFactor) {
     // The old tree has no content in tree, all content is in affixes
-    newList.depth++;
     newList.root = suffixNode;
     return newList;
   }
@@ -667,11 +725,11 @@ function pushDownTail<A>(
   let nodesToCopy = 0;
   let nodesVisited = 0;
   let pos = 0;
-  let shift = oldList.depth * 5;
+  let shift = depth * 5;
   let currentNode = oldList.root;
-  if (32 ** (oldList.depth + 1) < index) {
+  if (32 ** (depth + 1) < index) {
     shift = 0; // there is no room
-    nodesVisited = oldList.depth;
+    nodesVisited = depth;
   }
   while (shift > 5) {
     let childIndex: number;
@@ -712,7 +770,7 @@ function pushDownTail<A>(
       : createPath(nodesVisited, suffixNode);
     const newRoot = new Node(undefined, [newList.root, newPath]);
     newList.root = newRoot;
-    newList.depth++;
+    newList.bits = incrementDepth(newList.bits);
   } else {
     const node = copyFirstK(oldList, newList, nodesToCopy);
     const leaf = appendEmpty(node, nodesVisited - nodesToCopy);
@@ -763,41 +821,46 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     return right;
   } else if (right.length === 0) {
     return left;
-  } else if (right.root === undefined) {
+  }
+  const rightSuffixSize = getSuffixSize(right);
+  if (right.root === undefined) {
     // right is nothing but a suffix
-    if (right.suffixSize + left.suffixSize <= branchingFactor) {
+    const leftSuffixSize = getSuffixSize(left);
+    if (rightSuffixSize + leftSuffixSize <= branchingFactor) {
       // the two suffixes can be combined into one
       return new List(
-        right.depth, 0,
+        setSuffix(leftSuffixSize + right.length, left.bits),
+        0,
         left.length + right.length,
         left.root,
         new Affix(true, left.suffix.array.concat(right.suffix.array)),
-        left.suffixSize + right.length, emptyAffix, 0
+        left.prefix
       );
-    } else if (left.suffixSize === branchingFactor) {
+    } else if (leftSuffixSize === branchingFactor) {
       // left suffix is full and can be pushed down
       const newList = cloneList(left);
       newList.length += right.length;
-      return pushDownTail(left, newList, suffixToNode(newList.suffix), right.suffix, right.suffixSize);
+      return pushDownTail(left, newList, suffixToNode(newList.suffix), right.suffix, rightSuffixSize);
     } else {
       // we must merge the two suffixes and push down
       const newList = cloneList(left);
       newList.length += right.length;
       const newNode = new Node(undefined, []);
-      const leftSize = left.suffixSize;
-      copyIndices(left.suffix.array, 0, newNode.array, 0, left.suffixSize);
+      const leftSize = leftSuffixSize;
+      copyIndices(left.suffix.array, 0, newNode.array, 0, leftSuffixSize);
       const rightSize = branchingFactor - leftSize;
       copyIndices(right.suffix.array, 0, newNode.array, leftSize, rightSize);
-      const newSuffixSize = right.suffixSize - rightSize;
+      const newSuffixSize = rightSuffixSize - rightSize;
       const newSuffix = new Affix(true, right.suffix.array.slice(rightSize));
       return pushDownTail(left, newList, newNode, newSuffix, newSuffixSize);
     }
   } else {
     const newSize = left.length + right.length;
     const newLeft = pushDownTail(left, cloneList(left), suffixToNode(left.suffix), undefined, 0);
-    const newNode = concatSubTree(newLeft.root, newLeft.depth, right.root, right.depth, true);
-    const newHeight = getHeight(newNode);
-    setSizes(newNode, newHeight);
-    return new List(newHeight, 0, newSize, newNode, right.suffix, right.suffixSize, emptyAffix, 0);
+    const newNode = concatSubTree(newLeft.root, getDepth(newLeft), right.root, getDepth(right), true);
+    const newDepth = getHeight(newNode);
+    setSizes(newNode, newDepth);
+    const bits = createBits(newDepth, getPrefixSize(left), rightSuffixSize);
+    return new List(bits, 0, newSize, newNode, right.suffix, left.prefix);
   }
 }

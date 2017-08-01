@@ -53,6 +53,7 @@ describe("List", () => {
     it("prepends items", () => {
       [
         32, // everything sits in prefix
+        32 + 32 + 1, // tail is pushed down
         32 ** 2 + 32 + 1, // depth is 2 and tail is pushed down
         32 ** 2 + 2 * 32 + 1,
         2081,
