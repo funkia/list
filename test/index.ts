@@ -13,6 +13,14 @@ function numberArray(start: number, end: number): number[] {
   return array;
 }
 
+function prependList(start: number, end: number): List<number> {
+  let l = empty();
+  for (let i = end - 1; i >= 0; --i) {
+    l = prepend(start + i, l);
+  }
+  return l;
+}
+
 function assertIndicesFromTo(
   list: List<number>, from: number, to: number
 ): void {
@@ -47,6 +55,13 @@ describe("List", () => {
       const size = 32 * 32 * 32 + 32;
       const list = range(0, size);
       assertIndicesFromTo(list, 0, size);
+    });
+    it("copies suffix when it should", () => {
+      const l1 = append(0, empty());
+      const l2 = append(1, l1);
+      const l3 = append(2, l1);
+      assert.strictEqual(last(l2), 1);
+      assert.strictEqual(last(l3), 2);
     });
   });
   describe("prepend", () => {
@@ -239,14 +254,22 @@ describe("List", () => {
     });
   });
   describe("map", () => {
+    const square = (n: any) => n * n;
     it("maps function over list", () => {
       [30, 100, 32 * 4 + 1].forEach((n) => {
         const l = range(0, n);
-        const mapped = map((m) => m * m, l);
+        const mapped = map(square, l);
         for (let i = 0; i < n; ++i) {
           assert.strictEqual(nth(i, mapped), i * i);
         }
       });
+    });
+    it("maps over prepended list", () => {
+      const l = prependList(0, 50);
+      const mapped = map(square, l);
+      for (let i = 0; i < 50; ++i) {
+        assert.strictEqual(nth(i, mapped), i * i);
+      }
     });
     it("has Fantasy Land method", () => {
       const n = 50;
