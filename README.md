@@ -25,9 +25,9 @@ Work in progress :construction:
 
 ### Fantasy Land
 
-Implemented: Functor
+Implemented: Functor, semigroup, monoid.
 
-Not implemented yet: Setoid, semigroup, monoid, apply, applicative,
+Not implemented yet: Setoid, apply, applicative,
 foldable, traversable, chain, monad.
 
 ### Rambda compatibility

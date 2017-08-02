@@ -237,14 +237,17 @@ export class List<A> {
   "fantasy-land/map"<B>(f: (a: A) => B): List<B> {
     return map(f, this);
   }
+  "fantasy-land/empty"(): List<any> {
+    return empty();
+  }
+  "fantasy-land/concat"(right: List<A>): List<A> {
+    return concat(this, right);
+  }
   append(value: A): List<A> {
     return append(value, this);
   }
   nth(index: number): A | undefined {
     return nth(index, this);
-  }
-  static empty(): List<any> {
-    return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
   }
 }
 
@@ -421,7 +424,7 @@ export function pair<A>(first: A, second: A): List<A> {
 }
 
 export function empty(): List<any> {
-  return List.empty();
+  return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
 }
 
 export function length(l: List<any>): number {

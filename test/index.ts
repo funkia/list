@@ -173,10 +173,10 @@ describe("List", () => {
     });
   });
   describe("concat", () => {
-    const list = empty().append(1).append(2).append(3);
+    const l = empty().append(1).append(2).append(3);
     it("concats empty sides", () => {
-      assert.strictEqual(concat(list, empty()), list);
-      assert.strictEqual(concat(empty(), list), list);
+      assert.strictEqual(concat(l, empty()), l);
+      assert.strictEqual(concat(empty(), l), l);
     });
     describe("right is smaller than 32", () => {
       it("combined size is smaller than 32", () => {
@@ -251,6 +251,15 @@ describe("List", () => {
         assert.strictEqual(catenated.length, size * 5);
         assertIndicesFromTo(catenated, 0, totalSize + size);
       });
+    });
+
+  });
+  describe("monoid", () => {
+    it("has fantasy land empty", () => {
+      list(0, 1, 2)["fantasy-land/empty"]();
+    });
+    it("has fantasy land concat", () => {
+      list(0, 1, 2)["fantasy-land/concat"](list(3, 4));
     });
   });
   describe("map", () => {
