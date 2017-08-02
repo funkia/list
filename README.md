@@ -7,12 +7,8 @@ for arrays.
 [![Build Status](https://travis-ci.org/funkia/list.svg?branch=master)](https://travis-ci.org/funkia/list)
 [![codecov](https://codecov.io/gh/funkia/list/branch/master/graph/badge.svg)](https://codecov.io/gh/funkia/list)
 
-## Status
+Work in progress :construction:
 
-Experimental :construction:
-
-Basic functionality is missing. Benchmarks of implemented functions
-look promising.
 
 ## Goals
 
@@ -23,7 +19,7 @@ look promising.
 * TypeScript support
 * Fantasy Land support
 * Full compatibility with tree-shaking. Only pay in size for the
-  functions that you actually use
+  functions that you actually use.
 
 ## Progress
 
@@ -38,21 +34,32 @@ foldable, traversable, chain, monad.
 
 This keeps track of how many of the Ramda functions for Arrays that has currently been implemented on the immutable list: 11/115
 
-adjust, all, any, aperture, ~~append~~, chain, ~~concat~~, contains,
-drop, dropLast, dropLastWhile, dropRepeats, dropRepeatsWith,
-dropWhile, endsWith, filter, find, findIndex, findLast, findLastIndex,
-flatten, fromPairs, groupBy, groupWith, ~~head~~, indexBy, indexOf,
-init, insert, insertAll, intersperse, join, ~~last~~, lastIndexOf,
-~~length~~, ~~map~~, mapAccum, mapAccumRight, mergeAll, none, ~~nth~~,
-~~pair~~, partition, pluck, ~~prepend~~, ~~range~~, ~~reduce~~,
-reduceBy, reduceRight, reduceWhile, reject, remove, repeat, reverse,
-scan, sequence, slice, sort, splitAt, splitEvery, splitWhen,
-startsWith, tail, take, takeLast, takeLastWhile, takeWhile, times,
-transpose, traverse, unfold, uniq, uniqBy, uniqWith, unnest, update,
-without, xprod, zip, zipObj, zipWith
+Implemented: append, concat, head, last, length, map, nth, pair,
+prepend, range, reduce.
+
+Not implemented: adjust, all, any, aperture, chain, contains, drop,
+dropLast, dropLastWhile, dropRepeats, dropRepeatsWith, dropWhile,
+endsWith, filter, find, findIndex, findLast, findLastIndex, flatten,
+fromPairs, groupBy, groupWith, indexBy, indexOf, init, insert,
+insertAll, intersperse, join, lastIndexOf, mapAccum, mapAccumRight,
+mergeAll, none, partition, pluck, reduceBy, reduceRight, reduceWhile,
+reject, remove, repeat, reverse, scan, sequence, slice, sort, splitAt,
+splitEvery, splitWhen, startsWith, tail, take, takeLast,
+takeLastWhile, takeWhile, times, transpose, traverse, unfold, uniq,
+uniqBy, uniqWith, unnest, update, without, xprod, zip, zipObj,
+zipWith.
 
 ## API
 
+The API is organized into three parts.
+
+1. Functions that create lists.
+2. Functions that takes one or more lists as argument and returns a
+   new list. I.e. functions that updates lists.
+3. Function that takes one or more lists as arguments and returns
+   something that is not a list.
+
+### Creating lists
 
 ### `list`
 
@@ -91,6 +98,21 @@ Takes two arguments and returns a list that contains them.
 pair("foo", "bar"); //=> list("foo", "bar")
 ```
 
+### `range`
+
+Returns a list of numbers between an an inclusive lower bound to an
+exclusive upper bound.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+range(3, 8); //=> list(3, 4, 5, 6, 7)
+```
+
+### Updating lists
+
 ### `concat`
 
 Concatenates two lists.
@@ -127,6 +149,21 @@ Appends an element to the end of a list and returns the new list.
 const newList = append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
 ```
 
+### `map`
+
+Applies a function to each element in the given list and returns a new
+list with the values that the function return.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+map((n) => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
+```
+
+### Queries
+
 ### `nth`
 
 Gets the `n`th element of the list.
@@ -138,19 +175,6 @@ Gets the `n`th element of the list.
 ```js
 const l = list(0, 1, 2, 3, 4);
 nth(2, l); //=> 2
-```
-
-### `range`
-
-Returns a list of numbers between an an inclusive lower bound to an
-exclusive upper bound.
-
-**Complexity**: `O(n)`
-
-**Example**
-
-```js
-range(3, 8); //=> list(3, 4, 5, 6, 7)
 ```
 
 ### `length`
@@ -194,19 +218,6 @@ function returns `undefined`.
 ```js
 last(list(0, 1, 2, 3)); //=> 3
 last(list()); //=> undefined
-```
-
-### `map`
-
-Applies a function to each element in the given list and returns a new
-list with the values that the function return.
-
-**Complexity**: `O(n)`
-
-**Example**
-
-```js
-map((n) => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
 ```
 
 ### `foldl`
