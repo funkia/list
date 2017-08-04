@@ -19,9 +19,14 @@ function runAsync(benchmark: Benchmark) {
   });
 }
 
-async function runTest<A>(name: string, test: Test<A>, input: A[]): Promise<Benchmark[]> {
+async function runTest<A>(
+  name: string, suite: Bench<any>, test: Test<A>, input: A[]
+): Promise<Benchmark[]> {
   const results = [];
   for (const n of input) {
+    if (suite.before !== undefined) {
+      suite.before(n);
+    }
     if (test.before !== undefined) {
       test.before(n);
     }
@@ -57,17 +62,19 @@ type Tests<Input> = { [name: string]: Test<Input> };
 type BenchmarkOptions<Input> = {
   name: string,
   input?: Input[]
+  before?: (input: Input) => void
 };
 
 type Bench<Input> = {
   name: string,
-  input?: Input[]
   tests: Tests<Input>
+  input?: Input[]
+  before?: (input: Input) => void
 };
 
 const benchmarks: Bench<any>[] = [];
 
-function benchmark<Input = any>(name: string | BenchmarkOptions<Input>, tests: Tests<Input>): void {
+export function benchmark<Input = any>(name: string | BenchmarkOptions<Input>, tests: Tests<Input>): void {
   if (typeof name === "string") {
     name = { name: name };
   }
@@ -113,14 +120,14 @@ benchmark({
   name: "concat",
   input: [10, 200]
 }, {
-    "List": {
+    "List, current": {
       before: (n) => {
         left = L.range(0, n);
         right = L.range(n, 2 * n);
       },
       run: () => L.concat(left, right)
     },
-    "Old list": {
+    "List, old": {
       before: (n) => {
         left = Lo.range(0, n);
         right = Lo.range(n, 2 * n);
@@ -168,6 +175,9 @@ function areSubstrings(s: string, ss: string[]): boolean {
 }
 
 async function runBenchmarks(benchmarkNames: string[], p: string[]): Promise<void> {
+  (<any>require)("./random-access.perf");
+  (<any>require)("./foldl.perf");
+
   const startTime = Date.now();
   const results = [];
   const relevantBenchmarks =
@@ -178,9 +188,12 @@ async function runBenchmarks(benchmarkNames: string[], p: string[]): Promise<voi
   for (const suite of relevantBenchmarks) {
     const { name, input, tests } = suite;
     const data = [];
-    const names = Object.keys(tests).filter((name) => areSubstrings(name, p));
+    const names =
+      p === undefined
+        ? Object.keys(tests)
+        : Object.keys(tests).filter((name) => areSubstrings(name, p));
     for (const testName of names) {
-      const result = await runTest(testName, tests[testName], input);
+      const result = await runTest(testName, suite, tests[testName], input);
       const plot = plotData(testName, input, result);
       data.push(plot);
     }
@@ -202,7 +215,7 @@ yargs
     type: "array"
   })
   .option("p", {
-    alias: "performes",
+    alias: "performers",
     describe: "Filtering of performers. Only run those that include one of the names.",
     type: "array"
   })
