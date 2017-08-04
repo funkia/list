@@ -57,7 +57,7 @@ type Test<Input> = {
   run: () => void
 };
 
-type Tests<Input> = { [name: string]: Test<Input> };
+type Tests<Input> = { [name: string]: Test<Input> | (() => void) };
 
 type BenchmarkOptions<Input> = {
   name: string,
@@ -74,7 +74,9 @@ type Bench<Input> = {
 
 const benchmarks: Bench<any>[] = [];
 
-export function benchmark<Input = any>(name: string | BenchmarkOptions<Input>, tests: Tests<Input>): void {
+export function benchmark<Input = any>(
+  name: string | BenchmarkOptions<Input>, tests: Tests<Input>
+): void {
   if (typeof name === "string") {
     name = { name: name };
   }
@@ -177,6 +179,7 @@ function areSubstrings(s: string, ss: string[]): boolean {
 async function runBenchmarks(benchmarkNames: string[], p: string[]): Promise<void> {
   (<any>require)("./random-access.perf");
   (<any>require)("./foldl.perf");
+  (<any>require)("./foldl-iterator.perf");
 
   const startTime = Date.now();
   const results = [];
@@ -193,7 +196,11 @@ async function runBenchmarks(benchmarkNames: string[], p: string[]): Promise<voi
         ? Object.keys(tests)
         : Object.keys(tests).filter((name) => areSubstrings(name, p));
     for (const testName of names) {
-      const result = await runTest(testName, suite, tests[testName], input);
+      const testData = tests[testName];
+      const test = typeof testData === "function"
+        ? { run: testData }
+        : testData;
+      const result = await runTest(testName, suite, test, input);
       const plot = plotData(testName, input, result);
       data.push(plot);
     }
