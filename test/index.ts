@@ -2,7 +2,8 @@ import { assert } from "chai";
 
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
-  last, pair, prepend, append, first, repeat, take, every, some, none
+  last, pair, prepend, append, first, repeat, take, every, some, none,
+  find
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -37,6 +38,8 @@ function assertIndicesFromTo(
   }
 }
 
+const isEven = (n: number) => n % 2 === 0;
+
 describe("List", () => {
   describe("repeat", () => {
     it("creates list of n repeated elements", () => {
@@ -63,12 +66,8 @@ describe("List", () => {
       assertIndicesFromTo(list, 0, 1000);
     });
     it("can append 97 elements", () => {
-      let list = empty();
-      const size = 97;
-      for (let i = 0; i < size; ++i) {
-        list = list.append(i);
-      }
-      assertIndicesFromTo(list, 0, 97);
+      let l = appendList(0, 97);
+      assertIndicesFromTo(l, 0, 97);
     });
     it("can append tree of depth 2", () => {
       const size = 32 * 32 * 32 + 32;
@@ -173,7 +172,10 @@ describe("List", () => {
       assert.strictEqual(last(list(0, 1, 2, 3)), 3);
     });
     it("gets the last element of a long list", () => {
-      assert.strictEqual(last(range(0, 100)), 99);
+      assert.strictEqual(last(appendList(0, 100)), 99);
+    });
+    it.skip("can get the last element when prefix overflows", () => {
+      assert.strictEqual(last(prependList(0, 33)), 32);
     });
     it("returns undefined on empty list", () => {
       assert.strictEqual(last(list()), undefined);
@@ -189,6 +191,9 @@ describe("List", () => {
     it("gets first element of appended list", () => {
       const l = append(3, append(2, append(1, append(0, empty()))));
       assert.strictEqual(first(l), 0);
+    });
+    it.skip("can get the first element when suffix overflows", () => {
+      assert.strictEqual(first(appendList(0, 33)), 0);
     });
   });
   describe("concat", () => {
@@ -271,7 +276,6 @@ describe("List", () => {
         assertIndicesFromTo(catenated, 0, totalSize + size);
       });
     });
-
   });
   describe("monoid", () => {
     it("has fantasy land empty", () => {
@@ -360,7 +364,6 @@ describe("List", () => {
     });
   });
   describe("every, some, and none", () => {
-    const isEven = (n: number) => n % 2 === 0;
     const l1 = list(2, 4, 6, 8);
     const l2 = list(2, 3, 4, 6, 7, 8);
     const l3 = list(1, 3, 5, 7);
@@ -375,12 +378,20 @@ describe("List", () => {
       assert.strictEqual(some(isEven, l1), true);
       assert.strictEqual(some(isEven, l2), true);
       assert.strictEqual(some(isEven, l3), false);
-      });
+    });
     it("returns true from every when all elements satisfy predicate", () => {
       assert.strictEqual(none(isEven, empty()), true);
       assert.strictEqual(none(isEven, l1), false);
       assert.strictEqual(none(isEven, l2), false);
       assert.strictEqual(none(isEven, l3), true);
+    });
+  });
+  describe("find", () => {
+    it("finds the first element satisfying predicate", () => {
+      assert.strictEqual(find(isEven, list(1, 3, 4, 5, 6)), 4);
+    });
+    it("returns undefined if no element is found", () => {
+      assert.strictEqual(find(isEven, list(1, 3, 5, 7)), undefined);
     });
   });
   describe("iteration", () => {

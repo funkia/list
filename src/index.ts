@@ -689,9 +689,9 @@ export function take<A>(n: number, l: List<A>): List<A> {
     : foldlCb<A, TakeState<A>>(pushTake, { n, list: empty() }, l).list;
 }
 
-type BoolState = {
+type PredState = {
   predicate: (a: any) => boolean,
-  result: boolean
+  result: any
 };
 
 function everyCb<A>(value: A, state: any): boolean {
@@ -699,7 +699,7 @@ function everyCb<A>(value: A, state: any): boolean {
 }
 
 export function every<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
-  return foldlCb<A, BoolState>(everyCb, { predicate, result: true }, l).result;
+  return foldlCb<A, PredState>(everyCb, { predicate, result: true }, l).result;
 }
 
 export const all = every;
@@ -709,7 +709,7 @@ function someCb<A>(value: A, state: any): boolean {
 }
 
 export function some<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
-  return foldlCb<A, BoolState>(someCb, { predicate, result: false }, l).result;
+  return foldlCb<A, PredState>(someCb, { predicate, result: false }, l).result;
 }
 
 // tslint:disable-next-line:variable-name
@@ -717,6 +717,19 @@ export const any = some;
 
 export function none<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return !some(predicate, l);
+}
+
+function findCb<A>(value: A, state: PredState) {
+  if (state.predicate(value)) {
+    state.result = value;
+    return false;
+  } else {
+    return true;
+  }
+}
+
+export function find<A>(predicate: (a: A) => boolean, l: List<A>): A | undefined {
+  return foldlCb<A, PredState>(findCb, { predicate, result: undefined }, l).result;
 }
 
 // concat

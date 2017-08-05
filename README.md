@@ -9,7 +9,6 @@ for arrays.
 
 Work in progress :construction:
 
-
 ## Goals
 
 * Very good performance
@@ -20,6 +19,14 @@ Work in progress :construction:
 * Fantasy Land support
 * Full compatibility with tree-shaking. Only pay in size for the
   functions that you actually use.
+
+## Why?
+
+List is an implementation of an immutable list. Just like arrays List
+implements a data-structure that stores elements ordered in a
+sequence. Arrays are an mutable data-structure with an
+imperative API. List on the other hand is a immutable data-structure
+optimized for purely functional programming.
 
 ## Progress
 
@@ -35,12 +42,12 @@ foldable, traversable, chain, monad.
 This keeps track of how many of the Ramda functions for Arrays that
 has currently been implemented on the immutable list: 17/115
 
-Implemented: all, any, append, concat, head, last, length, map, none,
+Implemented: all, any, append, concat, find, head, last, length, map, none,
 nth, pair, prepend, range, reduce, reduceRight, repeat, take.
 
 Not implemented: adjust, aperture, chain, contains, drop, dropLast,
 dropLastWhile, dropRepeats, dropRepeatsWith, dropWhile, endsWith,
-filter, find, findIndex, findLast, findLastIndex, flatten, fromPairs,
+filter, findIndex, findLast, findLastIndex, flatten, fromPairs,
 groupBy, groupWith, indexBy, indexOf, init, insert, insertAll,
 intersperse, join, lastIndexOf, mapAccum, mapAccumRight, mergeAll,
 partition, pluck, reduceBy, reduceWhile, reject, remove, reverse,
@@ -311,6 +318,21 @@ some(isEven, empty()); //=> false
 some(isEven, list(2, 4, 6, 8)); //=> true
 some(isEven, list(2, 3, 4, 6, 7, 8)); //=> true
 some(isEven, list(1, 3, 5, 7)); //=> false
+```
+
+### `find`
+
+Returns the first element for which the predicate returns `true`. If
+no such element is found the function returns `undefined`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const isEven = (n) => n % 2 === 0;
+find(isEven, list(1, 3, 5, 6, 7, 9, 10)); //=> 6
+find(isEven, list(1, 3, 5, 7, 9)); //=> undefined
 ```
 
 ### `none`
