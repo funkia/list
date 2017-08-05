@@ -528,7 +528,7 @@ export function range(start: number, end: number): List<number> {
 
 // fold
 
-export function foldlSuffix<A, B>(
+function foldlSuffix<A, B>(
   f: (acc: B, value: A) => B, acc: B, array: A[], length: number
 ): B {
   for (let i = 0; i < length; ++i) {
@@ -537,7 +537,7 @@ export function foldlSuffix<A, B>(
   return acc;
 }
 
-export function foldlPrefix<A, B>(
+function foldlPrefix<A, B>(
   f: (acc: B, value: A) => B, acc: B, array: A[], length: number
 ): B {
   for (let i = length - 1; 0 <= i; --i) {
@@ -571,7 +571,7 @@ export function foldl<A, B>(f: (acc: B, value: A) => B, initial: B, l: List<A>):
 
 export const reduce = foldl;
 
-export function foldrSuffix<A, B>(
+function foldrSuffix<A, B>(
   f: (value: A, acc: B) => B, initial: B, array: A[], length: number
 ): B {
   let acc = initial;
@@ -581,7 +581,7 @@ export function foldrSuffix<A, B>(
   return acc;
 }
 
-export function foldrPrefix<A, B>(
+function foldrPrefix<A, B>(
   f: (value: A, acc: B) => B, initial: B, array: A[], length: number
 ): B {
   let acc = initial;
@@ -615,6 +615,77 @@ export function foldr<A, B>(f: (value: A, acc: B) => B, initial: B, l: List<A>):
 }
 
 export const reduceRight = foldr;
+
+// callback fold
+
+type FoldCb<Input, State> = (input: Input, state: State) => boolean;
+
+function foldlSuffixCb<A, B>(
+  cb: FoldCb<A, B>, state: B, array: A[], length: number
+): boolean {
+  for (var i = 0; i < length && cb(array[i], state); ++i) { }
+  return i === length;
+}
+
+function foldlPrefixCb<A, B>(
+  cb: FoldCb<A, B>, state: B, array: A[], length: number
+): boolean {
+  for (var i = length - 1; 0 <= i && cb(array[i], state); ++i) { }
+  return i === 0 || length === 0;
+}
+
+function foldlNodeCb<A, B>(
+  cb: FoldCb<A, B>, state: B, node: Node, depth: number
+): boolean {
+  const { array } = node;
+  if (depth === 0) {
+    return foldlSuffixCb(cb, state, array, array.length);
+  }
+  for (
+    var i = 0;
+    i < array.length && foldlNodeCb(cb, state, array[i], depth - 1);
+    ++i
+  ) { }
+  return i === array.length;
+}
+
+/**
+ * This function is a lot like a fold. But the reducer function is
+ * supposed to mutate its state instead of returning it. Instead of
+ * returning a new state it returns a boolean that tells wether or not
+ * to continue the fold. If it returns true then the folding should
+ * continue.
+ */
+function foldlCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {
+  const suffixSize = getSuffixSize(l);
+  const prefixSize = getPrefixSize(l);
+  if (foldlPrefixCb(cb, state, l.prefix, prefixSize)) {
+    if (l.root !== undefined) {
+      if (foldlNodeCb(cb, state, l.root, getDepth(l))) {
+        foldlSuffixCb(cb, state, l.suffix, suffixSize);
+      }
+    } else {
+      foldlSuffixCb(cb, state, l.suffix, suffixSize);
+    }
+  }
+  return state;
+}
+
+type TakeState<A> = {
+  n: number,
+  list: List<A>
+};
+
+function pushTake<A>(value: A, state: TakeState<A>): boolean {
+  state.list = append(value, state.list);
+  return (--state.n) !== 0;
+}
+
+export function take<A>(n: number, l: List<A>): List<A> {
+  return l.length <= n
+    ? l
+    : foldlCb<A, TakeState<A>>(pushTake, { n, list: empty() }, l).list;
+}
 
 // concat
 

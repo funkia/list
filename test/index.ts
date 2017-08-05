@@ -2,7 +2,7 @@ import { assert } from "chai";
 
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
-  last, pair, prepend, append, first, repeat
+  last, pair, prepend, append, first, repeat, take
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -334,6 +334,28 @@ describe("List", () => {
       [10, 32 * 4 + 5].forEach((n) => {
         const result = foldr((i, arr) => (arr.push(i), arr), [], prependList(0, n));
         assert.deepEqual(result, numberArray(0, n).reverse());
+      });
+    });
+  });
+  describe("take", () => {
+    it("takes element from the left", () => {
+      ([
+        [10, 20, true], // we only take from suffix
+        [10, 32 * 3, false], // we should only take from prefix
+        [100, 1000, true], // stop in tree
+        [999, 1000, true]
+      ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
+        const l = shouldAppend ? appendList(0, n) : prependList(0, n);
+        const taken = take(amount, l);
+        assert.strictEqual(taken.length, amount);
+        assertIndicesFromTo(l, 0, amount);
+      });
+    });
+    it("returns same list when taking more than length", () => {
+      [[10, 10], [12, 9]].forEach(([amount, n]) => {
+        const l = appendList(0, n);
+        const taken = take(amount, l);
+        assert.strictEqual(l, taken);
       });
     });
   });
