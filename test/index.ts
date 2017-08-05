@@ -2,7 +2,7 @@ import { assert } from "chai";
 
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
-  last, pair, prepend, append, first, repeat, take
+  last, pair, prepend, append, first, repeat, take, every, some, none
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -357,6 +357,30 @@ describe("List", () => {
         const taken = take(amount, l);
         assert.strictEqual(l, taken);
       });
+    });
+  });
+  describe("every, some, and none", () => {
+    const isEven = (n: number) => n % 2 === 0;
+    const l1 = list(2, 4, 6, 8);
+    const l2 = list(2, 3, 4, 6, 7, 8);
+    const l3 = list(1, 3, 5, 7);
+    it("returns true from every when all elements satisfy predicate", () => {
+      assert.strictEqual(every(isEven, empty()), true);
+      assert.strictEqual(every(isEven, l1), true);
+      assert.strictEqual(every(isEven, l2), false);
+      assert.strictEqual(every(isEven, l3), false);
+    });
+    it("returns true from every when all elements satisfy predicate", () => {
+      assert.strictEqual(some(isEven, empty()), false);
+      assert.strictEqual(some(isEven, l1), true);
+      assert.strictEqual(some(isEven, l2), true);
+      assert.strictEqual(some(isEven, l3), false);
+      });
+    it("returns true from every when all elements satisfy predicate", () => {
+      assert.strictEqual(none(isEven, empty()), true);
+      assert.strictEqual(none(isEven, l1), false);
+      assert.strictEqual(none(isEven, l2), false);
+      assert.strictEqual(none(isEven, l3), true);
     });
   });
   describe("iteration", () => {

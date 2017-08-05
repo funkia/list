@@ -671,6 +671,8 @@ function foldlCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {
   return state;
 }
 
+// functions based on foldlCb
+
 type TakeState<A> = {
   n: number,
   list: List<A>
@@ -685,6 +687,36 @@ export function take<A>(n: number, l: List<A>): List<A> {
   return l.length <= n
     ? l
     : foldlCb<A, TakeState<A>>(pushTake, { n, list: empty() }, l).list;
+}
+
+type BoolState = {
+  predicate: (a: any) => boolean,
+  result: boolean
+};
+
+function everyCb<A>(value: A, state: any): boolean {
+  return (state.result = state.predicate(value));
+}
+
+export function every<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
+  return foldlCb<A, BoolState>(everyCb, { predicate, result: true }, l).result;
+}
+
+export const all = every;
+
+function someCb<A>(value: A, state: any): boolean {
+  return !(state.result = state.predicate(value));
+}
+
+export function some<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
+  return foldlCb<A, BoolState>(someCb, { predicate, result: false }, l).result;
+}
+
+// tslint:disable-next-line:variable-name
+export const any = some;
+
+export function none<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
+  return !some(predicate, l);
 }
 
 // concat

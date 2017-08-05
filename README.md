@@ -33,22 +33,21 @@ foldable, traversable, chain, monad.
 ### Rambda compatibility
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 14/115
+has currently been implemented on the immutable list: 17/115
 
-Implemented: append, concat, head, last, length, map, nth, pair,
-prepend, range, reduce, reduceRight, repeat, take.
+Implemented: all, any, append, concat, head, last, length, map, none,
+nth, pair, prepend, range, reduce, reduceRight, repeat, take.
 
-Not implemented: adjust, all, any, aperture, chain, contains, drop,
-dropLast, dropLastWhile, dropRepeats, dropRepeatsWith, dropWhile,
-endsWith, filter, find, findIndex, findLast, findLastIndex, flatten,
-fromPairs, groupBy, groupWith, indexBy, indexOf, init, insert,
-insertAll, intersperse, join, lastIndexOf, mapAccum, mapAccumRight,
-mergeAll, none, partition, pluck, reduceBy, reduceWhile, reject,
-remove, reverse, scan, sequence, slice, sort, splitAt,
-splitEvery, splitWhen, startsWith, tail, takeLast,
-takeLastWhile, takeWhile, times, transpose, traverse, unfold, uniq,
-uniqBy, uniqWith, unnest, update, without, xprod, zip, zipObj,
-zipWith.
+Not implemented: adjust, aperture, chain, contains, drop, dropLast,
+dropLastWhile, dropRepeats, dropRepeatsWith, dropWhile, endsWith,
+filter, find, findIndex, findLast, findLastIndex, flatten, fromPairs,
+groupBy, groupWith, indexBy, indexOf, init, insert, insertAll,
+intersperse, join, lastIndexOf, mapAccum, mapAccumRight, mergeAll,
+partition, pluck, reduceBy, reduceWhile, reject, remove, reverse,
+scan, sequence, slice, sort, splitAt, splitEvery, splitWhen,
+startsWith, tail, takeLast, takeLastWhile, takeWhile, times,
+transpose, traverse, unfold, uniq, uniqBy, uniqWith, unnest, update,
+without, xprod, zip, zipObj, zipWith.
 
 ## API
 
@@ -254,6 +253,7 @@ foldl((n, m) => n - m, 1, list(2, 3, 4, 5)); (((1 - 2) - 3) - 4) - 5 //=> -13
 Folds a function over a list. Right-associative.
 
 **Aliases**: `reduceRight`
+**Aliases**: `reduceRight`
 
 **Complexity**: `O(n)`
 
@@ -274,6 +274,60 @@ Takes the first `n` elements from a list and returns them in a new list.
 ```js
 take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
 ```
+
+### `every`
+
+Returns `true` if and only if the predicate function returns `true`
+for all elements in the given list.
+
+**Aliases**: `all`
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const isEven = (n) => n % 2 === 0;
+every(isEven, empty()); //=> true
+every(isEven, list(2, 4, 6, 8)); //=> true
+every(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
+every(isEven, list(1, 3, 5, 7)); //=> false
+```
+
+### `some`
+
+Returns `true` if and only if there exists an element in the list for
+which the predicate returns `true`.
+
+**Aliases**: `any`
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const isEven = (n) => n % 2 === 0;
+some(isEven, empty()); //=> false
+some(isEven, list(2, 4, 6, 8)); //=> true
+some(isEven, list(2, 3, 4, 6, 7, 8)); //=> true
+some(isEven, list(1, 3, 5, 7)); //=> false
+```
+
+### `none`
+
+Returns `true` if and only if the predicate function returns `false`
+for all elements in the given list.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const isEven = (n) => n % 2 === 0;
+none(isEven, empty()); //=> true
+none(isEven, list(2, 4, 6, 8)); //=> false
+none(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
+none(isEven, list(1, 3, 5, 7)); //=> true
 
 ## Benchmarks
 
