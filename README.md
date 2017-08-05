@@ -32,18 +32,19 @@ foldable, traversable, chain, monad.
 
 ### Rambda compatibility
 
-This keeps track of how many of the Ramda functions for Arrays that has currently been implemented on the immutable list: 11/115
+This keeps track of how many of the Ramda functions for Arrays that
+has currently been implemented on the immutable list: 12/115
 
 Implemented: append, concat, head, last, length, map, nth, pair,
-prepend, range, reduce.
+prepend, range, reduce, reduceRight.
 
 Not implemented: adjust, all, any, aperture, chain, contains, drop,
 dropLast, dropLastWhile, dropRepeats, dropRepeatsWith, dropWhile,
 endsWith, filter, find, findIndex, findLast, findLastIndex, flatten,
 fromPairs, groupBy, groupWith, indexBy, indexOf, init, insert,
 insertAll, intersperse, join, lastIndexOf, mapAccum, mapAccumRight,
-mergeAll, none, partition, pluck, reduceBy, reduceRight, reduceWhile,
-reject, remove, repeat, reverse, scan, sequence, slice, sort, splitAt,
+mergeAll, none, partition, pluck, reduceBy, reduceWhile, reject,
+remove, repeat, reverse, scan, sequence, slice, sort, splitAt,
 splitEvery, splitWhen, startsWith, tail, take, takeLast,
 takeLastWhile, takeWhile, times, transpose, traverse, unfold, uniq,
 uniqBy, uniqWith, unnest, update, without, xprod, zip, zipObj,
@@ -222,7 +223,7 @@ last(list()); //=> undefined
 
 ### `foldl`
 
-Folds a function over a list.
+Folds a function over a list. Left-associative.
 
 **Aliases**: `reduce`
 
@@ -231,7 +232,21 @@ Folds a function over a list.
 **Example**
 
 ```js
-foldl((n, m) => n - m, 1, list(2, 3, 4, 5)); //=> -8
+foldl((n, m) => n - m, 1, list(2, 3, 4, 5)); (((1 - 2) - 3) - 4) - 5 //=> -13
+```
+
+### `foldr`
+
+Folds a function over a list. Right-associative.
+
+**Aliases**: `reduceRight`
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+foldr((n, m) => n - m, 5, list(1, 2, 3, 4)); 1 - (2 - (3 - (4 - 5))) //=> 3
 ```
 
 ## Benchmarks

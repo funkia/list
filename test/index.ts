@@ -1,8 +1,8 @@
 import { assert } from "chai";
 
 import {
-  length, range, concat, empty, List, list, map, nth, foldl, last,
-  pair, prepend, append, first
+  length, range, concat, empty, List, list, map, nth, foldl, foldr,
+  last, pair, prepend, append, first
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -11,6 +11,14 @@ function numberArray(start: number, end: number): number[] {
     array.push(i);
   }
   return array;
+}
+
+function appendList(start: number, end: number): List<number> {
+  let l = empty();
+  for (let i = start; i < end; ++i) {
+    l = append(i, l);
+  }
+  return l;
 }
 
 function prependList(start: number, end: number): List<number> {
@@ -291,12 +299,28 @@ describe("List", () => {
   });
   describe("fold", () => {
     const subtract = (n: number, m: number) => n - m;
-    it("folds from the left", () => {
-      [10, 70].forEach((n) => {
-        assert.strictEqual(
-          foldl(subtract, 0, range(0, n)),
-          numberArray(0, n).reduce(subtract, 0)
-        );
+    it("folds from the left appended", () => {
+      [10, 32 * 4 + 5].forEach((n) => {
+        const result = foldl((arr, i) => (arr.push(i), arr), [], prependList(0, n));
+        assert.deepEqual(result, numberArray(0, n));
+      });
+    });
+    it("folds from the left prepended", () => {
+      [10, 32 * 4 + 5].forEach((n) => {
+        const result = foldl((arr, i) => (arr.push(i), arr), [], prependList(0, n));
+        assert.deepEqual(result, numberArray(0, n));
+      });
+    });
+    it("folds from the right appended", () => {
+      [10, 32 * 4 + 5].forEach((n) => {
+        const result = foldr((i, arr) => (arr.push(i), arr), [], appendList(0, n));
+        assert.deepEqual(result, numberArray(0, n).reverse());
+      });
+    });
+    it("folds from the right prepended", () => {
+      [10, 32 * 4 + 5].forEach((n) => {
+        const result = foldr((i, arr) => (arr.push(i), arr), [], prependList(0, n));
+        assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });
   });

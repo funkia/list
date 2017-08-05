@@ -520,24 +520,31 @@ export function range(start: number, end: number): List<number> {
 
 // fold
 
-export function foldlArray<A, B>(
-  f: (acc: B, value: A) => B, initial: B, array: A[]
+export function foldlSuffix<A, B>(
+  f: (acc: B, value: A) => B, acc: B, array: A[], length: number
 ): B {
-  let acc = initial;
-  for (let i = 0; i < array.length; ++i) {
+  for (let i = 0; i < length; ++i) {
+    acc = f(acc, array[i]);
+  }
+  return acc;
+}
+
+export function foldlPrefix<A, B>(
+  f: (acc: B, value: A) => B, acc: B, array: A[], length: number
+): B {
+  for (let i = length - 1; 0 <= i; --i) {
     acc = f(acc, array[i]);
   }
   return acc;
 }
 
 function foldlNode<A, B>(
-  f: (acc: B, value: A) => B, initial: B, node: Node, depth: number
+  f: (acc: B, value: A) => B, acc: B, node: Node, depth: number
 ): B {
   const { array } = node;
   if (depth === 0) {
-    return foldlArray(f, initial, array);
+    return foldlSuffix(f, acc, array, array.length);
   }
-  let acc = initial;
   for (let i = 0; i < array.length; ++i) {
     acc = foldlNode(f, acc, array[i], depth - 1);
   }
@@ -545,13 +552,63 @@ function foldlNode<A, B>(
 }
 
 export function foldl<A, B>(f: (acc: B, value: A) => B, initial: B, l: List<A>): B {
-  const foldedSuffix = foldlArray(f, initial, l.suffix);
-  return l.root === undefined
-    ? foldedSuffix
-    : foldlNode(f, foldedSuffix, l.root, getDepth(l));
+  const suffixSize = getSuffixSize(l);
+  const prefixSize = getPrefixSize(l);
+  initial = foldlPrefix(f, initial, l.prefix, prefixSize);
+  if (l.root !== undefined) {
+    initial = foldlNode(f, initial, l.root, getDepth(l));
+  }
+  return foldlSuffix(f, initial, l.suffix, suffixSize);
 }
 
 export const reduce = foldl;
+
+export function foldrSuffix<A, B>(
+  f: (value: A, acc: B) => B, initial: B, array: A[], length: number
+): B {
+  let acc = initial;
+  for (let i = length - 1; 0 <= i; --i) {
+    acc = f(array[i], acc);
+  }
+  return acc;
+}
+
+export function foldrPrefix<A, B>(
+  f: (value: A, acc: B) => B, initial: B, array: A[], length: number
+): B {
+  let acc = initial;
+  for (let i = 0; i < length; ++i) {
+    acc = f(array[i], acc);
+  }
+  return acc;
+}
+
+function foldrNode<A, B>(
+  f: (value: A, acc: B) => B, initial: B, { array }: Node, depth: number
+): B {
+  if (depth === 0) {
+    return foldrSuffix(f, initial, array, array.length);
+  }
+  let acc = initial;
+  for (let i = array.length - 1; 0 <= i; --i) {
+    acc = foldrNode(f, acc, array[i], depth - 1);
+  }
+  return acc;
+}
+
+export function foldr<A, B>(f: (value: A, acc: B) => B, initial: B, l: List<A>): B {
+  const suffixSize = getSuffixSize(l);
+  const prefixSize = getPrefixSize(l);
+  let acc = foldrSuffix(f, initial, l.suffix, suffixSize);
+  if (l.root !== undefined) {
+    acc = foldrNode(f, acc, l.root, getDepth(l));
+  }
+  return foldrPrefix(f, acc, l.prefix, prefixSize);
+}
+
+export const reduceRight = foldr;
+
+// concat
 
 const eMax = 2;
 

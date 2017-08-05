@@ -49,7 +49,7 @@ benchmark({
       mlist = mori.conj(mlist, i);
       array.push(i);
       l = L.append(i, l);
-      lOld = Lo.empty();
+      lOld = Lo.append(i, lOld);
     }
   }
 }, {
