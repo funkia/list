@@ -33,10 +33,10 @@ foldable, traversable, chain, monad.
 ### Rambda compatibility
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 12/115
+has currently been implemented on the immutable list: 13/115
 
 Implemented: append, concat, head, last, length, map, nth, pair,
-prepend, range, reduce, reduceRight.
+prepend, range, reduce, reduceRight, repeat.
 
 Not implemented: adjust, all, any, aperture, chain, contains, drop,
 dropLast, dropLastWhile, dropRepeats, dropRepeatsWith, dropWhile,
@@ -44,7 +44,7 @@ endsWith, filter, find, findIndex, findLast, findLastIndex, flatten,
 fromPairs, groupBy, groupWith, indexBy, indexOf, init, insert,
 insertAll, intersperse, join, lastIndexOf, mapAccum, mapAccumRight,
 mergeAll, none, partition, pluck, reduceBy, reduceWhile, reject,
-remove, repeat, reverse, scan, sequence, slice, sort, splitAt,
+remove, reverse, scan, sequence, slice, sort, splitAt,
 splitEvery, splitWhen, startsWith, tail, take, takeLast,
 takeLastWhile, takeWhile, times, transpose, traverse, unfold, uniq,
 uniqBy, uniqWith, unnest, update, without, xprod, zip, zipObj,
@@ -101,7 +101,7 @@ pair("foo", "bar"); //=> list("foo", "bar")
 
 ### `range`
 
-Returns a list of numbers between an an inclusive lower bound to an
+Returns a list of numbers between an an inclusive lower bound and an
 exclusive upper bound.
 
 **Complexity**: `O(n)`
@@ -110,6 +110,20 @@ exclusive upper bound.
 
 ```js
 range(3, 8); //=> list(3, 4, 5, 6, 7)
+```
+
+### `repeat`
+
+Returns a list of a given length that contains the specified value in
+all positions.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+repeat(1, 7); //=> list(1, 1, 1, 1, 1, 1, 1)
+repeat("foo", 3); //=> list("foo", "foo", "foo")
 ```
 
 ### Updating lists

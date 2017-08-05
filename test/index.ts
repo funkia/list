@@ -2,7 +2,7 @@ import { assert } from "chai";
 
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
-  last, pair, prepend, append, first
+  last, pair, prepend, append, first, repeat
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -38,6 +38,17 @@ function assertIndicesFromTo(
 }
 
 describe("List", () => {
+  describe("repeat", () => {
+    it("creates list of n repeated elements", () => {
+      [10, 100].forEach((n) => {
+        const l = repeat("foo", n);
+        assert.strictEqual(length(l), n);
+        for (const value of l) {
+          assert.strictEqual(value, "foo");
+        }
+      });
+    });
+  });
   describe("append", () => {
     it("can append small", () => {
       const list = empty().append(0).append(1).append(2).append(3);
@@ -302,6 +313,8 @@ describe("List", () => {
     it("folds from the left appended", () => {
       [10, 32 * 4 + 5].forEach((n) => {
         const result = foldl((arr, i) => (arr.push(i), arr), [], prependList(0, n));
+        const a = foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
+        const b = foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
         assert.deepEqual(result, numberArray(0, n));
       });
     });
