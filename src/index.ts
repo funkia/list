@@ -275,10 +275,11 @@ const iteratorDone: IteratorResult<any> = { done: true, value: undefined };
 class ListIterator<A> implements Iterator<A> {
   stack: any[][];
   indices: number[];
+  prefixLeft: number;
   constructor(private list: List<A>) {
-    // this.nodeIdx = 0;
     this.stack = [];
     this.indices = [];
+    this.prefixLeft = getPrefixSize(list);
     if (list.root !== undefined) {
       let currentNode = list.root.array;
       const depth = getDepth(list);
@@ -319,7 +320,10 @@ class ListIterator<A> implements Iterator<A> {
     }
   }
   next(): IteratorResult<A> {
-    if (this.stack.length !== 0) {
+    if (this.prefixLeft > 0) {
+      --this.prefixLeft;
+      return { done: false, value: this.list.prefix[this.prefixLeft] };
+    } else if (this.stack.length !== 0) {
       this.nextInTree();
       if (this.stack.length !== 0) {
         const leaf = arrayLast(this.stack);
