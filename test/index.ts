@@ -174,7 +174,7 @@ describe("List", () => {
     it("gets the last element of a long list", () => {
       assert.strictEqual(last(appendList(0, 100)), 99);
     });
-    it.skip("can get the last element when prefix overflows", () => {
+    it("can get the last element when prefix overflows", () => {
       assert.strictEqual(last(prependList(0, 33)), 32);
     });
     it("returns undefined on empty list", () => {
@@ -192,7 +192,7 @@ describe("List", () => {
       const l = append(3, append(2, append(1, append(0, empty()))));
       assert.strictEqual(first(l), 0);
     });
-    it.skip("can get the first element when suffix overflows", () => {
+    it("can get the first element when suffix overflows", () => {
       assert.strictEqual(first(appendList(0, 33)), 0);
     });
   });

@@ -56,6 +56,10 @@ function arrayAppend<A>(value: A, array: A[]): A[] {
   return result;
 }
 
+function reverseArray<A>(array: A[]): A[] {
+  return array.slice().reverse();
+}
+
 function arrayFirst<A>(array: A[]): A {
   return array[0];
 }
@@ -218,6 +222,17 @@ function createBits(depth: number, prefixSize: number, suffixSize: number): numb
   return (depth << (affixBits * 2)) | (prefixSize << affixBits) | suffixSize;
 }
 
+/*
+ * Invariants that any list `l` should satisfy
+ * 
+ * 1. If `l.root !== undefined` then `getSuffixSize(l) !== 0` and
+ *   `getPrefixSize(l) !== 0`. The invariant ensures that `first` and
+ *   `last` never have to look in the root and that they therefore
+ *   take O(1) time.
+ * 2. If a tree or sub-tree does not have a size-table then all leaf
+      nodes in the tree are of size 32.
+ */
+
 export class List<A> {
   constructor(
     public bits: number,
@@ -324,6 +339,8 @@ class ListIterator<A> implements Iterator<A> {
   }
 }
 
+// prepend & append
+
 export function prepend<A>(value: A, l: List<A>): List<A> {
   const prefixSize = getPrefixSize(l);
   const depth = getDepth(l);
@@ -338,13 +355,19 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
     );
   }
   const newPrefix = [value];
-  const prefixNode = prefixToNode(l.prefix);
   let bits = setPrefix(1, l.bits);
   if (l.root === undefined) {
+    if (getSuffixSize(l) === 0) {
+      // ensure invariant 1
+      return new List(
+        setSuffix(32, bits), l.offset, l.length + 1, undefined, reverseArray(l.prefix), newPrefix
+      );
+    }
     return new List(
-      bits, 0, l.length + 1, prefixNode, l.suffix, newPrefix
+      bits, 0, l.length + 1, prefixToNode(l.prefix), l.suffix, newPrefix
     );
   }
+  const prefixNode = prefixToNode(l.prefix);
   let full = l.offset === 0;
   let root;
   let newOffset = 0;
@@ -389,6 +412,12 @@ export function append<A>(value: A, l: List<A>): List<A> {
   const suffixNode = suffixToNode(l.suffix);
   let bits = setSuffix(1, l.bits);
   if (l.root === undefined) {
+    if (getPrefixSize(l) === 0) {
+      // ensure invariant 1
+      return new List(
+        setPrefix(32, bits), l.offset, l.length + 1, undefined, newSuffix, reverseArray(l.suffix)
+      );
+    }
     return new List(
       bits, l.offset, l.length + 1, suffixNode, newSuffix, l.prefix
     );
