@@ -9,7 +9,7 @@ for arrays.
 
 Work in progress :construction:
 
-## Goals
+## At a glance
 
 * Very good performance
 * API centered around functions with arguments ordered for
@@ -20,13 +20,29 @@ Work in progress :construction:
 * Full compatibility with tree-shaking. Only pay in size for the
   functions that you actually use.
 
-## Why?
+## What & why?
 
-List is an implementation of an immutable list. Just like arrays List
-implements a data-structure that stores elements ordered in a
-sequence. Arrays are an mutable data-structure with an
-imperative API. List on the other hand is a immutable data-structure
+List is a purely functional alternative to arrays. It's supposed to be
+a replacement for arrays for JavaScript developers that do purely
+functional programming.
+
+List is a data-structure that stores elements in a sequence. Just like
+arrays. Arrays is a mutable data-structure optimized for imperative
+programming. List on the other hand is an immutable data-structure
 optimized for purely functional programming.
+
+Since List is immutable it provides increased safety compared to
+arrays. If you're doing functional programming with arrays their
+impure API is nothing but a source of bugs.
+
+Due to the way List is implemented it can be many times faster than
+arrays for functional programming. If, for instance, you concatenate
+two arrays both arrays will have to be copied into a new array. This
+is because potential mutations to the old arrays must not affect the
+new concatenated array. Since List is immutable that problem goes away
+and the concatenated list can share the majority of its structure with
+the old lists. This reduces copying, reduces memory allocations, and
+results in much better performance.
 
 ## Progress
 
@@ -34,8 +50,8 @@ optimized for purely functional programming.
 
 Implemented: Functor, semigroup, monoid.
 
-Not implemented yet: Setoid, apply, applicative,
-foldable, traversable, chain, monad.
+Not implemented yet: Setoid, apply, applicative, foldable,
+traversable, chain, monad.
 
 ### Rambda compatibility
 
