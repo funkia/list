@@ -125,11 +125,13 @@ function cloneNode(node: Node): Node {
 }
 
 function suffixToNode<A>(suffix: A[]): Node {
+  // FIXME: should take size and copy
   return new Node(undefined, suffix);
 }
 
-function prefixToNode<A>(suffix: A[]): Node {
-  return new Node(undefined, suffix.reverse());
+function prefixToNode<A>(prefix: A[]): Node {
+  // FIXME: should take size and copy
+  return new Node(undefined, prefix.reverse());
 }
 
 function setSizes(node: Node, height: number): Node {
@@ -160,7 +162,7 @@ function sizeOfSubtree(node: Node, height: number): number {
   }
 }
 
-const emptyAffix: any[] = [];
+const emptyAffix: any[] = [undefined];
 
 function affixPush<A>(a: A, array: A[], length: number): A[] {
   if (array.length === length) {
@@ -926,21 +928,21 @@ function pushDownTail<A>(
   newSuffix: A[],
   newSuffixSize: number
 ): List<A> {
-  const depth = getDepth(oldList);
+  const depth = getDepth(newList);
   // install the new suffix in location
   newList.suffix = newSuffix;
   newList.bits = setSuffix(newSuffixSize, newList.bits);
-  if (oldList.length <= branchingFactor) {
+  if (newList.root === undefined) {
     // The old tree has no content in tree, all content is in affixes
     newList.root = suffixNode;
     return newList;
   }
-  let index = oldList.length - 1;
+  let index = newList.length - 1 - getPrefixSize(newList);
   let nodesToCopy = 0;
   let nodesVisited = 0;
   let pos = 0;
   let shift = depth * 5;
-  let currentNode = oldList.root;
+  let currentNode = newList.root;
   if (32 ** (depth + 1) < index) {
     shift = 0; // there is no room
     nodesVisited = depth;
@@ -952,7 +954,7 @@ function pushDownTail<A>(
       childIndex = (index >> shift) & mask;
       index &= ~(mask << shift); // wipe just used bits
     } else {
-      // fixme
+      // FIXME: handle size table
     }
     nodesVisited++;
     if (childIndex < mask) {
@@ -986,7 +988,7 @@ function pushDownTail<A>(
     newList.root = newRoot;
     newList.bits = incrementDepth(newList.bits);
   } else {
-    const node = copyFirstK(oldList, newList, nodesToCopy);
+    const node = copyFirstK(newList, newList, nodesToCopy);
     const leaf = appendEmpty(node, nodesVisited - nodesToCopy);
     leaf.array.push(suffixNode);
   }
@@ -1002,7 +1004,7 @@ function copyFirstK(oldList: List<any>, newList: List<any>, k: number): Node {
   for (let i = 1; i < k; ++i) {
     const index = currentNode.array.length - 1;
     const newNode = cloneNode(currentNode.array[index]);
-    // TODO: handle size table
+    // FIXME: handle size table
     currentNode.array[index] = newNode;
     currentNode = newNode;
     // if (i != k) {
@@ -1043,48 +1045,74 @@ function concatSuffix<A>(
   return newArray;
 }
 
+const concatBuffer = new Array(3);
+
+function concatAffixes<A>(left: List<A>, right: List<A>): number {
+  // TODO: Try and find a neat way to reduce the LOC here
+  var nr = 0;
+  var arrIdx = 0;
+  var i = 0;
+  var length = getSuffixSize(left);
+  concatBuffer[nr] = [];
+  for (i = 0; i < length; ++i) {
+    concatBuffer[nr][arrIdx] = left.suffix[i];
+    if (++arrIdx === 32) {
+      arrIdx = 0;
+      ++nr;
+      concatBuffer[nr] = [];
+    }
+  }
+  length = getPrefixSize(right);
+  for (i = 0; i < length; ++i) {
+    concatBuffer[nr][arrIdx] = right.prefix[right.prefix.length - 1 - i];
+    if (++arrIdx === 32) {
+      arrIdx = 0;
+      ++nr;
+      concatBuffer[nr] = [];
+    }
+  }
+  length = getSuffixSize(right);
+  for (i = 0; i < length; ++i) {
+    concatBuffer[nr][arrIdx] = right.suffix[i];
+    if (++arrIdx === 32) {
+      arrIdx = 0;
+      ++nr;
+      concatBuffer[nr] = [];
+    }
+  }
+  return nr;
+}
+
 export function concat<A>(left: List<A>, right: List<A>): List<A> {
   if (left.length === 0) {
     return right;
   } else if (right.length === 0) {
     return left;
   }
+  const newSize = left.length + right.length;
   const rightSuffixSize = getSuffixSize(right);
+  let newList = cloneList(left);
   if (right.root === undefined) {
-    // right is nothing but a suffix
-    const leftSuffixSize = getSuffixSize(left);
-    if (rightSuffixSize + leftSuffixSize <= branchingFactor) {
-      // the two suffixes can be combined into one
-      return new List(
-        setSuffix(leftSuffixSize + right.length, left.bits),
-        0,
-        left.length + right.length,
-        left.root,
-        concatSuffix(left.suffix, leftSuffixSize, right.suffix, rightSuffixSize),
-        left.prefix
+    const nrOfAffixes = concatAffixes(left, right);
+    // right is nothing but a prefix and a suffix
+    for (var i = 0; i < nrOfAffixes; ++i) {
+      newList = pushDownTail(
+        left, newList, new Node(undefined, concatBuffer[i]), undefined, 0
       );
-    } else if (leftSuffixSize === branchingFactor) {
-      // left suffix is full and can be pushed down
-      const newList = cloneList(left);
-      newList.length += right.length;
-      return pushDownTail(left, newList, suffixToNode(newList.suffix), right.suffix, rightSuffixSize);
-    } else {
-      // we must merge the two suffixes and push down
-      const newList = cloneList(left);
-      newList.length += right.length;
-      const newNode = new Node(undefined, []);
-      const leftSize = leftSuffixSize;
-      copyIndices(left.suffix, 0, newNode.array, 0, leftSuffixSize);
-      const rightSize = branchingFactor - leftSize;
-      copyIndices(right.suffix, 0, newNode.array, leftSize, rightSize);
-      const newSuffixSize = rightSuffixSize - rightSize;
-      const newSuffix = right.suffix.slice(rightSize);
-      return pushDownTail(left, newList, newNode, newSuffix, newSuffixSize);
+      newList.length += concatBuffer[i].length;
+      // wipe pointer, otherwise it might end up keeping the array alive
+      concatBuffer[i] = undefined;
     }
+    newList.length = newSize;
+    newList.suffix = concatBuffer[nrOfAffixes];
+    newList.bits = setSuffix(concatBuffer[nrOfAffixes].length, newList.bits);
+    concatBuffer[nrOfAffixes] = undefined;
+    return newList;
   } else {
-    const newSize = left.length + right.length;
-    const newLeft = pushDownTail(left, cloneList(left), suffixToNode(left.suffix), undefined, 0);
-    const newNode = concatSubTree(newLeft.root, getDepth(newLeft), right.root, getDepth(right), true);
+    newList = pushDownTail(left, newList, suffixToNode(left.suffix), undefined, 0);
+    newList.length += getSuffixSize(left);
+    newList = pushDownTail(left, newList, prefixToNode(right.prefix), undefined, 0);
+    const newNode = concatSubTree(newList.root, getDepth(newList), right.root, getDepth(right), true);
     const newDepth = getHeight(newNode);
     setSizes(newNode, newDepth);
     const bits = createBits(newDepth, getPrefixSize(left), rightSuffixSize);

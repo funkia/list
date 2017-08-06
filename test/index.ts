@@ -14,8 +14,7 @@ function numberArray(start: number, end: number): number[] {
   return array;
 }
 
-function appendList(start: number, end: number): List<number> {
-  let l = empty();
+function appendList(start: number, end: number, l = empty()): List<number> {
   for (let i = start; i < end; ++i) {
     l = append(i, l);
   }
@@ -24,8 +23,8 @@ function appendList(start: number, end: number): List<number> {
 
 function prependList(start: number, end: number): List<number> {
   let l = empty();
-  for (let i = end - 1; i >= 0; --i) {
-    l = prepend(start + i, l);
+  for (let i = end - 1; i >= start; --i) {
+    l = prepend(i, l);
   }
   return l;
 }
@@ -202,21 +201,32 @@ describe("List", () => {
       assert.strictEqual(concat(l, empty()), l);
       assert.strictEqual(concat(empty(), l), l);
     });
-    describe("right is smaller than 32", () => {
-      it("combined size is smaller than 32", () => {
-        let l1 = range(0, 12);
-        let l2 = range(12, 31);
+    describe("right is small", () => {
+      it("combined suffix size is smaller than 32", () => {
+        let l1 = appendList(0, 12);
+        let l2 = appendList(12, 31);
         const catenated = concat(l1, l2);
         assert.strictEqual(length(catenated), 31);
-        const end = 31;
-        for (let i = 0; i < end; ++i) {
-          assert.strictEqual(nth(i, catenated), i);
-        }
+        assertIndicesFromTo(catenated, 0, 31);
+      });
+      it("right has prefix and suffix that can be combined", () => {
+        let l1 = appendList(0, 12);
+        let l2 = append(16, append(15, prepend(12, prepend(13, prepend(14, empty())))));
+        const concatenated = concat(l1, l2);
+        assert.strictEqual(length(concatenated), 17);
+        assertIndicesFromTo(concatenated, 0, 17);
+      });
+      it("affixes takes up 3 affixes when combined", () => {
+        let l1 = appendList(0, 30);
+        let l2 = appendList(60, 90, prependList(30, 60));
+        const concatenated = concat(l1, l2);
+        assert.strictEqual(length(concatenated), 90);
+        assertIndicesFromTo(concatenated, 0, 90);
       });
       it("left suffix is full", () => {
         [32, 32 * 4, 32 * 5, 32 * 12].forEach((leftSize) => {
-          const l1 = range(0, leftSize);
-          const l2 = range(leftSize, leftSize + 30);
+          const l1 = appendList(0, leftSize);
+          const l2 = appendList(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
           assert.strictEqual(catenated.length, leftSize + 30);
           for (let i = 0; i < leftSize + 30; ++i) {
@@ -226,26 +236,34 @@ describe("List", () => {
       });
       it("left is full tree", () => {
         const leftSize = 32 * 32 * 32 + 32;
-        const l1 = range(0, leftSize);
+        const l1 = appendList(0, leftSize);
         assertIndicesFromTo(l1, 0, leftSize);
-        const l2 = range(leftSize, leftSize + 30);
+        const l2 = appendList(leftSize, leftSize + 30);
         const catenated = concat(l1, l2);
         assert.strictEqual(catenated.length, leftSize + 30);
         assertIndicesFromTo(catenated, 0, leftSize + 30);
       });
       it("left suffix is arbitrary size", () => {
         [70, 183, 1092].forEach((leftSize) => {
-          const l1 = range(0, leftSize);
-          const l2 = range(leftSize, leftSize + 30);
+          const l1 = appendList(0, leftSize);
+          const l2 = appendList(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
           assert.strictEqual(catenated.length, leftSize + 30);
           assertIndicesFromTo(catenated, 0, leftSize + 30);
         });
       });
-      it("suffix has to be pushed down without room for it", () => {
+      it("both left and right has prefix and suffix", () => {
         [[40, 33]].forEach(([leftSize, rightSize]) => {
-          const l1 = range(0, leftSize);
-          const l2 = range(leftSize, leftSize + rightSize);
+          const l1 = appendList(0, leftSize);
+          const l2 = appendList(leftSize, leftSize + rightSize);
+          const catenated = concat(l1, l2);
+          assertIndicesFromTo(catenated, 0, leftSize + rightSize);
+        });
+      });
+      it("node has to be pushed down without room for it", () => {
+        [[32 * 2 + 1, 32]].forEach(([leftSize, rightSize]) => {
+          const l1 = appendList(0, leftSize);
+          const l2 = appendList(leftSize, leftSize + rightSize);
           const catenated = concat(l1, l2);
           assertIndicesFromTo(catenated, 0, leftSize + rightSize);
         });
@@ -254,8 +272,8 @@ describe("List", () => {
     describe("both are large", () => {
       it("concats once properly", () => {
         [[83, 128], [2381, 3720]].forEach(([leftSize, rightSize]) => {
-          const l1 = range(0, leftSize);
-          const l2 = range(leftSize, leftSize + rightSize);
+          const l1 = appendList(0, leftSize);
+          const l2 = appendList(leftSize, leftSize + rightSize);
           const catenated = concat(l1, l2);
           assertIndicesFromTo(catenated, 0, leftSize + rightSize);
         });
@@ -266,11 +284,11 @@ describe("List", () => {
         const secondSize = 5 * 32 + 1;
         const thirdSize = 5 * 32 + 1;
         const totalSize = firstSize + secondSize + thirdSize;
-        const l1 = range(0, size * 1);
-        const l2 = range(size * 1, size * 2);
-        const l3 = range(size * 2, size * 3);
-        const l4 = range(size * 3, size * 4);
-        const l5 = range(size * 4, size * 5);
+        const l1 = appendList(0, size * 1);
+        const l2 = appendList(size * 1, size * 2);
+        const l3 = appendList(size * 2, size * 3);
+        const l4 = appendList(size * 3, size * 4);
+        const l5 = appendList(size * 4, size * 5);
         const catenated = concat(concat(concat(concat(l1, l2), l3), l4), l5);
         assert.strictEqual(catenated.length, size * 5);
         assertIndicesFromTo(catenated, 0, totalSize + size);
