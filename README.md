@@ -56,21 +56,23 @@ traversable, chain, monad.
 ### Rambda compatibility
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 17/115
+has currently been implemented on the immutable list: 19/115
 
-Implemented: all, any, append, concat, find, head, last, length, map, none,
-nth, pair, prepend, range, reduce, reduceRight, repeat, take.
+Implemented: `adjust`, `all`, `any`, `append`, `concat`, `find`,
+`head`, `last`, `length`, `map`, `none`, `nth`, `pair`, `prepend`,
+`range`, `reduce`, `reduceRight`, `repeat`, `take`, `update`.
 
-Not implemented: adjust, aperture, chain, contains, drop, dropLast,
-dropLastWhile, dropRepeats, dropRepeatsWith, dropWhile, endsWith,
-filter, findIndex, findLast, findLastIndex, flatten, fromPairs,
-groupBy, groupWith, indexBy, indexOf, init, insert, insertAll,
-intersperse, join, lastIndexOf, mapAccum, mapAccumRight, mergeAll,
-partition, pluck, reduceBy, reduceWhile, reject, remove, reverse,
-scan, sequence, slice, sort, splitAt, splitEvery, splitWhen,
-startsWith, tail, takeLast, takeLastWhile, takeWhile, times,
-transpose, traverse, unfold, uniq, uniqBy, uniqWith, unnest, update,
-without, xprod, zip, zipObj, zipWith.
+Not implemented: `aperture`, `chain`, `contains`, `drop`, `dropLast`,
+`dropLastWhile`, `dropRepeats`, `dropRepeatsWith`, `dropWhile`,
+`endsWith`, `filter`, `findIndex`, `findLast`, `findLastIndex`,
+`flatten`, `fromPairs`, `groupBy`, `groupWith`, `indexBy`, `indexOf`,
+`init`, `insert`, `insertAll`, `intersperse`, `join`, `lastIndexOf`,
+`mapAccum`, `mapAccumRight`, `mergeAll`, `partition`, `pluck`,
+`reduceBy`, `reduceWhile`, `reject`, `remove`, `reverse`, `scan`,
+`sequence`, `slice`, `sort`, `splitAt`, `splitEvery`, `splitWhen`,
+`startsWith`, `tail`, `takeLast`, `takeLastWhile`, `takeWhile`,
+`times`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
+`uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
 
 ## API
 
@@ -199,6 +201,44 @@ list with the values that the function return.
 map((n) => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
 ```
 
+### `take`
+
+Takes the first `n` elements from a list and returns them in a new list.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
+```
+
+### `update`
+
+Returns a list that has the entry specified by the index replaced with
+the given value.
+
+**Complexity**: `O(logn)`
+
+**Example**
+
+```js
+update(2, "X", list("a", "b", "c", "d", "e")); //=> list("a", "b", "X", "d", "e")
+```
+
+### `adjust`
+
+Returns a list that has the entry specified by the index replaced with
+the value returned by applying the function to the value.
+
+**Complexity**: `O(logn)`
+
+**Example**
+
+```js
+take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
+```
+
 ### Folds
 
 ### `nth`
@@ -284,18 +324,6 @@ Folds a function over a list. Right-associative.
 
 ```js
 foldr((n, m) => n - m, 5, list(1, 2, 3, 4)); 1 - (2 - (3 - (4 - 5))) //=> 3
-```
-
-### `take`
-
-Takes the first `n` elements from a list and returns them in a new list.
-
-**Complexity**: `O(n)`
-
-**Example**
-
-```js
-take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
 ```
 
 ### `every`

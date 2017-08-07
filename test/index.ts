@@ -3,7 +3,7 @@ import { assert } from "chai";
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
   last, pair, prepend, append, first, repeat, take, every, some, none,
-  find
+  find, update, adjust
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -38,6 +38,8 @@ function assertIndicesFromTo(
 }
 
 const isEven = (n: number) => n % 2 === 0;
+
+const square = (n: number) => n * n;
 
 describe("List", () => {
   describe("repeat", () => {
@@ -427,6 +429,58 @@ describe("List", () => {
         }
         assert.strictEqual(last, n - 1);
       });
+    });
+  });
+  describe("update", () => {
+    it("changes element in prefix", () => {
+      const l = prependList(0, 32 * 4);
+      const l2 = update(14, -1, l);
+      assert.strictEqual(nth(14, l2), -1);
+    });
+    it("changes element in suffix", () => {
+      const l = appendList(0, 32 * 4);
+      const l2 = update(14, -1, l);
+      assert.strictEqual(nth(14, l2), -1);
+    });
+    it("changes element in the middle of appended tree", () => {
+      const l = appendList(0, 32 ** 3);
+      const index = Math.floor(32 ** 3 / 2);
+      const l2 = update(index, -1, l);
+      assert.strictEqual(nth(index, l2), -1);
+    });
+    it("changes element in the middle of prepended tree", () => {
+      const l = prependList(0, 32 ** 3);
+      const index = Math.floor(32 ** 3 / 2);
+      const l2 = update(index, -1, l);
+      assert.strictEqual(nth(index, l2), -1);
+    });
+    it("changes first element in tree", () => {
+      const l = prependList(0, 32 * 3);
+      const l2 = update(32, -1, l);
+      assert.strictEqual(nth(32, l2), -1);
+    });
+    it("changes last element in tree", () => {
+      const l = prependList(0, 32 ** 3);
+      const l2 = update(32 ** 4 - 32, -1, l);
+      assert.strictEqual(nth(32 ** 4 - 32, l2), -1);
+    });
+    it("sets entire list", () => {
+      const length = 32 ** 3;
+      let l = empty();
+      for (let i = 0; i < length; ++i) {
+        l = prepend(-1, l);
+      }
+      for (let i = 0; i < length; ++i) {
+        l = update(i, i, l);
+      }
+      assertIndicesFromTo(l, 0, length);
+    });
+  });
+  describe("adjust", () => {
+    it("it applies function to index", () => {
+      const l = list(0, 1, 2, 3, 4, 5);
+      const l2 = adjust(square, 2, l);
+      assert.strictEqual(nth(2, l2), 4);
     });
   });
 });

@@ -81,7 +81,11 @@ export class Node {
       array = arrayAppend(createPath(depth, value), this.array);
     } else {
       array = copyArray(this.array);
-      array[path] = array[path].update(depth - 1, index, path === 0 ? offset : 0, value);
+      if (depth === 0) {
+        array[path] = value;
+      } else {
+        array[path] = array[path].update(depth - 1, index, path === 0 ? offset : 0, value);
+      }
     }
     return new Node(this.sizes, array);
   }
@@ -1118,4 +1122,26 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     const bits = createBits(newDepth, getPrefixSize(left), rightSuffixSize);
     return new List(bits, 0, newSize, newNode, right.suffix, left.prefix);
   }
+}
+
+export function update<A>(index: number, a: A, l: List<A>): List<A> {
+  const prefixSize = getPrefixSize(l);
+  const suffixSize = getSuffixSize(l);
+  const newList = cloneList(l);
+  if (index < prefixSize) {
+    const newPrefix = copyArray(newList.prefix);
+    newPrefix[newPrefix.length - index - 1] = a;
+    newList.prefix = newPrefix;
+  } else if (index >= l.length - suffixSize) {
+    const newSuffix = copyArray(newList.suffix);
+    newSuffix[index - (l.length - suffixSize)] = a;
+    newList.suffix = newSuffix;
+  } else {
+    newList.root = l.root.update(getDepth(l), index - prefixSize + l.offset, l.offset, a);
+  }
+  return newList;
+}
+
+export function adjust<A>(f: (a: A) => A, index: number, l: List<A>): List<A> {
+  return update(index, f(nth(index, l)), l);
 }
