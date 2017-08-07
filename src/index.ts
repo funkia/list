@@ -264,6 +264,9 @@ export class List<A> {
   "fantasy-land/concat"(right: List<A>): List<A> {
     return concat(this, right);
   }
+  "fantasy-land/reduce"<B>(f: (acc: B, value: A) => B, initial: B): B {
+    return foldl(f, initial, this);
+  }
   append(value: A): List<A> {
     return append(value, this);
   }

@@ -48,10 +48,10 @@ results in much better performance.
 
 ### Fantasy Land
 
-Implemented: Functor, semigroup, monoid.
+Implemented: Semigroup, monoid, foldable, functor.
 
-Not implemented yet: Setoid, apply, applicative, foldable,
-traversable, chain, monad.
+Not implemented yet: Setoid, apply, applicative, traversable, chain,
+monad.
 
 ### Rambda compatibility
 
