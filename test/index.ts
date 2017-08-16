@@ -3,7 +3,7 @@ import { assert } from "chai";
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
   last, pair, prepend, append, first, repeat, take, every, some, none,
-  find, update, adjust
+  find, update, adjust, slice, drop
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -29,11 +29,36 @@ function prependList(start: number, end: number): List<number> {
   return l;
 }
 
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ * Using Math.round() will give you a non-uniform distribution!
+ */
+function randomInInterval(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function assertIndicesFromTo(
+  list: List<number>, from: number, to: number, offset: number = 0
+): void {
+  // for (let i = from; i < to; ++i) {
+  //   // assert.strictEqual(nth(i - from + offset, list), i);
+  // }
+  for (let i = 0; i < (to - from); ++i) {
+    assert.strictEqual(nth(i + offset, list), from + i);
+  }
+}
+
+function cheapAssertIndicesFromTo(
   list: List<number>, from: number, to: number
 ): void {
-  for (let i = from; i < to; ++i) {
-    assert.strictEqual(nth(i, list), i);
+  const length = to - from;
+  if (length > 100) {
+    assertIndicesFromTo(list, from, from + 50);
+    assertIndicesFromTo(list, to - 50, to, length - 50);
+    const middle = Math.floor((length) / 2);
+    assertIndicesFromTo(list, from + middle, from + middle + 1, middle);
+  } else {
+    assertIndicesFromTo(list, from, to);
   }
 }
 
@@ -361,28 +386,6 @@ describe("List", () => {
       });
     });
   });
-  describe("take", () => {
-    it("takes element from the left", () => {
-      ([
-        [10, 20, true], // we only take from suffix
-        [10, 32 * 3, false], // we should only take from prefix
-        [100, 1000, true], // stop in tree
-        [999, 1000, true]
-      ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
-        const l = shouldAppend ? appendList(0, n) : prependList(0, n);
-        const taken = take(amount, l);
-        assert.strictEqual(taken.length, amount);
-        assertIndicesFromTo(l, 0, amount);
-      });
-    });
-    it("returns same list when taking more than length", () => {
-      [[10, 10], [12, 9]].forEach(([amount, n]) => {
-        const l = appendList(0, n);
-        const taken = take(amount, l);
-        assert.strictEqual(l, taken);
-      });
-    });
-  });
   describe("every, some, and none", () => {
     const l1 = list(2, 4, 6, 8);
     const l2 = list(2, 3, 4, 6, 7, 8);
@@ -481,6 +484,158 @@ describe("List", () => {
       const l = list(0, 1, 2, 3, 4, 5);
       const l2 = adjust(square, 2, l);
       assert.strictEqual(nth(2, l2), 4);
+    });
+  });
+  describe("slice", () => {
+    it("returns same list when nothing is sliced off", () => {
+      [[100, 0, 100], [100, -120, 120]].forEach(([n, from, to]) => {
+        const l = appendList(0, n);
+        const sliced = slice(from, to, l);
+        assert.strictEqual(l, sliced);
+      });
+    });
+    [
+      {
+        n: 32 * 3 + 10,
+        from: 4,
+        to: Infinity,
+        prepend: true,
+        msg: "slices off of prefix"
+      }, {
+        n: 10000,
+        from: 2,
+        to: 6,
+        prepend: false,
+        msg: "slices part prefix"
+      }, {
+        n: 32 * 3 + 10,
+        from: 0,
+        to: -3,
+        prepend: false,
+        msg: "slices off of suffix"
+      }, {
+        n: 32 * 3,
+        from: 32 * 3 - 10,
+        to: 32 * 3 - 2,
+        prepend: false,
+        msg: "slices part of suffix"
+      }, {
+        n: 32 * 3,
+        from: 34,
+        to: Infinity,
+        prepend: false,
+        msg: "slices tree from left"
+      }, {
+        n: 32 ** 3 + 38,
+        from: 1000,
+        to: Infinity,
+        prepend: false,
+        msg: "slices large tree from left"
+      }, {
+        // will go down 0 -> 31 -> 31 -> 27 the 27 will be moved to
+        // the prefix and will have an empty path that should be
+        // pruned
+        n: 32 ** 4 + 38,
+        from: 32 ** 3 - 5 + 32,
+        to: Infinity,
+        prepend: false,
+        msg: "slices from left when a paths single leaf is moved to prefix"
+      }, {
+        n: 32 * 3 + 5,
+        from: 0,
+        to: 32 * 3,
+        prepend: false,
+        msg: "slices from right a number of elements equal to suffix length"
+      }, {
+        // will go down 31 -> 0 -> 0 -> 27 the 27 will be moved to
+        // the prefix and will have an empty path that should be
+        // pruned
+        n: 32 ** 4 + 38,
+        from: 0,
+        to: 32 ** 4 + 32,
+        prepend: false,
+        msg: "slices from right when a paths single leaf is moved to prefix"
+      }, {
+        n: 32 ** 2 + 19,
+        from: 312,
+        to: 518,
+        prepend: false,
+        msg: "slices when both indices lie in the tree and the height must be reduced"
+      }
+    ].forEach(({ n, from, to, prepend, msg }) => {
+      it(msg, () => {
+        const l = prepend ? prependList(0, n) : appendList(0, n);
+        const sliced = slice(from, to, l);
+        const end = to < 0 ? n + to : Math.min(to, n);
+        assert.strictEqual(sliced.length, end - from);
+        cheapAssertIndicesFromTo(sliced, from, end);
+      }).timeout(50000);
+    });
+    const length = 64;
+    const l = appendList(0, length);
+    for (let i = 0; i < 0; ++i) {
+      let left: number;
+      let right: number;
+      if (i % 2 === 0) {
+        left = randomInInterval(0, length);
+        right = randomInInterval(left, length);
+      } else {
+        right = randomInInterval(0, length);
+        left = randomInInterval(0, right);
+      }
+      try {
+        const sliced = slice(left, right, l);
+        cheapAssertIndicesFromTo(sliced, left, right);
+      } catch (err) {
+        console.log(left, "to", right);
+        throw err;
+      }
+    }
+  });
+  describe.skip("drop", () => {
+    it("drops element from the left", () => {
+      ([
+        [10, 20, true], // we only take from suffix
+        [10, 32 * 3, false], // we should only take from prefix
+        [100, 1000, true], // stop in tree
+        [999, 1000, true],
+        [32 ** 3 + 32 * 3, 64, true] // height should be reduced
+      ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
+        const l = shouldAppend ? appendList(0, n) : prependList(0, n);
+        const dropped = drop(amount, l);
+        assert.strictEqual(dropped.length, amount);
+        assertIndicesFromTo(l, 0, amount);
+      });
+    });
+    it("returns same list when dropping zero elements", () => {
+      [[10, 0], [120, 0]].forEach(([amount, n]) => {
+        const l = appendList(0, n);
+        const taken = drop(amount, l);
+        assert.strictEqual(l, taken);
+      });
+    });
+  });
+  describe.skip("take", () => {
+    it("takes element from the left", () => {
+      ([
+        [10, 20, true], // we only take from suffix
+        [10, 32 * 3, false], // we should only take from prefix
+        [100, 1000, true], // stop in tree
+        [999, 1000, true],
+        [32 ** 3 + 32 * 3, 64, true] // height should be reduced
+      ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
+        const l = shouldAppend ? appendList(0, n) : prependList(0, n);
+        const taken = take(amount, l);
+        assert.strictEqual(taken.length, amount);
+        assertIndicesFromTo(l, 0, amount);
+      });
+    });
+    it("returns same list when taking more than length", () => {
+      [[10, 10], [12, 9]].forEach(([amount, n]) => {
+        const l = appendList(0, n);
+        const taken = take(amount, l);
+        assert.strictEqual(l, taken);
+      });
     });
   });
 });
