@@ -556,6 +556,12 @@ describe("List", () => {
         prepend: false,
         msg: "slices from right when a paths single leaf is moved to prefix"
       }, {
+        n: 65,
+        from: 38,
+        to: 49,
+        prepend: false,
+        msg: "slices down into tree leaf node"
+      }, {
         n: 32 ** 2 + 19,
         from: 312,
         to: 518,

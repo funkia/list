@@ -1204,7 +1204,11 @@ function sliceTreeList<A>(
   const curOffset = (offset >> (depth * branchBits)) & mask;
   let pathLeft = ((from >> (depth * branchBits)) & mask) - curOffset;
   let pathRight = ((to >> (depth * branchBits)) & mask) - curOffset;
-  if (pathLeft === pathRight) {
+  if (depth === 0) {
+    // we are slicing a piece of a leaf node
+    l.suffix = tree.array.slice(pathLeft, pathRight + 1);
+    l.bits = setSuffix(pathRight - pathLeft + 1, 0);
+  } else if (pathLeft === pathRight) {
     // Both ends are located in the same subtree, this means that we
     // can reduce the height
     // l.bits = decrementDepth(l.bits);
