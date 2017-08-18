@@ -56,11 +56,11 @@ monad.
 ### Rambda compatibility
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 19/115
+has currently been implemented on the immutable list: 20/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `find`,
 `head`, `last`, `length`, `map`, `none`, `nth`, `pair`, `prepend`,
-`range`, `reduce`, `reduceRight`, `repeat`, `take`, `update`.
+`range`, `reduce`, `reduceRight`, `repeat`, `slice`, `take`, `update`.
 
 Not implemented: `aperture`, `chain`, `contains`, `drop`, `dropLast`,
 `dropLastWhile`, `dropRepeats`, `dropRepeatsWith`, `dropWhile`,
@@ -69,7 +69,7 @@ Not implemented: `aperture`, `chain`, `contains`, `drop`, `dropLast`,
 `init`, `insert`, `insertAll`, `intersperse`, `join`, `lastIndexOf`,
 `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`, `pluck`,
 `reduceBy`, `reduceWhile`, `reject`, `remove`, `reverse`, `scan`,
-`sequence`, `slice`, `sort`, `splitAt`, `splitEvery`, `splitWhen`,
+`sequence`, `sort`, `splitAt`, `splitEvery`, `splitWhen`,
 `startsWith`, `tail`, `takeLast`, `takeLastWhile`, `takeWhile`,
 `times`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
 `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
@@ -201,18 +201,6 @@ list with the values that the function return.
 map((n) => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
 ```
 
-### `take`
-
-Takes the first `n` elements from a list and returns them in a new list.
-
-**Complexity**: `O(n)`
-
-**Example**
-
-```js
-take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
-```
-
 ### `update`
 
 Returns a list that has the entry specified by the index replaced with
@@ -265,6 +253,34 @@ contains.
 
 ```js
 length(list(0, 1, 2, 3)); //=> 4
+```
+
+### `slice`
+
+Returns a slice of a list. Elements are removed from the beginning and
+end. Both the indices can be negative in which case they will count
+from the right end of the list.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+const l = list(0, 1, 2, 3, 4, 5);
+slice(1, 4, l); //=> list(1, 2, 3)
+slice(2, -2, l); //=> list(2, 3)
+```
+
+### `take`
+
+Takes the first `n` elements from a list and returns them in a new list.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
 ```
 
 ### `first`

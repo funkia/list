@@ -562,6 +562,12 @@ describe("List", () => {
         prepend: false,
         msg: "slices down into tree leaf node"
       }, {
+        n: 97,
+        from: 34,
+        to: 48,
+        prepend: false,
+        msg: "something"
+      }, {
         n: 32 ** 2 + 19,
         from: 312,
         to: 518,
@@ -577,9 +583,11 @@ describe("List", () => {
         cheapAssertIndicesFromTo(sliced, from, end);
       }).timeout(50000);
     });
-    const length = 64;
+    // Test slice by running a series of randomly generated tests
+    /*
+    const length = 32000097;
     const l = appendList(0, length);
-    for (let i = 0; i < 0; ++i) {
+    for (let i = 0; i < 1000; ++i) {
       let left: number;
       let right: number;
       if (i % 2 === 0) {
@@ -597,6 +605,7 @@ describe("List", () => {
         throw err;
       }
     }
+    */
   });
   describe.skip("drop", () => {
     it("drops element from the left", () => {

@@ -1206,15 +1206,20 @@ function sliceTreeList<A>(
   let pathRight = ((to >> (depth * branchBits)) & mask) - curOffset;
   if (depth === 0) {
     // we are slicing a piece of a leaf node
+    l.prefix = undefined;
     l.suffix = tree.array.slice(pathLeft, pathRight + 1);
+    l.root = undefined;
     l.bits = setSuffix(pathRight - pathLeft + 1, 0);
+    return l;
   } else if (pathLeft === pathRight) {
     // Both ends are located in the same subtree, this means that we
     // can reduce the height
     // l.bits = decrementDepth(l.bits);
     // return sliceTreeList(from, to, tree.array[pathLeft], depth - 1, pathLeft === 0 ? offset : 0, l);
     const rec = sliceTreeList(from, to, tree.array[pathLeft], depth - 1, pathLeft === 0 ? offset : 0, l);
-    rec.root = new Node(undefined, [rec.root]);
+    if (rec.root !== undefined) {
+      rec.root = new Node(undefined, [rec.root]);
+    }
     return rec;
   } else {
     const childLeft = sliceLeft(tree.array[pathLeft], depth - 1, from, pathLeft === 0 ? offset : 0);
