@@ -3,7 +3,7 @@ import { assert } from "chai";
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
   last, pair, prepend, append, first, repeat, take, every, some, none,
-  find, update, adjust, slice, drop
+  find, update, adjust, slice, drop, contains
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -269,7 +269,7 @@ describe("List", () => {
         const catenated = concat(l1, l2);
         assert.strictEqual(catenated.length, leftSize + 30);
         assertIndicesFromTo(catenated, 0, leftSize + 30);
-      });
+      }).timeout(5000);
       it("left suffix is arbitrary size", () => {
         [70, 183, 1092].forEach((leftSize) => {
           const l1 = appendList(0, leftSize);
@@ -415,6 +415,20 @@ describe("List", () => {
     });
     it("returns undefined if no element is found", () => {
       assert.strictEqual(find(isEven, list(1, 3, 5, 7)), undefined);
+    });
+  });
+  describe("contains", () => {
+    it("returns true if element is present", () => {
+      assert.strictEqual(
+        contains(3, list(0, 1, 2, 3, 4, 5)),
+        true
+      );
+    });
+    it("returns false if element is not present", () => {
+      assert.strictEqual(
+        contains(3, list(0, 1, 2, 4, 5)),
+        false
+      );
     });
   });
   describe("iteration", () => {

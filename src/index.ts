@@ -762,6 +762,26 @@ export function find<A>(predicate: (a: A) => boolean, l: List<A>): A | undefined
   return foldlCb<A, PredState>(findCb, { predicate, result: undefined }, l).result;
 }
 
+type ContainsState = {
+  element: any,
+  result: boolean
+};
+
+const containsState: ContainsState = {
+  element: undefined,
+  result: false
+};
+
+function containsCb(value: any, state: ContainsState): boolean {
+  return !(state.result = (value === state.element));
+}
+
+export function contains<A>(element: A, l: List<A>): boolean {
+  containsState.element = element;
+  containsState.result = false;
+  return foldlCb(containsCb, containsState, l).result;
+}
+
 // concat
 
 const eMax = 2;

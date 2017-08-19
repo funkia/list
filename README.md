@@ -411,6 +411,20 @@ none(isEven, list(2, 4, 6, 8)); //=> false
 none(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
 none(isEven, list(1, 3, 5, 7)); //=> true
 
+### `contains`
+
+Returns `true` if the list contains the specified element. Otherwise
+it returns `false`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+contains(3, list(0, 1, 2, 3, 4, 5)); //=> true
+contains(3, list(0, 1, 2, 4, 5)); //=> false
+```
+
 ## Benchmarks
 
 The benchmarks are located in the [`bench` directory](/bench).
