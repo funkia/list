@@ -1378,26 +1378,28 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   return newList;
 }
 
-export function drop<A>(n: number, l: List<A>): List<A> {
-  return l;
+export function take<A>(n: number, l: List<A>): List<A> {
+  return slice(0, n, l);
 }
 
-export function take<A>(n: number, l: List<A>): List<A> {
-  const { length } = l;
-  const prefixSize = getPrefixSize(l);
-  const suffixSize = getSuffixSize(l);
-  if (length <= n) {
-    return l;
-  } else if (n < prefixSize) {
-    return new List(setPrefix(n, l.bits), 0, n, undefined, emptyAffix, l.prefix);
-  } else if (n >= l.length - suffixSize) {
-    return new List(setSuffix(n - (length - suffixSize), l.bits), 0, n, undefined, l.suffix, emptyAffix);
-  } else {
-    const newList = cloneList(l);
-    newList.length = n;
-    newList.root = sliceRight(l.root, getDepth(l), n, l.offset);
-    newList.bits = setSuffix(newAffix.length, l.bits);
-    newList.suffix = newAffix;
-    return newList;
-  }
+export function takeLast<A>(n: number, l: List<A>): List<A> {
+  return slice(l.length - n, l.length, l);
+}
+
+export function drop<A>(n: number, l: List<A>): List<A> {
+  return slice(n, l.length, l);
+}
+
+export function dropLast<A>(n: number, l: List<A>): List<A> {
+  return slice(0, l.length - n, l);
+}
+
+export function pop<A>(l: List<A>): List<A> {
+  return slice(0, -1, l);
+}
+
+export const init = pop;
+
+export function tail<A>(l: List<A>): List<A> {
+  return slice(1, l.length, l);
 }

@@ -3,7 +3,8 @@ import { assert } from "chai";
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
   last, pair, prepend, append, first, repeat, take, every, some, none,
-  find, update, adjust, slice, drop, contains
+  find, update, adjust, slice, contains, tail, pop, drop, dropLast,
+  takeLast
 } from '../src/index';
 
 function numberArray(start: number, end: number): number[] {
@@ -40,9 +41,6 @@ function randomInInterval(min: number, max: number) {
 function assertIndicesFromTo(
   list: List<number>, from: number, to: number, offset: number = 0
 ): void {
-  // for (let i = from; i < to; ++i) {
-  //   // assert.strictEqual(nth(i - from + offset, list), i);
-  // }
   for (let i = 0; i < (to - from); ++i) {
     assert.strictEqual(nth(i + offset, list), from + i);
   }
@@ -621,37 +619,51 @@ describe("List", () => {
     }
     */
   });
-  describe.skip("drop", () => {
+  describe("drop", () => {
     it("drops element from the left", () => {
       ([
         [10, 20, true], // we only take from suffix
         [10, 32 * 3, false], // we should only take from prefix
         [100, 1000, true], // stop in tree
         [999, 1000, true],
-        [32 ** 3 + 32 * 3, 64, true] // height should be reduced
+        [64, 32 ** 3 + 32 * 3, true] // height should be reduced
       ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
         const l = shouldAppend ? appendList(0, n) : prependList(0, n);
         const dropped = drop(amount, l);
-        assert.strictEqual(dropped.length, amount);
-        assertIndicesFromTo(l, 0, amount);
+        assert.strictEqual(dropped.length, n - amount);
+        assertIndicesFromTo(dropped, amount, n);
       });
     });
     it("returns same list when dropping zero elements", () => {
-      [[10, 0], [120, 0]].forEach(([amount, n]) => {
+      [[0, 10], [0, 120]].forEach(([amount, n]) => {
         const l = appendList(0, n);
         const taken = drop(amount, l);
         assert.strictEqual(l, taken);
       });
     });
+    it("drops element from the right", () => {
+      ([
+        [10, 20, true], // we only take from suffix
+        [10, 32 * 3, false], // we should only take from prefix
+        [100, 1000, true], // stop in tree
+        [999, 1000, true],
+        [64, 32 ** 3 + 32 * 3, true] // height should be reduced
+      ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
+        const l = shouldAppend ? appendList(0, n) : prependList(0, n);
+        const dropped = dropLast(amount, l);
+        assert.strictEqual(dropped.length, n - amount);
+        assertIndicesFromTo(dropped, 0, n - amount);
+      });
+    });
   });
-  describe.skip("take", () => {
+  describe("take", () => {
     it("takes element from the left", () => {
       ([
         [10, 20, true], // we only take from suffix
         [10, 32 * 3, false], // we should only take from prefix
         [100, 1000, true], // stop in tree
         [999, 1000, true],
-        [32 ** 3 + 32 * 3, 64, true] // height should be reduced
+        [64, 32 ** 3 + 32 * 3, true] // height should be reduced
       ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
         const l = shouldAppend ? appendList(0, n) : prependList(0, n);
         const taken = take(amount, l);
@@ -665,6 +677,36 @@ describe("List", () => {
         const taken = take(amount, l);
         assert.strictEqual(l, taken);
       });
+    });
+    it("takes element from the right", () => {
+      ([
+        [10, 20, true], // we only take from suffix
+        [10, 32 * 3, false], // we should only take from prefix
+        [100, 1000, true], // stop in tree
+        [999, 1000, true],
+        [64, 32 ** 3 + 32 * 3, true] // height should be reduced
+      ] as [number, number, boolean][]).forEach(([amount, n, shouldAppend]) => {
+        const l = shouldAppend ? appendList(0, n) : prependList(0, n);
+        const taken = takeLast(amount, l);
+        assert.strictEqual(taken.length, amount);
+        assertIndicesFromTo(taken, n - amount, n);
+      });
+    });
+  });
+  describe("tail", () => {
+    it("removes the first element", () => {
+      const l = prependList(0, 20);
+      const tailed = tail(l);
+      assert.strictEqual(tailed.length, 19);
+      assertIndicesFromTo(tailed, 1, 20);
+    });
+  });
+  describe("pop", () => {
+    it("removes the last element", () => {
+      const l = prependList(0, 20);
+      const tailed = pop(l);
+      assert.strictEqual(tailed.length, 19);
+      assertIndicesFromTo(tailed, 0, 19);
     });
   });
 });

@@ -56,21 +56,21 @@ monad.
 ### Rambda compatibility
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 20/115
+has currently been implemented on the immutable list: 25/115
 
-Implemented: `adjust`, `all`, `any`, `append`, `concat`, `find`,
-`head`, `last`, `length`, `map`, `none`, `nth`, `pair`, `prepend`,
-`range`, `reduce`, `reduceRight`, `repeat`, `slice`, `take`, `update`.
+Implemented: `adjust`, `all`, `any`, `append`, `concat`, `drop`,
+`dropLast`, `find`, `head`, `init`, `last`, `length`, `map`, `none`,
+`nth`, `pair`, `prepend`, `range`, `reduce`, `reduceRight`, `repeat`,
+`slice`, `take`, `tail`, `takeLast`, `update`.
 
-Not implemented: `aperture`, `chain`, `contains`, `drop`, `dropLast`,
-`dropLastWhile`, `dropRepeats`, `dropRepeatsWith`, `dropWhile`,
-`endsWith`, `filter`, `findIndex`, `findLast`, `findLastIndex`,
-`flatten`, `fromPairs`, `groupBy`, `groupWith`, `indexBy`, `indexOf`,
-`init`, `insert`, `insertAll`, `intersperse`, `join`, `lastIndexOf`,
-`mapAccum`, `mapAccumRight`, `mergeAll`, `partition`, `pluck`,
-`reduceBy`, `reduceWhile`, `reject`, `remove`, `reverse`, `scan`,
-`sequence`, `sort`, `splitAt`, `splitEvery`, `splitWhen`,
-`startsWith`, `tail`, `takeLast`, `takeLastWhile`, `takeWhile`,
+Not implemented: `aperture`, `chain`, `contains`,  `dropLastWhile`,
+`dropRepeats`, `dropRepeatsWith`, `dropWhile`, `endsWith`, `filter`,
+`findIndex`, `findLast`, `findLastIndex`, `flatten`, `fromPairs`,
+`groupBy`, `groupWith`, `indexBy`, `indexOf`, `insert`, `insertAll`,
+`intersperse`, `join`, `lastIndexOf`, `mapAccum`, `mapAccumRight`,
+`mergeAll`, `partition`, `pluck`, `reduceBy`, `reduceWhile`, `reject`,
+`remove`, `reverse`, `scan`, `sequence`, `sort`, `splitAt`,
+`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `takeWhile`,
 `times`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
 `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
 
@@ -227,6 +227,96 @@ the value returned by applying the function to the value.
 take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
 ```
 
+### `slice`
+
+Returns a slice of a list. Elements are removed from the beginning and
+end. Both the indices can be negative in which case they will count
+from the right end of the list.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+const l = list(0, 1, 2, 3, 4, 5);
+slice(1, 4, l); //=> list(1, 2, 3)
+slice(2, -2, l); //=> list(2, 3)
+```
+
+### `take`
+
+Takes the first `n` elements from a list and returns them in a new list.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
+```
+
+### `takeLast`
+
+Takes the last `n` elements from a list and returns them in a new list.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+takeLast(3, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
+```
+
+### `drop`
+
+Returns a new list without the first `n` elements.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+drop(2, list(0, 1, 2, 3, 4, 5)); //=> list(2, 3, 4, 5)
+```
+
+### `dropLast`
+
+Returns a new list without the first `n` elements.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+dropLast(2, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2, 3)
+```
+
+### `tail`
+
+Returns a new list with the first element removed.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+tail(list(0, 1, 2, 3)); //=> list(1, 2, 3)
+```
+
+### `pop`
+
+Returns a new list with the last element removed.
+
+**Aliases**: `init`
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+pop(list(0, 1, 2, 3)); //=> list(0, 1, 2)
+```
+
 ### Folds
 
 ### `nth`
@@ -253,34 +343,6 @@ contains.
 
 ```js
 length(list(0, 1, 2, 3)); //=> 4
-```
-
-### `slice`
-
-Returns a slice of a list. Elements are removed from the beginning and
-end. Both the indices can be negative in which case they will count
-from the right end of the list.
-
-**Complexity**: `O(log(n))`
-
-**Example**
-
-```js
-const l = list(0, 1, 2, 3, 4, 5);
-slice(1, 4, l); //=> list(1, 2, 3)
-slice(2, -2, l); //=> list(2, 3)
-```
-
-### `take`
-
-Takes the first `n` elements from a list and returns them in a new list.
-
-**Complexity**: `O(n)`
-
-**Example**
-
-```js
-take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
 ```
 
 ### `first`
