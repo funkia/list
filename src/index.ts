@@ -776,11 +776,13 @@ function containsCb(value: any, state: ContainsState): boolean {
   return !(state.result = (value === state.element));
 }
 
-export function contains<A>(element: A, l: List<A>): boolean {
+export function includes<A>(element: A, l: List<A>): boolean {
   containsState.element = element;
   containsState.result = false;
   return foldlCb(containsCb, containsState, l).result;
 }
+
+export const contains = includes;
 
 // concat
 

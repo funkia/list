@@ -3,7 +3,7 @@ import { assert } from "chai";
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
   last, pair, prepend, append, first, repeat, take, every, some, none,
-  find, update, adjust, slice, contains, tail, pop, drop, dropLast,
+  find, update, adjust, slice, includes, tail, pop, drop, dropLast,
   takeLast
 } from '../src/index';
 
@@ -418,13 +418,13 @@ describe("List", () => {
   describe("contains", () => {
     it("returns true if element is present", () => {
       assert.strictEqual(
-        contains(3, list(0, 1, 2, 3, 4, 5)),
+        includes(3, list(0, 1, 2, 3, 4, 5)),
         true
       );
     });
     it("returns false if element is not present", () => {
       assert.strictEqual(
-        contains(3, list(0, 1, 2, 4, 5)),
+        includes(3, list(0, 1, 2, 4, 5)),
         false
       );
     });
