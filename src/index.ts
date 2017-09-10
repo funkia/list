@@ -518,7 +518,7 @@ export function nth<A>(index: number, l: List<A>): A | undefined {
 
 // map
 
-export function mapArray<A, B>(
+function mapArray<A, B>(
   f: (a: A) => B, array: A[]
 ): B[] {
   const result = new Array(array.length);
