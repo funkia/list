@@ -12,7 +12,11 @@
     "test-jest": "jest --coverage",
     "test-watch": "mocha -R progress --watch --compilers ts:ts-node/register test/**/*.ts",
     "codecov": "codecov -f coverage/coverage-final.json",
-    "bench": "node bench"
+    "bench": "node bench",
+    "prepublishOnly": "npm run build; cp dist/* .",
+    "release-patch": "np patch",
+    "release-minor": "np minor",
+    "release-major": "np major"
   },
   "author": "Simon Friis Vindum",
   "license": "MIT",
@@ -27,6 +31,7 @@
     "codecov": "2.2.0",
     "jest": "^20.0.4",
     "mocha": "3.4.2",
+    "np": "^2.16.0",
     "nyc": "11.0.3",
     "ramda": "^0.24.1",
     "source-map-support": "^0.4.15",
