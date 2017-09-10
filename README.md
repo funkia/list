@@ -1,7 +1,7 @@
 # @funkia/list
 
-A fast immutable lists. Purely functional general purpose replacement
-for arrays.
+A fast immutable lists. A purely functional general purpose
+replacement for arrays.
 
 [![Gitter](https://img.shields.io/gitter/room/funkia/General.svg)](https://gitter.im/funkia/General)
 [![Build Status](https://travis-ci.org/funkia/list.svg?branch=master)](https://travis-ci.org/funkia/list)
@@ -9,31 +9,32 @@ for arrays.
 
 Work in progress :construction:
 
-## At a glance
+## Features
 
 * Very good performance
 * API centered around functions with arguments ordered for
   currying/partial application
-* Seamless Ramda integration by duplicating their API for arrays
+* [Seamless Ramda integration](#seamless-ramda-integration).
 * TypeScript support
-* Fantasy Land support
+* [Fantasy Land support](#fantasy-land)
 * Full compatibility with tree-shaking. Only pay in size for the
   functions that you actually use.
 
 ## What & why?
 
-List is a purely functional alternative to arrays. It's supposed to be
-a replacement for arrays for JavaScript developers that do purely
-functional programming.
+List is a purely functional alternative to arrays. It's a replacement
+for arrays for JavaScript developers that do purely functional
+programming.
 
 List is a data-structure that stores elements in a sequence. Just like
-arrays. Arrays is a mutable data-structure optimized for imperative
-programming. List on the other hand is an immutable data-structure
-optimized for purely functional programming.
+arrays. The difference is that arrays is a mutable data-structure
+optimized for imperative programming. List on the other hand is an
+immutable data-structure optimized for purely functional programming.
 
 Since List is immutable it provides increased safety compared to
-arrays. If you're doing functional programming with arrays their
-impure API is nothing but a source of bugs.
+arrays. It is impossible to accidentally mutate a list because it
+offers no API for mutating it. If you're doing functional programming
+with arrays their impure API is nothing but a source of bugs.
 
 Due to the way List is implemented it can be many times faster than
 arrays for functional programming. If, for instance, you concatenate
@@ -44,26 +45,22 @@ and the concatenated list can share the majority of its structure with
 the old lists. This reduces copying, reduces memory allocations, and
 results in much better performance.
 
-## Progress
+## Seamless Ramda integration
 
-### Fantasy Land
+List aims to integrate with Ramda in a way that is straightforward and
+seamless.
 
-Implemented: Semigroup, monoid, foldable, functor.
-
-Not implemented yet: Setoid, apply, applicative, traversable, chain,
-monad.
-
-### Rambda compatibility
+### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 25/115
+has currently been implemented on the immutable list: 27/115
 
-Implemented: `adjust`, `all`, `any`, `append`, `concat`, `drop`,
-`dropLast`, `find`, `head`, `init`, `last`, `length`, `map`, `none`,
-`nth`, `pair`, `prepend`, `range`, `reduce`, `reduceRight`, `repeat`,
-`slice`, `take`, `tail`, `takeLast`, `update`.
+Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
+`drop`, `dropLast`, `find`, `head`, `init`, `last`, `length`, `map`,
+`none`, `nth`, `pair`, `prepend`, `range`, `reduce`, `reduceRight`,
+`repeat`, `slice`, `take`, `tail`, `takeLast`, `update`.
 
-Not implemented: `aperture`, `chain`, `contains`,  `dropLastWhile`,
+Not implemented: `aperture`, `chain`, `dropLastWhile`,
 `dropRepeats`, `dropRepeatsWith`, `dropWhile`, `endsWith`, `filter`,
 `findIndex`, `findLast`, `findLastIndex`, `flatten`, `fromPairs`,
 `groupBy`, `groupWith`, `indexBy`, `indexOf`, `insert`, `insertAll`,
@@ -73,6 +70,13 @@ Not implemented: `aperture`, `chain`, `contains`,  `dropLastWhile`,
 `splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `takeWhile`,
 `times`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
 `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
+
+## Fantasy Land
+
+Implemented: Semigroup, monoid, foldable, functor.
+
+Not implemented yet: Setoid, apply, applicative, traversable, chain,
+monad.
 
 ## API
 
@@ -485,8 +489,8 @@ it returns `false`.
 **Example**
 
 ```js
-contains(3, list(0, 1, 2, 3, 4, 5)); //=> true
-contains(3, list(0, 1, 2, 4, 5)); //=> false
+includes(3, list(0, 1, 2, 3, 4, 5)); //=> true
+includes(3, list(0, 1, 2, 4, 5)); //=> false
 ```
 
 ## Benchmarks
