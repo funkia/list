@@ -769,6 +769,26 @@ export function find<A>(predicate: (a: A) => boolean, l: List<A>): A | undefined
   return foldlCb<A, PredState>(findCb, { predicate, result: undefined }, l).result;
 }
 
+type FindIndexState = {
+  predicate: (a: any) => boolean,
+  found: boolean,
+  index: -1
+};
+
+function findIndexCb<A>(value: A, state: FindIndexState): boolean {
+  ++state.index;
+  return !(state.found = state.predicate(value));
+}
+
+export function findIndex<A>(predicate: (a: A) => boolean, l: List<A>): number {
+  const { found, index } = foldlCb<A, FindIndexState>(
+    findIndexCb,
+    { predicate, found: false, index: -1 },
+    l
+  );
+  return found ? index : -1;
+}
+
 type ContainsState = {
   element: any,
   result: boolean

@@ -3,8 +3,8 @@ import { assert } from "chai";
 import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
   last, pair, prepend, append, first, repeat, take, every, some, none,
-  find, update, adjust, slice, includes, tail, pop, drop, dropLast,
-  takeLast, filter, reject
+  find, findIndex, update, adjust, slice, includes, tail, pop, drop,
+  dropLast, takeLast, filter, reject
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -431,6 +431,12 @@ describe("List", () => {
     });
     it("returns undefined if no element is found", () => {
       assert.strictEqual(find(isEven, list(1, 3, 5, 7)), undefined);
+    });
+    it("finds the index of the first element satisfying predicate", () => {
+      assert.strictEqual(findIndex(isEven, list(1, 3, 4, 5, 6)), 2);
+    });
+    it("returns undefined if no element is found", () => {
+      assert.strictEqual(findIndex(isEven, list(1, 3, 5, 7)), -1);
     });
   });
   describe("contains", () => {
