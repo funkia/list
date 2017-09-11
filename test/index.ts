@@ -4,8 +4,8 @@ import {
   length, range, concat, empty, List, list, map, nth, foldl, foldr,
   last, pair, prepend, append, first, repeat, take, every, some, none,
   find, update, adjust, slice, includes, tail, pop, drop, dropLast,
-  takeLast
-} from '../src/index';
+  takeLast, filter, reject
+} from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -382,6 +382,24 @@ describe("List", () => {
         const result = foldr((i, arr) => (arr.push(i), arr), [], prependList(0, n));
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
+    });
+  });
+  describe("filter and reject", () => {
+    it("filters element", () => {
+      const l1 = list(0, 1, 2, 3, 4, 5, 6);
+      const l2 = filter(isEven, l1);
+      assert.strictEqual(length(l2), 4);
+      for (let i = 0; i < length(l2); ++i) {
+        assert.isTrue(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
+      }
+    });
+    it("rejects element", () => {
+      const l1 = list(0, 1, 2, 3, 4, 5, 6);
+      const l2 = reject(isEven, l1);
+      assert.strictEqual(length(l2), 3);
+      for (let i = 0; i < length(l2); ++i) {
+        assert.isFalse(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
+      }
     });
   });
   describe("every, some, and none", () => {

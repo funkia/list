@@ -53,23 +53,24 @@ seamless.
 ### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 27/115
+has currently been implemented on the immutable list: 29/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
-`drop`, `dropLast`, `find`, `head`, `init`, `last`, `length`, `map`,
-`none`, `nth`, `pair`, `prepend`, `range`, `reduce`, `reduceRight`,
-`repeat`, `slice`, `take`, `tail`, `takeLast`, `update`.
+`drop`, `dropLast`, `filter`, `find`, `head`, `init`, `last`,
+`length`, `map`, `none`, `nth`, `pair`, `prepend`, `range`, `reduce`,
+`reduceRight`, `reject`, `repeat`, `slice`, `take`, `tail`,
+`takeLast`, `update`.
 
-Not implemented: `aperture`, `chain`, `dropLastWhile`,
-`dropRepeats`, `dropRepeatsWith`, `dropWhile`, `endsWith`, `filter`,
-`findIndex`, `findLast`, `findLastIndex`, `flatten`, `fromPairs`,
-`groupBy`, `groupWith`, `indexBy`, `indexOf`, `insert`, `insertAll`,
-`intersperse`, `join`, `lastIndexOf`, `mapAccum`, `mapAccumRight`,
-`mergeAll`, `partition`, `pluck`, `reduceBy`, `reduceWhile`, `reject`,
-`remove`, `reverse`, `scan`, `sequence`, `sort`, `splitAt`,
-`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `takeWhile`,
-`times`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
-`uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
+Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
+`dropRepeatsWith`, `dropWhile`, `endsWith`, `findIndex`, `findLast`,
+`findLastIndex`, `flatten`, `fromPairs`, `groupBy`, `groupWith`,
+`indexBy`, `indexOf`, `insert`, `insertAll`, `intersperse`, `join`,
+`lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`,
+`pluck`, `reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`,
+`sequence`, `sort`, `splitAt`, `splitEvery`, `splitWhen`,
+`startsWith`, `takeLastWhile`, `takeWhile`, `times`, `transpose`,
+`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest`
+`without`, `xprod`, `zip`, `zipObj`, `zipWith`.
 
 ## Fantasy Land
 
@@ -319,6 +320,32 @@ Returns a new list with the last element removed.
 
 ```js
 pop(list(0, 1, 2, 3)); //=> list(0, 1, 2)
+```
+
+### `filter`
+
+Returns a new list that only contains the elements of the original
+list for which the predicate returns `true`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+filter(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 2, 4, 6)
+```
+
+### `reject`
+
+Returns a new list that only contains the elements of the original
+list for which the predicate returns `false`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+filter(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
 ```
 
 ### Folds

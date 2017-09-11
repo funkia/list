@@ -242,7 +242,6 @@ function createBits(depth: number, prefixSize: number, suffixSize: number): numb
  * 2. If a tree or sub-tree does not have a size-table then all leaf
       nodes in the tree are of size 32.
  */
-
 export class List<A> {
   constructor(
     public bits: number,
@@ -616,6 +615,14 @@ export function foldl<A, B>(f: (acc: B, value: A) => B, initial: B, l: List<A>):
 }
 
 export const reduce = foldl;
+
+export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
+  return foldl((acc, a) => predicate(a) ? append(a, acc) : acc, empty(), l);
+}
+
+export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
+  return foldl((acc, a) => predicate(a) ? acc : append(a, acc), empty(), l);
+}
 
 function foldrSuffix<A, B>(
   f: (value: A, acc: B) => B, initial: B, array: A[], length: number
