@@ -685,8 +685,8 @@ function foldlSuffixCb<A, B>(
 function foldlPrefixCb<A, B>(
   cb: FoldCb<A, B>, state: B, array: A[], length: number
 ): boolean {
-  for (var i = length - 1; 0 <= i && cb(array[i], state); ++i) { }
-  return i === 0 || length === 0;
+  for (var i = length - 1; 0 <= i && cb(array[i], state); --i) { }
+  return i === -1;
 }
 
 function foldlNodeCb<A, B>(
@@ -708,7 +708,7 @@ function foldlNodeCb<A, B>(
  * This function is a lot like a fold. But the reducer function is
  * supposed to mutate its state instead of returning it. Instead of
  * returning a new state it returns a boolean that tells wether or not
- * to continue the fold. If it returns true then the folding should
+ * to continue the fold. `true` indicates that the folding should
  * continue.
  */
 function foldlCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {

@@ -438,6 +438,19 @@ describe("List", () => {
     it("returns undefined if no element is found", () => {
       assert.strictEqual(findIndex(isEven, list(1, 3, 5, 7)), -1);
     });
+    const l = appendList(0, 32 * 3);
+    it("finds in prefix", () => {
+      const result = find(n => n === 20, l);
+      assert.strictEqual(result, 20);
+    });
+    it("finds in tree", () => {
+      const result = find(n => n === 32 + 4, l);
+      assert.strictEqual(result, 32 + 4);
+    });
+    it("finds in suffix", () => {
+      const result = find(n => n === 32 * 2 + 4, l);
+      assert.strictEqual(result, 32 * 2 + 4);
+    });
   });
   describe("contains", () => {
     it("returns true if element is present", () => {
@@ -529,6 +542,11 @@ describe("List", () => {
         const sliced = slice(from, to, l);
         assert.strictEqual(l, sliced);
       });
+    });
+    it("returns empty list when end is before start", () => {
+      const l = appendList(0, 100);
+      assert.strictEqual(length(slice(50, 50, l)), 0);
+      assert.strictEqual(length(slice(55, 34, l)), 0);
     });
     [
       {
