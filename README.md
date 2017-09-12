@@ -1,7 +1,7 @@
 # @funkia/list
 
-A fast immutable lists. A purely functional general purpose
-replacement for arrays.
+A very fast immutable lists. A purely functional replacement for
+arrays.
 
 [![Gitter](https://img.shields.io/gitter/room/funkia/General.svg)](https://gitter.im/funkia/General)
 [![Build Status](https://travis-ci.org/funkia/list.svg?branch=master)](https://travis-ci.org/funkia/list)
@@ -22,14 +22,15 @@ Work in progress :construction:
 
 ## What & why?
 
-List is a purely functional alternative to arrays. It's a replacement
-for arrays for JavaScript developers that do purely functional
-programming.
+List is a purely functional alternative to arrays. List is exactly
+like arrays except for two major differences
 
-List is a data-structure that stores elements in a sequence. Just like
-arrays. The difference is that arrays is a mutable data-structure
-optimized for imperative programming. List on the other hand is an
-immutable data-structure optimized for purely functional programming.
+* Arrays has an API for mutating them. List don't. This means that if
+  you want to do purely functional programming List is better suited
+  and it wont tempt you with an imperative API.
+* Since List doesn't allows mutations it can be heavily optimized for
+  pure operations. This makes List much faster for functional
+  programming than arrays.
 
 Since List is immutable it provides increased safety compared to
 arrays. It is impossible to accidentally mutate a list because it
@@ -40,15 +41,38 @@ Due to the way List is implemented it can be many times faster than
 arrays for functional programming. If, for instance, you concatenate
 two arrays both arrays will have to be copied into a new array. This
 is because potential mutations to the old arrays must not affect the
-new concatenated array. Since List is immutable that problem goes away
-and the concatenated list can share the majority of its structure with
-the old lists. This reduces copying, reduces memory allocations, and
-results in much better performance.
+new concatenated array. List, on the other hand, is immutable and the
+concatenated list can share the majority of its structure with the old
+lists. This reduces copying, reduces memory allocations, and results
+in much better performance.
 
 ## Seamless Ramda integration
 
 List aims to integrate with Ramda in a way that is straightforward and
-seamless.
+seamless. This is achieved by implementing an API that is almost
+identical to Ramdas API for arrays.
+
+Consider this code example.
+
+```js
+import * as R from "ramda";
+
+R.compose(R.reduce(reducer, 0), R.map(fn), R.filter(predicate))(array);
+```
+
+It can be converted to code using List as follows.
+
+```js
+import * as R from "ramda";
+import * as L from "@funkia/list";
+
+R.compose(L.reduce(reducer, 0), L.map(fn), L.filter(predicate))(list);
+```
+
+For each function operating on arrays the `R` is simply changed to an
+`L`. This works because List exports functions that have the same name
+and behavior as Ramdas functions. This makes it seamless to use List
+together with Ramda.
 
 ### Implemented functions
 
@@ -74,7 +98,8 @@ Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 
 ## Fantasy Land
 
-Implemented: Semigroup, monoid, foldable, functor.
+List currently implements the following Fantasy Land abstractions:
+Semigroup, monoid, foldable, functor.
 
 Not implemented yet: Setoid, apply, applicative, traversable, chain,
 monad.
@@ -160,6 +185,8 @@ repeat("foo", 3); //=> list("foo", "foo", "foo")
 ### `concat`
 
 Concatenates two lists.
+
+N.B. Concat has known bugs. You probably shouldn't use it yet.
 
 **Complexity**: `O(logn)`
 
