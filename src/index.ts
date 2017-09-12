@@ -166,7 +166,9 @@ function sizeOfSubtree(node: Node, height: number): number {
   }
 }
 
-const emptyAffix: any[] = [undefined];
+// This array should not be mutated. Thus a dummy element is placed in
+// it. Thus the affix will not be owned and thus not mutated.
+const emptyAffix: any[] = [0];
 
 function affixPush<A>(a: A, array: A[], length: number): A[] {
   if (array.length === length) {
