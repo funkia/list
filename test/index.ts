@@ -610,6 +610,13 @@ describe("List", () => {
         prepend: false,
         msg: "slices from right when a paths single leaf is moved to prefix"
       }, {
+        // will go down into two neighbor leaf nodes and move them to affixes
+        n: 32 ** 2 + 38,
+        from: 32 * 4 + 12,
+        to: 32 * 4 + 12 + 36,
+        prepend: false,
+        msg: "sets root to undefined when sliced fits into affixes"
+      }, {
         n: 65,
         from: 38,
         to: 49,
@@ -634,21 +641,26 @@ describe("List", () => {
         const sliced = slice(from, to, l);
         const end = to < 0 ? n + to : Math.min(to, n);
         assert.strictEqual(sliced.length, end - from);
+        if (sliced.length <= 64) {
+          // if the sliced list can fit into affixes the root should
+          // be undefined
+          assert.isUndefined(sliced.root);
+        }
         cheapAssertIndicesFromTo(sliced, from, end);
       }).timeout(50000);
     });
     // Test slice by running a series of randomly generated tests
     /*
-    const length = 32000097;
-    const l = appendList(0, length);
-    for (let i = 0; i < 1000; ++i) {
+    const size = 32000097;
+    const l = appendList(0, size);
+    for (let i = 0; i < 10000; ++i) {
       let left: number;
       let right: number;
       if (i % 2 === 0) {
-        left = randomInInterval(0, length);
-        right = randomInInterval(left, length);
+        left = randomInInterval(0, size);
+        right = randomInInterval(left, size);
       } else {
-        right = randomInInterval(0, length);
+        right = randomInInterval(0, size);
         left = randomInInterval(0, right);
       }
       try {

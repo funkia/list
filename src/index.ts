@@ -187,8 +187,8 @@ function affixPush<A>(a: A, array: A[], length: number): A[] {
 // rest is depth. The functions below are for working with the bits in
 // a sane way.
 
-const affixMask = 0b111111;
 const affixBits = 6;
+const affixMask = 0b111111;
 
 function getSuffixSize(l: List<any>): number {
   return l.bits & affixMask;
@@ -211,7 +211,7 @@ function setSuffix(size: number, bits: number): number {
 }
 
 function setDepth(depth: number, bits: number): number {
-  return (depth << (affixBits * 2)) | (bits & (affixMask & (affixMask << affixBits)));
+  return (depth << (affixBits * 2)) | (bits & (affixMask | (affixMask << affixBits)));
 }
 
 function incrementPrefix(bits: number): number {
@@ -1276,7 +1276,7 @@ function sliceTreeList<A>(
     const childLeft = sliceLeft(tree.array[pathLeft], depth - 1, from, pathLeft === 0 ? offset : 0);
     l.bits = setPrefix(newAffix.length, l.bits);
     l.prefix = newAffix;
-    const childRight = sliceRight(tree.array[pathRight], depth - 1, to, /* pathRight === 0 ? offset : */ 0);
+    const childRight = sliceRight(tree.array[pathRight], depth - 1, to, 0);
     l.bits = setSuffix(newAffix.length, l.bits);
     l.suffix = newAffix;
     if (childLeft === undefined) {
@@ -1285,9 +1285,8 @@ function sliceTreeList<A>(
     if (childRight === undefined) {
       --pathRight;
     }
-    if (childLeft > childRight) {
+    if (pathLeft > pathRight) {
       // there is no tree left
-      // l.bits = decrementDepth(l.bits);
       l.bits = setDepth(0, l.bits);
       l.root = undefined;
       // } else if (pathLeft === pathRight) {
@@ -1369,7 +1368,9 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       l.offset,
       newList
     );
-    newList.offset += from - prefixSize + getPrefixSize(newList);
+    if (newList.root !== undefined) {
+      newList.offset += from - prefixSize + getPrefixSize(newList);
+    }
     newList.length = to - from;
     return newList;
   }
