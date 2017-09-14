@@ -6,6 +6,9 @@ arrays.
 [![Gitter](https://img.shields.io/gitter/room/funkia/General.svg)](https://gitter.im/funkia/General)
 [![Build Status](https://travis-ci.org/funkia/list.svg?branch=master)](https://travis-ci.org/funkia/list)
 [![codecov](https://codecov.io/gh/funkia/list/branch/master/graph/badge.svg)](https://codecov.io/gh/funkia/list)
+[![npm version](https://badge.fury.io/js/%40funkia%2Flist.svg)](https://badge.fury.io/js/%40funkia%2Flist)
+[![dependencies Status](https://david-dm.org/funkia/list/status.svg)](https://david-dm.org/funkia/list)
+[![devDependencies Status](https://david-dm.org/funkia/list/dev-status.svg)](https://david-dm.org/funkia/list?type=dev)
 
 Work in progress :construction:
 
