@@ -359,7 +359,7 @@ describe("List", () => {
     const subtract = (n: number, m: number) => n - m;
     it("folds from the left appended", () => {
       [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldl((arr, i) => (arr.push(i), arr), [], prependList(0, n));
+        const result = foldl((arr, i) => (arr.push(i), arr), <number[]>[], prependList(0, n));
         const a = foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
         const b = foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
         assert.deepEqual(result, numberArray(0, n));
@@ -367,19 +367,19 @@ describe("List", () => {
     });
     it("folds from the left prepended", () => {
       [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldl((arr, i) => (arr.push(i), arr), [], prependList(0, n));
+        const result = foldl((arr, i) => (arr.push(i), arr), <number[]>[], prependList(0, n));
         assert.deepEqual(result, numberArray(0, n));
       });
     });
     it("folds from the right appended", () => {
       [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldr((i, arr) => (arr.push(i), arr), [], appendList(0, n));
+        const result = foldr((i, arr) => (arr.push(i), arr), <number[]>[], appendList(0, n));
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });
     it("folds from the right prepended", () => {
       [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldr((i, arr) => (arr.push(i), arr), [], prependList(0, n));
+        const result = foldr((i, arr) => (arr.push(i), arr), <number[]>[], prependList(0, n));
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });

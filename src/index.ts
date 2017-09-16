@@ -69,7 +69,7 @@ function arrayLast<A>(array: A[]): A {
 }
 
 export class Node {
-  constructor(public sizes: number[], public array: any[]) {
+  constructor(public sizes: number[] | undefined, public array: any[]) {
   }
   update(depth: number, index: number, offset: number, value: any): Node {
     const curOffset = (offset >> (depth * branchBits)) & mask;
@@ -249,7 +249,7 @@ export class List<A> {
     public bits: number,
     public offset: number,
     public length: number,
-    public root: Node,
+    public root: Node | undefined,
     public suffix: A[],
     public prefix: A[]
   ) { }
@@ -494,7 +494,7 @@ export function first<A>(l: List<A>): A | undefined {
   }
 }
 
-export function last(l: List<any>): number {
+export function last(l: List<any>): number | undefined {
   if (getSuffixSize(l) !== 0) {
     return arrayLast(l.suffix);
   } else if (getPrefixSize(l) !== 0) {
@@ -502,7 +502,7 @@ export function last(l: List<any>): number {
   }
 }
 
-export function nth<A>(index: number, l: List<A>): A | undefined {
+export function nth<A>(index: number, l: List<A>): A {
   const prefixSize = getPrefixSize(l);
   const suffixSize = getSuffixSize(l);
   const { offset } = l;
@@ -512,9 +512,9 @@ export function nth<A>(index: number, l: List<A>): A | undefined {
     return l.suffix[index - (l.length - suffixSize)];
   }
   const depth = getDepth(l);
-  return l.root.sizes === undefined
-    ? nodeNthDense(l.root, depth, index - prefixSize, offset)
-    : nodeNth(l.root, depth, index - prefixSize);
+  return l.root!.sizes === undefined
+    ? nodeNthDense(l.root!, depth, index - prefixSize, offset)
+    : nodeNth(l.root!, depth, index - prefixSize);
 }
 
 // map
@@ -852,7 +852,9 @@ function createConcatPlan(array: Node[]): number[] | undefined {
   return sizes;
 }
 
-function concatNodeMerge<A>(left: Node, center: Node, right: Node): Node[] {
+function concatNodeMerge<A>(
+  left: Node | undefined, center: Node, right: Node | undefined
+): Node[] {
   const array = [];
   if (left !== undefined) {
     for (let i = 0; i < left.array.length - 1; ++i) {
@@ -906,7 +908,11 @@ function executeConcatPlan(merged: Node[], plan: number[], height: number): any[
 }
 
 function rebalance<A>(
-  left: Node, center: Node, right: Node, height: number, top: boolean
+  left: Node | undefined,
+  center: Node,
+  right: Node | undefined,
+  height: number,
+  top: boolean
 ): Node {
   const merged = concatNodeMerge(left, center, right);
   const plan = createConcatPlan(merged);
@@ -1043,7 +1049,7 @@ function pushDownTail<A>(
 }
 
 function copyFirstK(oldList: List<any>, newList: List<any>, k: number): Node {
-  let currentNode = cloneNode(oldList.root); // copy root
+  let currentNode = cloneNode(oldList.root!); // copy root
   newList.root = currentNode; // install root
   // let index = oldList.size - 1;
 
@@ -1143,7 +1149,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     // right is nothing but a prefix and a suffix
     for (var i = 0; i < nrOfAffixes; ++i) {
       newList = pushDownTail(
-        left, newList, new Node(undefined, concatBuffer[i]), undefined, 0
+        left, newList, new Node(undefined, concatBuffer[i]), emptyAffix, 0
       );
       newList.length += concatBuffer[i].length;
       // wipe pointer, otherwise it might end up keeping the array alive
@@ -1155,10 +1161,10 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     concatBuffer[nrOfAffixes] = undefined;
     return newList;
   } else {
-    newList = pushDownTail(left, newList, suffixToNode(left.suffix), undefined, 0);
+    newList = pushDownTail(left, newList, suffixToNode(left.suffix), emptyAffix, 0);
     newList.length += getSuffixSize(left);
-    newList = pushDownTail(left, newList, prefixToNode(right.prefix), undefined, 0);
-    const newNode = concatSubTree(newList.root, getDepth(newList), right.root, getDepth(right), true);
+    newList = pushDownTail(left, newList, prefixToNode(right.prefix), emptyAffix, 0);
+    const newNode = concatSubTree(newList.root!, getDepth(newList), right.root, getDepth(right), true);
     const newDepth = getHeight(newNode);
     setSizes(newNode, newDepth);
     const bits = createBits(newDepth, getPrefixSize(left), rightSuffixSize);
@@ -1179,7 +1185,7 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
     newSuffix[index - (l.length - suffixSize)] = a;
     newList.suffix = newSuffix;
   } else {
-    newList.root = l.root.update(getDepth(l), index - prefixSize + l.offset, l.offset, a);
+    newList.root = l.root!.update(getDepth(l), index - prefixSize + l.offset, l.offset, a);
   }
   return newList;
 }
@@ -1190,9 +1196,11 @@ export function adjust<A>(f: (a: A) => A, index: number, l: List<A>): List<A> {
 
 // slice and slice based functions
 
-let newAffix: any[] = undefined;
+let newAffix: any[];
 
-function sliceLeft(tree: Node, depth: number, index: number, offset: number): Node {
+function sliceLeft(
+  tree: Node, depth: number, index: number, offset: number
+): Node | undefined {
   const curOffset = (offset >> (depth * branchBits)) & mask;
   let path = ((index >> (depth * branchBits)) & mask) - curOffset;
   if (depth === 0) {
@@ -1218,7 +1226,9 @@ function sliceLeft(tree: Node, depth: number, index: number, offset: number): No
   }
 }
 
-function sliceRight(tree: Node, depth: number, index: number, offset: number): Node {
+function sliceRight(
+  tree: Node, depth: number, index: number, offset: number
+): Node | undefined {
   const curOffset = (offset >> (depth * branchBits)) & mask;
   let path = ((index >> (depth * branchBits)) & mask) - curOffset;
   if (depth === 0) {
@@ -1257,7 +1267,7 @@ function sliceTreeList<A>(
   let pathRight = ((to >> (depth * branchBits)) & mask) - curOffset;
   if (depth === 0) {
     // we are slicing a piece of a leaf node
-    l.prefix = undefined;
+    l.prefix = emptyAffix;
     l.suffix = tree.array.slice(pathLeft, pathRight + 1);
     l.root = undefined;
     l.bits = setSuffix(pathRight - pathLeft + 1, 0);
@@ -1363,7 +1373,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
     sliceTreeList(
       from - prefixSize + l.offset,
       to - prefixSize + l.offset - 1,
-      l.root,
+      l.root!,
       getDepth(l),
       l.offset,
       newList
@@ -1384,7 +1394,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       // if we're here `to` can't lie in the tree, so we can set the
       // root
       newList.root = sliceLeft(
-        newList.root, getDepth(l), from - prefixSize + l.offset, l.offset
+        newList.root!, getDepth(l), from - prefixSize + l.offset, l.offset
       );
       bits = setPrefix(newAffix.length, bits);
       newList.offset += from - prefixSize + newAffix.length;
@@ -1399,7 +1409,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       bits = setSuffix(suffixSize - (length - to), bits);
     } else {
       newList.root = sliceRight(
-        newList.root, getDepth(l), to - prefixSize + newList.offset - 1, newList.offset
+        newList.root!, getDepth(l), to - prefixSize + newList.offset - 1, newList.offset
       );
       bits = setSuffix(newAffix.length, bits);
       newList.suffix = newAffix;

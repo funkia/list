@@ -13,17 +13,17 @@ export class Affix<A> {
     switch (this.len) {
       case 0: return [];
       case 1: return [this.a];
-      case 2: return [this.a, this.b];
-      case 3: return [this.a, this.b, this.c];
-      default: return [this.a, this.b, this.c, this.d];
+      case 2: return [this.a, this.b!];
+      case 3: return [this.a, this.b!, this.c!];
+      default: return [this.a, this.b!, this.c!, this.d!];
     }
   }
   get(idx: number): A {
     switch (idx) {
       case 0: return this.a;
-      case 1: return this.b;
-      case 2: return this.c;
-      default: return this.d;
+      case 1: return this.b!;
+      case 2: return this.c!;
+      default: return this.d!;
     }
   }
 }
@@ -32,9 +32,9 @@ function affixIntoArray<A>(affix: Affix<A>, offset: number, arr: A[]): void {
   switch (affix.len) {
     case 0: return;
     case 1: arr[offset] = affix.a; return;
-    case 2: arr[offset] = affix.a, arr[offset + 1] = affix.b; return;
-    case 3: arr[offset] = affix.a, arr[offset + 1] = affix.b, arr[offset + 2] = affix.c; return;
-    default: arr[offset] = affix.a, arr[offset + 1] = affix.b, arr[offset + 2] = affix.c, arr[offset + 3] = affix.d; return;
+    case 2: arr[offset] = affix.a, arr[offset + 1] = affix.b!; return;
+    case 3: arr[offset] = affix.a, arr[offset + 1] = affix.b!, arr[offset + 2] = affix.c!; return;
+    default: arr[offset] = affix.a, arr[offset + 1] = affix.b!, arr[offset + 2] = affix.c!, arr[offset + 3] = affix.d!; return;
   }
 }
 
@@ -42,9 +42,9 @@ function affixIntoArrayRev<A>(affix: Affix<A>, offset: number, arr: A[]): void {
   switch (affix.len) {
     case 0: return;
     case 1: arr[offset] = affix.a; return;
-    case 2: arr[offset] = affix.b, arr[offset + 1] = affix.a; return;
-    case 3: arr[offset] = affix.c, arr[offset + 1] = affix.b, arr[offset + 2] = affix.a; return;
-    default: arr[offset] = affix.d, arr[offset + 1] = affix.c, arr[offset + 2] = affix.b, arr[offset + 3] = affix.a; return;
+    case 2: arr[offset] = affix.b!, arr[offset + 1] = affix.a!; return;
+    case 3: arr[offset] = affix.c!, arr[offset + 1] = affix.b!, arr[offset + 2] = affix.a!; return;
+    default: arr[offset] = affix.d!, arr[offset + 1] = affix.c!, arr[offset + 2] = affix.b!, arr[offset + 3] = affix.a; return;
   }
 }
 
@@ -68,7 +68,7 @@ export class NNode<A> {
     switch (idx) {
       case 0: return this.a;
       case 1: return this.b;
-      default: return this.c;
+      default: return this.c!;
     }
   }
 }
@@ -84,7 +84,7 @@ export class FingerTree<A> {
 }
 
 export const nil = new FingerTree<any>(
-  0, 0, undefined, undefined, undefined
+  0, 0, <any>undefined, <any>undefined, <any>undefined
 );
 
 function deep<A>(
@@ -110,10 +110,10 @@ function nrPrependDeep<A>(p: Affix<A>, depth: number, t: FingerTree<A>, s: numbe
   if (p.len < 4) {
     return deep(depth, t.size + s, affixPrepend(s, a, t.prefix), t.deeper, t.suffix);
   } else if (t.suffix === emptyAffix) {
-    return deep(depth, t.size + s, new Affix(s, 1, a), t.deeper, new Affix(p.size, 4, p.d, p.c, p.b, p.a));
+    return deep(depth, t.size + s, new Affix(s, 1, a), t.deeper, new Affix(p.size, 4, p.d!, p.c!, p.b!, p.a));
   } else {
     const num = depth === 0 ? 1 : (<any>p.a).size;
-    const node = new NNode(p.size - num, true, p.b, p.c, p.d);
+    const node = new NNode(p.size - num, true, p.b!, p.c!, p.d!);
     return deep(
       depth, t.size + s, new Affix(s + num, 2, a, p.a), nrPrepend(depth + 1, node.size, node, t.deeper), t.suffix
     );
@@ -136,10 +136,10 @@ function nrAppendDeep<A>(suf: Affix<A>, depth: number, t: FingerTree<A>, s: numb
   if (suf.len < 4) {
     return deep(depth, t.size + s, t.prefix, t.deeper, affixPrepend(s, a, t.suffix));
   } else if (t.prefix === emptyAffix) {
-    return deep(depth, t.size + s, new Affix(suf.size, 4, suf.d, suf.c, suf.b, suf.a), t.deeper, new Affix(s, 1, a));
+    return deep(depth, t.size + s, new Affix(suf.size, 4, suf.d!, suf.c!, suf.b!, suf.a), t.deeper, new Affix(s, 1, a));
   } else {
     const num = depth ? (<any>suf.a).size : 1;
-    const node = new NNode(suf.size - num, true, suf.d, suf.c, suf.b);
+    const node = new NNode(suf.size - num, true, suf.d!, suf.c!, suf.b!);
     return deep(depth, t.size + s, t.prefix, nrAppend(depth + 1, node.size, node, t.deeper), new Affix(num + s, 2, a, suf.a));
   }
 }
@@ -290,7 +290,7 @@ function nodeGet<A>(depth: number, idx: number, node: NNode<any>): A {
 export function get<A>(idx: number, tree: FingerTree<A>): A {
   let { size, prefix } = tree;
   if (size === 0) {
-    return undefined;
+    return <any>undefined;
   }
   let prefSize = tree.prefix.size;
   let deepSize = prefSize + tree.deeper.size;
@@ -390,7 +390,7 @@ function flatten<A>(a: NNode<A>[]): A[] {
     array.push(e.a);
     array.push(e.b);
     if (e.three === true) {
-      array.push(e.c);
+      array.push(e.c!);
     }
   }
   return array;
