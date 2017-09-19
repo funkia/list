@@ -383,6 +383,11 @@ describe("List", () => {
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });
+    it("has Fantasy Land method", () => {
+      const l = list(0, 1, 2, 3, 4, 5);
+      const result = l["fantasy-land/reduce"]((arr, i) => (arr.push(i), arr), <number[]>[]);
+      assert.deepEqual(result, numberArray(0, 6));
+    });
   });
   describe("filter and reject", () => {
     it("filters element", () => {
