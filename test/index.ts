@@ -443,6 +443,8 @@ describe("List", () => {
     it("returns undefined if no element is found", () => {
       assert.strictEqual(findIndex(isEven, list(1, 3, 5, 7)), -1);
     });
+    // The tests below ensures that all cases in the internal `foldCb`
+    // are being tested
     const l = appendList(0, 32 * 3);
     it("finds in prefix", () => {
       const result = find(n => n === 20, l);
@@ -455,6 +457,11 @@ describe("List", () => {
     it("finds in suffix", () => {
       const result = find(n => n === 32 * 2 + 4, l);
       assert.strictEqual(result, 32 * 2 + 4);
+    });
+    it("finds in deep tree", () => {
+      const l2 = appendList(0, 1500 * 6);
+      const result = find(n => n % 1500 === 0 && n !== 0 && n !== 1500, l2);
+      assert.strictEqual(result, 1500 * 2);
     });
   });
   describe("contains", () => {
