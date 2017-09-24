@@ -852,6 +852,11 @@ function createConcatPlan(array: Node[]): number[] | undefined {
   return sizes;
 }
 
+/**
+ * Combines the children of three nodes into an array. The last child
+ * of `left` and the first child of `right is ignored as they've been
+ * concatenated into `center`.
+ */
 function concatNodeMerge<A>(
   left: Node | undefined, center: Node, right: Node | undefined
 ): Node[] {
@@ -898,7 +903,7 @@ function executeConcatPlan(merged: Node[], plan: number[], height: number): any[
         toMove -= itemsToCopy;
       }
       if (height > 1) {
-        // Set sizes on children unless their leaf nodes
+        // Set sizes on children unless they are leaf nodes
         setSizes(node, height - 1);
       }
       result.push(node);
@@ -907,6 +912,11 @@ function executeConcatPlan(merged: Node[], plan: number[], height: number): any[
   return result;
 }
 
+/**
+ * Takes three nodes and returns a new node with the content of the
+ * three nodes. Note: The returned node does not have its size table
+ * set correctly. The caller musta do that.
+ */
 function rebalance<A>(
   left: Node | undefined,
   center: Node,
@@ -918,13 +928,13 @@ function rebalance<A>(
   const plan = createConcatPlan(merged);
   const balanced =
     plan !== undefined ? executeConcatPlan(merged, plan, height) : merged;
-  if (balanced.length < branchingFactor) {
-    if (top === false) {
+  if (balanced.length <= branchingFactor) {
+    if (top === true) {
+      return new Node(undefined, balanced);
+    } else {
       // Return a single node with extra height for balancing at next
       // level
       return new Node(undefined, [setSizes(new Node(undefined, balanced), height)]);
-    } else {
-      return new Node(undefined, balanced);
     }
   } else {
     return new Node(undefined, [
@@ -1084,6 +1094,7 @@ function appendEmpty(node: Node, depth: number): Node {
   return current;
 }
 
+/*
 function concatSuffix<A>(
   left: A[], lSize: number, right: A[], rSize: number
 ): A[] {
@@ -1096,6 +1107,7 @@ function concatSuffix<A>(
   }
   return newArray;
 }
+*/
 
 const concatBuffer = new Array(3);
 
@@ -1145,8 +1157,8 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
   const rightSuffixSize = getSuffixSize(right);
   let newList = cloneList(left);
   if (right.root === undefined) {
-    const nrOfAffixes = concatAffixes(left, right);
     // right is nothing but a prefix and a suffix
+    const nrOfAffixes = concatAffixes(left, right);
     for (var i = 0; i < nrOfAffixes; ++i) {
       newList = pushDownTail(
         left, newList, new Node(undefined, concatBuffer[i]), emptyAffix, 0

@@ -305,10 +305,6 @@ describe("List", () => {
       });
       it("does balancing", () => {
         const size = 4 * 32 + 1;
-        const firstSize = 5 * 32 + 1;
-        const secondSize = 5 * 32 + 1;
-        const thirdSize = 5 * 32 + 1;
-        const totalSize = firstSize + secondSize + thirdSize;
         const l1 = appendList(0, size * 1);
         const l2 = appendList(size * 1, size * 2);
         const l3 = appendList(size * 2, size * 3);
@@ -316,7 +312,24 @@ describe("List", () => {
         const l5 = appendList(size * 4, size * 5);
         const catenated = concat(concat(concat(concat(l1, l2), l3), l4), l5);
         assert.strictEqual(catenated.length, size * 5);
-        assertIndicesFromTo(catenated, 0, totalSize + size);
+        assertIndicesFromTo(catenated, 0, size * 5);
+      });
+      it("does balancing on trees that are three levels deep", () => {
+        // this test hits the case where balancing takes place not at
+        // the root and where the balanced nodes fits inside a single
+        // parent node. I.e. after balancing there are <= 32 nodes.
+        //
+        // `l1` will be one level deeper than `l2`. And `l2` fits
+        // inside the right most branch of the tree in `l1`, Thus when
+        // rebalancing happens the balanced nodes fits in a single
+        // leaf.
+        const size1 = 32 ** 3 - 32 * 13;
+        const size2 = 32 * 15;
+        const l1 = appendList(0, size1);
+        const l2 = appendList(size1, size1 + size2);
+        const catenated = concat(l1, l2);
+        assert.strictEqual(catenated.length, size1 + size2);
+        assertIndicesFromTo(catenated, 0, size1 + size2);
       });
     });
   });
