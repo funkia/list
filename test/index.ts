@@ -221,11 +221,12 @@ describe("List", () => {
     });
   });
   describe("concat", () => {
-    const l = empty().append(1).append(2).append(3);
     it("concats empty sides", () => {
+      const l = empty().append(1).append(2).append(3);
       assert.strictEqual(concat(l, empty()), l);
       assert.strictEqual(concat(empty(), l), l);
     });
+
     describe("right is small", () => {
       it("combined suffix size is smaller than 32", () => {
         let l1 = appendList(0, 12);
@@ -325,6 +326,15 @@ describe("List", () => {
         // leaf.
         const size1 = 32 ** 3 - 32 * 13;
         const size2 = 32 * 15;
+        const l1 = appendList(0, size1);
+        const l2 = appendList(size1, size1 + size2);
+        const catenated = concat(l1, l2);
+        assert.strictEqual(catenated.length, size1 + size2);
+        assertIndicesFromTo(catenated, 0, size1 + size2);
+      });
+      it("does balancing when right is largest", () => {
+        const size1 = 32 * 15;
+        const size2 = 32 ** 3 - 32 * 13;
         const l1 = appendList(0, size1);
         const l2 = appendList(size1, size1 + size2);
         const catenated = concat(l1, l2);

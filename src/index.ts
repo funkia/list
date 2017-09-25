@@ -954,11 +954,7 @@ function concatSubTree<A>(
     const c = concatSubTree(left, lDepth, arrayFirst(right.array), rDepth - 1, false);
     return rebalance(undefined, c, right, rDepth, isTop);
   } else if (lDepth === 0) {
-    if (isTop && left.array.length + right.array.length <= branchingFactor) {
-      return new Node(undefined, [new Node(undefined, left.array.concat(right.array))]);
-    } else {
-      return new Node(undefined, [left, right]);
-    }
+    return new Node(undefined, [left, right]);
   } else {
     const c = concatSubTree<A>(
       arrayLast(left.array),
