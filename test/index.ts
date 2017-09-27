@@ -226,7 +226,6 @@ describe("List", () => {
       assert.strictEqual(concat(l, empty()), l);
       assert.strictEqual(concat(empty(), l), l);
     });
-
     describe("right is small", () => {
       it("combined suffix size is smaller than 32", () => {
         let l1 = appendList(0, 12);
@@ -342,6 +341,23 @@ describe("List", () => {
         assertIndicesFromTo(catenated, 0, size1 + size2);
       });
     });
+    /*
+    it("randomly generated tests", () => {
+      // Test concat by running a series of randomly generated tests
+      for (let i = 0; i < 1000; ++i) {
+        let sum = 0;
+        const nrOfLists = 20;
+        let l = empty();
+        for (let j = 0; j < nrOfLists; ++i) {
+          const size = randomInInterval(0, 32 ** 3);
+          sum += size;
+          const list2 = appendList(0, size);
+          l = concat(l, list2);
+        }
+        cheapAssertIndicesFromTo(l, 0, sum);
+      }
+    });
+    */
   });
   describe("monoid", () => {
     it("has fantasy land empty", () => {
