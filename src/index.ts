@@ -821,9 +821,10 @@ function createConcatPlan(array: Node[]): number[] | undefined {
   const sizes = [];
   let sum = 0;
   for (let i = 0; i < array.length; ++i) {
-    sum += array[i].array.length;
+    sum += array[i].array.length; // FIXME: maybe only access array once
     sizes[i] = array[i].array.length;
   }
+  const origSize = sizes.slice(0);
   const optimalLength = Math.ceil(sum / branchingFactor);
   let n = array.length;
   let i = 0;
@@ -835,15 +836,17 @@ function createConcatPlan(array: Node[]): number[] | undefined {
       // Skip nodes that are already sufficiently balanced
       ++i;
     }
+    // the node at this index is too short
     let remaining = sizes[i]; // number of elements to re-distribute
-    while (remaining > 0) {
+    do {
       const size = Math.min(remaining + sizes[i + 1], branchingFactor);
       sizes[i] = size;
       remaining = remaining - (size - sizes[i + 1]);
-      ++i; // Maybe change to for-loop
-    }
+      ++i;
+    } while (remaining > 0);
+    // Shift nodes after
     for (let j = i; j <= n - 1; ++j) {
-      sizes[i] = sizes[i + 1];
+      sizes[j] = sizes[j + 1];
     }
     --i;
     --n;

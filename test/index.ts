@@ -340,6 +340,17 @@ describe("List", () => {
         assert.strictEqual(catenated.length, size1 + size2);
         assertIndicesFromTo(catenated, 0, size1 + size2);
       });
+      it("balances when concating 5 large lists", () => {
+        const sizes = [17509, 19454, 13081, 16115, 21764];
+        let sum = 0;
+        let l = empty();
+        for (const size of sizes) {
+          const list2 = appendList(sum, sum + size);
+          sum += size;
+          l = concat(l, list2);
+        }
+        assertIndicesFromTo(l, 0, sum);
+      });
     });
     /*
     it("randomly generated tests", () => {
@@ -350,8 +361,8 @@ describe("List", () => {
         let l = empty();
         for (let j = 0; j < nrOfLists; ++i) {
           const size = randomInInterval(0, 32 ** 3);
+          const list2 = appendList(sum, sum + size);
           sum += size;
-          const list2 = appendList(0, size);
           l = concat(l, list2);
         }
         cheapAssertIndicesFromTo(l, 0, sum);
@@ -368,7 +379,6 @@ describe("List", () => {
     });
   });
   describe("map", () => {
-    const square = (n: any) => n * n;
     it("maps function over list", () => {
       [30, 100, 32 * 4 + 1].forEach((n) => {
         const l = range(0, n);
