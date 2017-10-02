@@ -1,5 +1,5 @@
 const util = require('util');
-const {nil, append, get} = require("../dist/finger");
+const { nil, append, get } = require("@paldepind/finger-tree");
 const shuffle = require("knuth-shuffle").knuthShuffle;
 
 const n = 10000;

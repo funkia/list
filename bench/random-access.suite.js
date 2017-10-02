@@ -5,8 +5,7 @@ const Denque = require("denque");
 
 const List = require("../dist/index");
 const OldList = require("./list-old/dist/index");
-const Finger = require("../dist/finger");
-const OldFinger = require("./list-old/dist/finger");
+const Finger = require("@paldepind/finger-tree");
 const {Cons} = require("../dist/list");
 
 const n = 10000;
@@ -16,13 +15,11 @@ let array = [];
 let denque = new Denque();
 let immut = new Immutable.List();
 let tree = Finger.nil;
-let _tree = OldFinger.nil;
 let list = List.empty();
 let oldList = OldList.empty();
 
 for (let i = 0; i < n; ++i) {
   tree = Finger.append(i, tree);
-  _tree = OldFinger.append(i, _tree);
   list = list.append(i);
   oldList = oldList.append(i);
   denque.push(i);
@@ -75,13 +72,6 @@ module.exports = Suite("random access")
     let sum = 0;
     for (let i = 0; i < n; ++i) {
       sum += Finger.get(i, tree);
-    }
-    return sum === result;
-  })
-  .add("Old finger", function() {
-    let sum = 0;
-    for (let i = 0; i < n; ++i) {
-      sum += OldFinger.get(i, _tree);
     }
     return sum === result;
   })

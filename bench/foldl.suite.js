@@ -4,8 +4,7 @@ const Denque = require("denque");
 const mori = require("mori");
 const _ = require("lodash");
 
-const Finger = require("../dist/finger");
-const OldFinger = require("./list-old/dist/finger");
+const Finger = require("@paldepind/finger-tree");
 const { Cons } = require("../dist/list");
 
 const List = require("../dist/index");

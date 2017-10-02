@@ -6,7 +6,7 @@ import { benchmark } from "./report";
 
 import * as mori from "mori";
 import * as Immutable from "immutable";
-import * as Finger from "../dist/finger";
+import * as Finger from "@paldepind/finger-tree";
 
 import * as Benchmark from "benchmark";
 

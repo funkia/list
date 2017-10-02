@@ -10,6 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@paldepind/finger-tree": "0.0.2",
     "@types/benchmark": "^1.0.30",
     "@types/lodash": "^4.14.71",
     "@types/node": "^8.0.17",
@@ -26,9 +27,8 @@
     "pretty-ms": "^3.0.0",
     "ramda": "^0.24.1",
     "ts-loader": "^2.3.2",
-    "webpack": "^3.4.1",
+    "webpack": "^3.6.0",
     "yargs": "^8.0.2"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

@@ -6,7 +6,7 @@ import yargs = require("yargs");
 
 import * as _ from "lodash";
 import { List } from "immutable";
-import * as Finger from "../dist/finger";
+import * as Finger from "@paldepind/finger-tree";
 
 import * as Benchmark from "benchmark";
 
