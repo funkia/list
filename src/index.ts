@@ -1010,12 +1010,13 @@ function pushDownTail<A>(
   }
   while (shift > 5) {
     let childIndex: number;
-    if (true) {
+    if (currentNode.sizes === undefined) {
       // does not have size table
       childIndex = (index >> shift) & mask;
       index &= ~(mask << shift); // wipe just used bits
     } else {
-      // FIXME: handle size table
+      childIndex = currentNode.array.length - 1;
+      index -= currentNode.sizes[childIndex - 1];
     }
     nodesVisited++;
     if (childIndex < mask) {
@@ -1026,7 +1027,11 @@ function pushDownTail<A>(
     }
     currentNode = currentNode.array[childIndex];
     if (currentNode === undefined) {
-      console.log("this will only happen in a pvec subtree");
+      // This will only happend in a pvec subtree. The index does not
+      // exist so we'll have to create a new path from here on.
+      nodesToCopy = nodesVisited;
+      pos = childIndex;
+      shift = 5; // Set shift to break out of the while-loop
     }
     shift -= 5;
   }
@@ -1050,7 +1055,7 @@ function pushDownTail<A>(
     newList.bits = incrementDepth(newList.bits);
   } else {
     const node = copyFirstK(newList, newList, nodesToCopy);
-    const leaf = appendEmpty(node, nodesVisited - nodesToCopy);
+    const leaf = appendEmpty(node, depth - nodesToCopy);
     leaf.array.push(suffixNode);
   }
 

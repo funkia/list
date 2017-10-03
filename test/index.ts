@@ -351,15 +351,29 @@ describe("List", () => {
         }
         assertIndicesFromTo(l, 0, sum);
       });
+      it("inserts tail when path must be created", () => {
+        // The right side will have to be inserted as a tail. Parts of
+        // the path to the tail location does not exist so it must be
+        // created.
+        const sizes = [7202, 32];
+        let sum = 0;
+        let l = empty();
+        for (const size of sizes) {
+          const list2 = appendList(sum, sum + size);
+          sum += size;
+          l = concat(l, list2);
+        }
+        assertIndicesFromTo(l, 0, sum);
+      });
     });
     /*
     it("randomly generated tests", () => {
       // Test concat by running a series of randomly generated tests
-      for (let i = 0; i < 1000; ++i) {
+      for (let i = 0; i < 100; ++i) {
         let sum = 0;
         const nrOfLists = 20;
         let l = empty();
-        for (let j = 0; j < nrOfLists; ++i) {
+        for (let j = 0; j < nrOfLists; ++j) {
           const size = randomInInterval(0, 32 ** 3);
           const list2 = appendList(sum, sum + size);
           sum += size;
