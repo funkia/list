@@ -365,21 +365,42 @@ describe("List", () => {
         }
         assertIndicesFromTo(l, 0, sum);
       });
+      it("updates size tables when pushign down tail", () => {
+        // The right side will have to be inserted as a tail. Nodes
+        // must be copied down to where the tail is inserted and the
+        // nodes have size tables that must be updated accordingly.
+        const sizes = [9972, 273, 12315];
+        let sum = 0;
+        let l = empty();
+        for (const size of sizes) {
+          const list2 = appendList(sum, sum + size);
+          sum += size;
+          l = concat(l, list2);
+        }
+        const lol = nth(10228, l);
+        assertIndicesFromTo(l, 0, sum);
+      });
     });
     /*
     it("randomly generated tests", () => {
       // Test concat by running a series of randomly generated tests
       for (let i = 0; i < 100; ++i) {
         let sum = 0;
-        const nrOfLists = 20;
+        const nrOfLists = 3;
         let l = empty();
+        const sizes = [];
         for (let j = 0; j < nrOfLists; ++j) {
           const size = randomInInterval(0, 32 ** 3);
+          sizes.push(size);
           const list2 = appendList(sum, sum + size);
           sum += size;
           l = concat(l, list2);
         }
+        try {
         cheapAssertIndicesFromTo(l, 0, sum);
+        } catch(err) {
+          throw err;
+        }
       }
     });
     */

@@ -124,8 +124,11 @@ function nodeNth(node: Node, depth: number, index: number): any {
   return nodeNthDense(current, depth, index, 0);
 }
 
-function cloneNode(node: Node): Node {
-  return new Node(node.sizes, copyArray(node.array));
+function cloneNode({sizes, array}: Node): Node {
+  return new Node(
+    sizes === undefined ? undefined : copyArray(sizes),
+    copyArray(array)
+  );
 }
 
 function suffixToNode<A>(suffix: A[]): Node {
@@ -1054,32 +1057,38 @@ function pushDownTail<A>(
     newList.root = newRoot;
     newList.bits = incrementDepth(newList.bits);
   } else {
-    const node = copyFirstK(newList, newList, nodesToCopy);
+    const node = copyFirstK(newList, newList, nodesToCopy, suffixNode.array.length);
     const leaf = appendEmpty(node, depth - nodesToCopy);
     leaf.array.push(suffixNode);
   }
-
   return newList;
 }
 
-function copyFirstK(oldList: List<any>, newList: List<any>, k: number): Node {
+/**
+ * Traverses down the right edge of the tree and copies k nodes
+ * @param oldList
+ * @param newList
+ * @param k The number of nodes to copy. Will always be at least 1.
+ * @param leafSize The number of elements in the leaf that will be inserted.
+ */
+function copyFirstK(
+  oldList: List<any>, newList: List<any>, k: number, leafSize: number
+): Node {
   let currentNode = cloneNode(oldList.root!); // copy root
   newList.root = currentNode; // install root
-  // let index = oldList.size - 1;
 
   for (let i = 1; i < k; ++i) {
     const index = currentNode.array.length - 1;
+    if (currentNode.sizes !== undefined) {
+      currentNode.sizes[index] += leafSize;
+    }
     const newNode = cloneNode(currentNode.array[index]);
-    // FIXME: handle size table
+    // Install the copied node
     currentNode.array[index] = newNode;
     currentNode = newNode;
-    // if (i != k) {
-    //   const newCurrent = cloneNode(currentNode);
-    //   // fixme handle size table
-    // } else {
-    //   const newCurrent = cloneNode(currentNode);
-    // }
-
+  }
+  if (currentNode.sizes !== undefined) {
+    currentNode.sizes.push(arrayLast(currentNode.sizes) + leafSize);
   }
   return currentNode;
 }
