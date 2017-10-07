@@ -1291,7 +1291,7 @@ function sliceTreeList<A>(
   let pathLeft = ((from >> (depth * branchBits)) & mask) - curOffset;
   let pathRight = ((to >> (depth * branchBits)) & mask) - curOffset;
   if (depth === 0) {
-    // we are slicing a piece of a leaf node
+    // we are slicing a piece off a leaf node
     l.prefix = emptyAffix;
     l.suffix = tree.array.slice(pathLeft, pathRight + 1);
     l.root = undefined;
@@ -1411,7 +1411,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   }
 
   // we need to slice something off of the left
-  if (0 <= from) {
+  if (0 < from) {
     if (from < prefixSize) {
       // do a cheap slice by setting prefix length
       bits = setPrefix(prefixSize - from, bits);

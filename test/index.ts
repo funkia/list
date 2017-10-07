@@ -365,7 +365,7 @@ describe("List", () => {
         }
         assertIndicesFromTo(l, 0, sum);
       });
-      it("updates size tables when pushign down tail", () => {
+      it("updates size tables when pushing down tail", () => {
         // The right side will have to be inserted as a tail. Nodes
         // must be copied down to where the tail is inserted and the
         // nodes have size tables that must be updated accordingly.
@@ -382,11 +382,11 @@ describe("List", () => {
       });
     });
     /*
-    it("randomly generated tests", () => {
+    it.only("randomly generated tests", () => {
       // Test concat by running a series of randomly generated tests
-      for (let i = 0; i < 100; ++i) {
+      for (let i = 0; i < 1000; ++i) {
         let sum = 0;
-        const nrOfLists = 3;
+        const nrOfLists = 12;
         let l = empty();
         const sizes = [];
         for (let j = 0; j < nrOfLists; ++j) {
@@ -397,12 +397,12 @@ describe("List", () => {
           l = concat(l, list2);
         }
         try {
-        cheapAssertIndicesFromTo(l, 0, sum);
-        } catch(err) {
+          cheapAssertIndicesFromTo(l, 0, sum);
+        } catch (err) {
           throw err;
         }
       }
-    });
+    }).timeout(40000);
     */
   });
   describe("monoid", () => {
@@ -723,13 +723,19 @@ describe("List", () => {
         from: 34,
         to: 48,
         prepend: false,
-        msg: "something"
+        msg: "tree is reduced to single affix"
       }, {
-        n: 32 ** 2 + 19,
+        n: 32 ** 3 + 19,
         from: 312,
         to: 518,
         prepend: false,
         msg: "slices when both indices lie in the tree and the height must be reduced"
+      }, {
+        n: 32 ** 3,
+        from: 500,
+        to: 32 ** 3 - 500,
+        prepend: false,
+        msg: "slices a some elements of both ends of a deep tree"
       }
     ].forEach(({ n, from, to, prepend, msg }) => {
       it(msg, () => {
