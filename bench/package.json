@@ -5,7 +5,8 @@
   "description": "Benchmarks.",
   "main": "index.js",
   "scripts": {
-    "create-report-data": "ts-node report.ts"
+    "create-report-data": "ts-node report.ts",
+    "serve-report": "webpack-dev-server"
   },
   "author": "",
   "license": "MIT",
@@ -27,7 +28,9 @@
     "pretty-ms": "^3.0.0",
     "ramda": "^0.24.1",
     "ts-loader": "^2.3.2",
+    "ts-node": "^3.3.0",
     "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1",
     "yargs": "^8.0.2"
   },
   "devDependencies": {}

@@ -275,7 +275,7 @@ export class List<A> {
   "fantasy-land/reduce"<B>(f: (acc: B, value: A) => B, initial: B): B {
     return foldl(f, initial, this);
   }
-  append(value: A): List<A> {
+append(value: A): List<A> {
     return append(value, this);
   }
   nth(index: number): A | undefined {
@@ -981,32 +981,29 @@ function getHeight(node: Node): number {
   }
 }
 
-/* Takes the old RRB-tree, the new RRB-tree, and the new tail. It then
-  mutates the new RRB-tree so that the tail it currently points to is
-  pushed down, sets the new tail as new tail, and returns the new RRB.
-  */
-function pushDownTail<A>(
-  oldList: List<A>,
-  newList: List<A>,
-  suffixNode: Node,
-  newSuffix: A[],
-  newSuffixSize: number
+/**
+ * Takes a RRB-tree and a node tail. It then appends the node to the
+ * tree.
+ * @param l The subject for appending. `l` will be mutated. Nodes in
+ * the tree will _not_ be mutated.
+ * @param node The node that should be appended to the tree.
+ */
+function appendNodeToTree<A>(
+  l: List<A>,
+  node: Node
 ): List<A> {
-  const depth = getDepth(newList);
-  // install the new suffix in location
-  newList.suffix = newSuffix;
-  newList.bits = setSuffix(newSuffixSize, newList.bits);
-  if (newList.root === undefined) {
+  const depth = getDepth(l);
+  if (l.root === undefined) {
     // The old tree has no content in tree, all content is in affixes
-    newList.root = suffixNode;
-    return newList;
+    l.root = node;
+    return l;
   }
-  let index = newList.length - 1 - getPrefixSize(newList);
+  let index = l.length - 1 - getPrefixSize(l);
   let nodesToCopy = 0;
   let nodesVisited = 0;
   let pos = 0;
   let shift = depth * 5;
-  let currentNode = newList.root;
+  let currentNode = l.root;
   if (32 ** (depth + 1) < index) {
     shift = 0; // there is no room
     nodesVisited = depth;
@@ -1051,17 +1048,17 @@ function pushDownTail<A>(
   if (nodesToCopy === 0) {
     // there was no room in the found node
     const newPath = nodesVisited === 0
-      ? suffixNode
-      : createPath(nodesVisited, suffixNode);
-    const newRoot = new Node(undefined, [newList.root, newPath]);
-    newList.root = newRoot;
-    newList.bits = incrementDepth(newList.bits);
+      ? node
+      : createPath(nodesVisited, node);
+    const newRoot = new Node(undefined, [l.root, newPath]);
+    l.root = newRoot;
+    l.bits = incrementDepth(l.bits);
   } else {
-    const node = copyFirstK(newList, newList, nodesToCopy, suffixNode.array.length);
-    const leaf = appendEmpty(node, depth - nodesToCopy);
-    leaf.array.push(suffixNode);
+    const copiedNode = copyFirstK(l, l, nodesToCopy, node.array.length);
+    const leaf = appendEmpty(copiedNode, depth - nodesToCopy);
+    leaf.array.push(node);
   }
-  return newList;
+  return l;
 }
 
 /**
@@ -1173,8 +1170,8 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     // right is nothing but a prefix and a suffix
     const nrOfAffixes = concatAffixes(left, right);
     for (var i = 0; i < nrOfAffixes; ++i) {
-      newList = pushDownTail(
-        left, newList, new Node(undefined, concatBuffer[i]), emptyAffix, 0
+      newList = appendNodeToTree(
+        newList, new Node(undefined, concatBuffer[i])
       );
       newList.length += concatBuffer[i].length;
       // wipe pointer, otherwise it might end up keeping the array alive
@@ -1186,9 +1183,9 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     concatBuffer[nrOfAffixes] = undefined;
     return newList;
   } else {
-    newList = pushDownTail(left, newList, suffixToNode(left.suffix), emptyAffix, 0);
+    newList = appendNodeToTree(newList, suffixToNode(left.suffix));
     newList.length += getSuffixSize(left);
-    newList = pushDownTail(left, newList, prefixToNode(right.prefix), emptyAffix, 0);
+    newList = appendNodeToTree(newList, prefixToNode(right.prefix));
     const newNode = concatSubTree(newList.root!, getDepth(newList), right.root, getDepth(right), true);
     const newDepth = getHeight(newNode);
     setSizes(newNode, newDepth);

@@ -1,7 +1,7 @@
 import * as util from "util";
 import * as fs from "fs";
 const writeFile = util.promisify(fs.writeFile);
-import prettyMs = require('pretty-ms');
+import prettyMs = require("pretty-ms");
 import yargs = require("yargs");
 
 import * as _ from "lodash";
@@ -120,7 +120,7 @@ let right: any;
 
 benchmark({
   name: "concat",
-  input: [10, 200]
+  input: [10, 200, 2000]
 }, {
     "List, current": {
       before: (n) => {
