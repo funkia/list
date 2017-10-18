@@ -56,6 +56,9 @@ function arrayAppend<A>(value: A, array: A[]): A[] {
   return result;
 }
 
+/**
+ * Create a reverse _copy_ of an array.
+ */
 function reverseArray<A>(array: A[]): A[] {
   return array.slice().reverse();
 }
@@ -124,7 +127,7 @@ function nodeNth(node: Node, depth: number, index: number): any {
   return nodeNthDense(current, depth, index, 0);
 }
 
-function cloneNode({sizes, array}: Node): Node {
+function cloneNode({ sizes, array }: Node): Node {
   return new Node(
     sizes === undefined ? undefined : copyArray(sizes),
     copyArray(array)
@@ -992,12 +995,17 @@ function appendNodeToTree<A>(
   l: List<A>,
   node: Node
 ): List<A> {
-  const depth = getDepth(l);
   if (l.root === undefined) {
-    // The old tree has no content in tree, all content is in affixes
+    // The old list has no content in tree, all content is in affixes
+    if (getPrefixSize(l) === 0) {
+      l.bits = setPrefix(node.array.length, l.bits);
+      l.prefix = reverseArray(node.array);
+    } else {
     l.root = node;
+    }
     return l;
   }
+  const depth = getDepth(l);
   let index = l.length - 1 - getPrefixSize(l);
   let nodesToCopy = 0;
   let nodesVisited = 0;
@@ -1189,8 +1197,9 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     const newNode = concatSubTree(newList.root!, getDepth(newList), right.root, getDepth(right), true);
     const newDepth = getHeight(newNode);
     setSizes(newNode, newDepth);
-    const bits = createBits(newDepth, getPrefixSize(left), rightSuffixSize);
-    return new List(bits, 0, newSize, newNode, right.suffix, left.prefix);
+    const bits = createBits(newDepth, getPrefixSize(newList), rightSuffixSize);
+    // FIXME: Return `newList` here
+    return new List(bits, 0, newSize, newNode, right.suffix, newList.prefix);
   }
 }
 

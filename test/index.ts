@@ -294,6 +294,24 @@ describe("List", () => {
         });
       });
     });
+    describe("satisfies invariant 1", () => {
+      it("left nor right has root", () => {
+        const left = appendList(0, 32);
+        const right = appendList(32, 32 * 2);
+        const catenated = concat(left, right);
+        assertIndicesFromTo(catenated, 0, left.length + right.length);
+        // first relies on the invariant
+        assert.strictEqual(first(catenated), 0);
+      });
+      it("left is only suffix and right has root", () => {
+        const left = appendList(0, 32);
+        const right = appendList(32, 32 + 32 * 3);
+        const catenated = concat(left, right);
+        assertIndicesFromTo(catenated, 0, left.length + right.length);
+        // first relies on the invariant
+        assert.strictEqual(first(catenated), 0);
+      });
+    });
     describe("both are large", () => {
       it("concats once properly", () => {
         [[83, 128], [2381, 3720]].forEach(([leftSize, rightSize]) => {
