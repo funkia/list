@@ -278,7 +278,7 @@ export class List<A> {
   "fantasy-land/reduce"<B>(f: (acc: B, value: A) => B, initial: B): B {
     return foldl(f, initial, this);
   }
-append(value: A): List<A> {
+  append(value: A): List<A> {
     return append(value, this);
   }
   nth(index: number): A | undefined {
@@ -434,32 +434,12 @@ export function append<A>(value: A, l: List<A>): List<A> {
   }
   const newSuffix = [value];
   const suffixNode = suffixToNode(l.suffix);
-  let bits = setSuffix(1, l.bits);
-  if (l.root === undefined) {
-    if (getPrefixSize(l) === 0) {
-      // ensure invariant 1
-      return new List(
-        setPrefix(32, bits), l.offset, l.length + 1, undefined, newSuffix, reverseArray(l.suffix)
-      );
-    }
-    return new List(
-      bits, l.offset, l.length + 1, suffixNode, newSuffix, l.prefix
-    );
-  }
-  const full = l.space() <= 0;
-  let node;
-  if (full === true) {
-    node = new Node(undefined, [l.root, createPath(depth, suffixNode)]);
-  } else {
-    const rootContent = l.length - suffixSize - getPrefixSize(l);
-    node = l.root.update(depth - 1, (l.offset + rootContent) >> 5, l.offset >> 5, suffixNode);
-  }
-  if (full === true) {
-    bits = incrementDepth(bits);
-  }
-  return new List(
-    bits, l.offset, l.length + 1, node, newSuffix, l.prefix
-  );
+  const newList = cloneList(l);
+  appendNodeToTree(newList, suffixNode);
+  newList.suffix = newSuffix;
+  newList.length++;
+  newList.bits = setSuffix(1, newList.bits);
+  return newList;
 }
 
 export function list<A>(...elements: A[]): List<A> {
@@ -1001,7 +981,7 @@ function appendNodeToTree<A>(
       l.bits = setPrefix(node.array.length, l.bits);
       l.prefix = reverseArray(node.array);
     } else {
-    l.root = node;
+      l.root = node;
     }
     return l;
   }

@@ -105,6 +105,15 @@ describe("List", () => {
       assert.strictEqual(last(l2), 1);
       assert.strictEqual(last(l3), 2);
     });
+    it("should work with size tables", () => {
+      const size = 32 * 5 + 1;
+      const list1 = concat(
+        appendList(0, size),
+        appendList(size, size * 2)
+      );
+      const list2 = appendList(size * 2, size * 3, list1);
+      assertIndicesFromTo(list2, 0, size * 3);
+    });
   });
   describe("prepend", () => {
     it("prepends items", () => {
