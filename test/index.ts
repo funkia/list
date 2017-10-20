@@ -1,10 +1,39 @@
 import { assert } from "chai";
 
 import {
-  length, range, concat, empty, List, list, map, nth, foldl, foldr,
-  last, pair, prepend, append, first, repeat, take, every, some, none,
-  find, findIndex, update, adjust, slice, includes, tail, pop, drop,
-  dropLast, takeLast, filter, reject
+  length,
+  range,
+  concat,
+  empty,
+  List,
+  list,
+  map,
+  nth,
+  foldl,
+  foldr,
+  last,
+  pair,
+  prepend,
+  append,
+  first,
+  repeat,
+  take,
+  every,
+  some,
+  none,
+  find,
+  findIndex,
+  update,
+  adjust,
+  slice,
+  includes,
+  tail,
+  pop,
+  drop,
+  dropLast,
+  takeLast,
+  filter,
+  reject
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -39,21 +68,26 @@ function randomInInterval(min: number, max: number) {
 }
 
 function assertIndicesFromTo(
-  list: List<number>, from: number, to: number, offset: number = 0
+  list: List<number>,
+  from: number,
+  to: number,
+  offset: number = 0
 ): void {
-  for (let i = 0; i < (to - from); ++i) {
+  for (let i = 0; i < to - from; ++i) {
     assert.strictEqual(nth(i + offset, list), from + i);
   }
 }
 
 function cheapAssertIndicesFromTo(
-  list: List<number>, from: number, to: number
+  list: List<number>,
+  from: number,
+  to: number
 ): void {
   const length = to - from;
   if (length > 100) {
     assertIndicesFromTo(list, from, from + 50);
     assertIndicesFromTo(list, to - 50, to, length - 50);
-    const middle = Math.floor((length) / 2);
+    const middle = Math.floor(length / 2);
     assertIndicesFromTo(list, from + middle, from + middle + 1, middle);
   } else {
     assertIndicesFromTo(list, from, to);
@@ -67,7 +101,7 @@ const square = (n: number) => n * n;
 describe("List", () => {
   describe("repeat", () => {
     it("creates list of n repeated elements", () => {
-      [10, 100].forEach((n) => {
+      [10, 100].forEach(n => {
         const l = repeat("foo", n);
         assert.strictEqual(length(l), n);
         for (const value of l) {
@@ -78,7 +112,11 @@ describe("List", () => {
   });
   describe("append", () => {
     it("can append small", () => {
-      const list = empty().append(0).append(1).append(2).append(3);
+      const list = empty()
+        .append(0)
+        .append(1)
+        .append(2)
+        .append(3);
       assertIndicesFromTo(list, 0, 4);
     });
     it("can append 1000 elements", () => {
@@ -107,10 +145,7 @@ describe("List", () => {
     });
     it("should work with size tables", () => {
       const size = 32 * 5 + 1;
-      const list1 = concat(
-        appendList(0, size),
-        appendList(size, size * 2)
-      );
+      const list1 = concat(appendList(0, size), appendList(size, size * 2));
       const list2 = appendList(size * 2, size * 3, list1);
       assertIndicesFromTo(list2, 0, size * 3);
     });
@@ -124,7 +159,7 @@ describe("List", () => {
         32 ** 2 + 2 * 32 + 1,
         2081,
         32 ** 3 + 2 * 32 + 1
-      ].forEach((n) => {
+      ].forEach(n => {
         let l = empty();
         for (let i = n - 1; i >= 0; --i) {
           l = prepend(i, l);
@@ -136,7 +171,7 @@ describe("List", () => {
       [
         32
         // 1048641 // large
-      ].forEach((n) => {
+      ].forEach(n => {
         let l = empty();
         for (let i = n - 1; i >= 0; --i) {
           l = prepend(i, l);
@@ -166,7 +201,7 @@ describe("List", () => {
     it("can append when there is offset", () => {
       let l = empty();
       const n = 32 ** 2 + 32 * 2;
-      const m = (32 ** 2); // * 31 - 32 * 3;
+      const m = 32 ** 2; // * 31 - 32 * 3;
       const nm = 33;
       // first we prepend enough elements to grow the tree to height
       // 2, then we push additionally 64 elements to arrive at a list
@@ -231,7 +266,10 @@ describe("List", () => {
   });
   describe("concat", () => {
     it("concats empty sides", () => {
-      const l = empty().append(1).append(2).append(3);
+      const l = empty()
+        .append(1)
+        .append(2)
+        .append(3);
       assert.strictEqual(concat(l, empty()), l);
       assert.strictEqual(concat(empty(), l), l);
     });
@@ -245,7 +283,10 @@ describe("List", () => {
       });
       it("right has prefix and suffix that can be combined", () => {
         let l1 = appendList(0, 12);
-        let l2 = append(16, append(15, prepend(12, prepend(13, prepend(14, empty())))));
+        let l2 = append(
+          16,
+          append(15, prepend(12, prepend(13, prepend(14, empty()))))
+        );
         const concatenated = concat(l1, l2);
         assert.strictEqual(length(concatenated), 17);
         assertIndicesFromTo(concatenated, 0, 17);
@@ -258,7 +299,7 @@ describe("List", () => {
         assertIndicesFromTo(concatenated, 0, 90);
       });
       it("left suffix is full", () => {
-        [32, 32 * 4, 32 * 5, 32 * 12].forEach((leftSize) => {
+        [32, 32 * 4, 32 * 5, 32 * 12].forEach(leftSize => {
           const l1 = appendList(0, leftSize);
           const l2 = appendList(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
@@ -278,7 +319,7 @@ describe("List", () => {
         assertIndicesFromTo(catenated, 0, leftSize + 30);
       }).timeout(5000);
       it("left suffix is arbitrary size", () => {
-        [70, 183, 1092].forEach((leftSize) => {
+        [70, 183, 1092].forEach(leftSize => {
           const l1 = appendList(0, leftSize);
           const l2 = appendList(leftSize, leftSize + 30);
           const catenated = concat(l1, l2);
@@ -442,7 +483,7 @@ describe("List", () => {
   });
   describe("map", () => {
     it("maps function over list", () => {
-      [30, 100, 32 * 4 + 1].forEach((n) => {
+      [30, 100, 32 * 4 + 1].forEach(n => {
         const l = range(0, n);
         const mapped = map(square, l);
         for (let i = 0; i < n; ++i) {
@@ -460,7 +501,7 @@ describe("List", () => {
     it("has Fantasy Land method", () => {
       const n = 50;
       const l = range(0, n);
-      const mapped = l["fantasy-land/map"]((m) => m * m);
+      const mapped = l["fantasy-land/map"](m => m * m);
       for (let i = 0; i < n; ++i) {
         assert.strictEqual(nth(i, mapped), i * i);
       }
@@ -469,34 +510,53 @@ describe("List", () => {
   describe("fold", () => {
     const subtract = (n: number, m: number) => n - m;
     it("folds from the left appended", () => {
-      [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldl((arr, i) => (arr.push(i), arr), <number[]>[], prependList(0, n));
+      [10, 32 * 4 + 5].forEach(n => {
+        const result = foldl(
+          (arr, i) => (arr.push(i), arr),
+          <number[]>[],
+          prependList(0, n)
+        );
         const a = foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
         const b = foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
         assert.deepEqual(result, numberArray(0, n));
       });
     });
     it("folds from the left prepended", () => {
-      [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldl((arr, i) => (arr.push(i), arr), <number[]>[], prependList(0, n));
+      [10, 32 * 4 + 5].forEach(n => {
+        const result = foldl(
+          (arr, i) => (arr.push(i), arr),
+          <number[]>[],
+          prependList(0, n)
+        );
         assert.deepEqual(result, numberArray(0, n));
       });
     });
     it("folds from the right appended", () => {
-      [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldr((i, arr) => (arr.push(i), arr), <number[]>[], appendList(0, n));
+      [10, 32 * 4 + 5].forEach(n => {
+        const result = foldr(
+          (i, arr) => (arr.push(i), arr),
+          <number[]>[],
+          appendList(0, n)
+        );
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });
     it("folds from the right prepended", () => {
-      [10, 32 * 4 + 5].forEach((n) => {
-        const result = foldr((i, arr) => (arr.push(i), arr), <number[]>[], prependList(0, n));
+      [10, 32 * 4 + 5].forEach(n => {
+        const result = foldr(
+          (i, arr) => (arr.push(i), arr),
+          <number[]>[],
+          prependList(0, n)
+        );
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });
     it("has Fantasy Land method", () => {
       const l = list(0, 1, 2, 3, 4, 5);
-      const result = l["fantasy-land/reduce"]((arr, i) => (arr.push(i), arr), <number[]>[]);
+      const result = l["fantasy-land/reduce"](
+        (arr, i) => (arr.push(i), arr),
+        <number[]>[]
+      );
       assert.deepEqual(result, numberArray(0, 6));
     });
   });
@@ -577,16 +637,10 @@ describe("List", () => {
   });
   describe("contains", () => {
     it("returns true if element is present", () => {
-      assert.strictEqual(
-        includes(3, list(0, 1, 2, 3, 4, 5)),
-        true
-      );
+      assert.strictEqual(includes(3, list(0, 1, 2, 3, 4, 5)), true);
     });
     it("returns false if element is not present", () => {
-      assert.strictEqual(
-        includes(3, list(0, 1, 2, 4, 5)),
-        false
-      );
+      assert.strictEqual(includes(3, list(0, 1, 2, 4, 5)), false);
     });
   });
   describe("iteration", () => {
@@ -595,7 +649,7 @@ describe("List", () => {
         20, // a list where there is no elements in tree
         1000, // a tree with larger depth,
         32 ** 2 + 3 // an even larger tree
-      ].forEach((n) => {
+      ].forEach(n => {
         const l = range(0, n);
         let last = -1;
         for (const element of l) {
@@ -678,37 +732,43 @@ describe("List", () => {
         to: Infinity,
         prepend: true,
         msg: "slices off of prefix"
-      }, {
+      },
+      {
         n: 10000,
         from: 2,
         to: 6,
         prepend: false,
         msg: "slices part prefix"
-      }, {
+      },
+      {
         n: 32 * 3 + 10,
         from: 0,
         to: -3,
         prepend: false,
         msg: "slices off of suffix"
-      }, {
+      },
+      {
         n: 32 * 3,
         from: 32 * 3 - 10,
         to: 32 * 3 - 2,
         prepend: false,
         msg: "slices part of suffix"
-      }, {
+      },
+      {
         n: 32 * 3,
         from: 34,
         to: Infinity,
         prepend: false,
         msg: "slices tree from left"
-      }, {
+      },
+      {
         n: 32 ** 3 + 38,
         from: 1000,
         to: Infinity,
         prepend: false,
         msg: "slices large tree from left"
-      }, {
+      },
+      {
         // will go down 0 -> 31 -> 31 -> 27 the 27 will be moved to
         // the prefix and will have an empty path that should be
         // pruned
@@ -717,13 +777,15 @@ describe("List", () => {
         to: Infinity,
         prepend: false,
         msg: "slices from left when a paths single leaf is moved to prefix"
-      }, {
+      },
+      {
         n: 32 * 3 + 5,
         from: 0,
         to: 32 * 3,
         prepend: false,
         msg: "slices from right a number of elements equal to suffix length"
-      }, {
+      },
+      {
         // will go down 31 -> 0 -> 0 -> 27 the 27 will be moved to
         // the prefix and will have an empty path that should be
         // pruned
@@ -732,32 +794,38 @@ describe("List", () => {
         to: 32 ** 4 + 32,
         prepend: false,
         msg: "slices from right when a paths single leaf is moved to prefix"
-      }, {
+      },
+      {
         // will go down into two neighbor leaf nodes and move them to affixes
         n: 32 ** 2 + 38,
         from: 32 * 4 + 12,
         to: 32 * 4 + 12 + 36,
         prepend: false,
         msg: "sets root to undefined when sliced fits into affixes"
-      }, {
+      },
+      {
         n: 65,
         from: 38,
         to: 49,
         prepend: false,
         msg: "slices down into tree leaf node"
-      }, {
+      },
+      {
         n: 97,
         from: 34,
         to: 48,
         prepend: false,
         msg: "tree is reduced to single affix"
-      }, {
+      },
+      {
         n: 32 ** 3 + 19,
         from: 312,
         to: 518,
         prepend: false,
-        msg: "slices when both indices lie in the tree and the height must be reduced"
-      }, {
+        msg:
+          "slices when both indices lie in the tree and the height must be reduced"
+      },
+      {
         n: 32 ** 3,
         from: 500,
         to: 32 ** 3 - 500,

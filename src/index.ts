@@ -21,7 +21,10 @@ function copyArray(source: any[]): any[] {
 }
 
 function pushElements<A>(
-  source: A[], target: A[], offset: number, amount: number
+  source: A[],
+  target: A[],
+  offset: number,
+  amount: number
 ): void {
   for (let i = offset; i < offset + amount; ++i) {
     target.push(source[i]);
@@ -29,7 +32,11 @@ function pushElements<A>(
 }
 
 function copyIndices(
-  source: any[], sourceStart: number, target: any[], targetStart: number, length: number
+  source: any[],
+  sourceStart: number,
+  target: any[],
+  targetStart: number,
+  length: number
 ): void {
   for (let i = 0; i < length; ++i) {
     target[targetStart + i] = source[sourceStart + i];
@@ -72,8 +79,7 @@ function arrayLast<A>(array: A[]): A {
 }
 
 export class Node {
-  constructor(public sizes: number[] | undefined, public array: any[]) {
-  }
+  constructor(public sizes: number[] | undefined, public array: any[]) {}
   update(depth: number, index: number, offset: number, value: any): Node {
     const curOffset = (offset >> (depth * branchBits)) & mask;
     const path = ((index >> (depth * branchBits)) & mask) - curOffset;
@@ -87,7 +93,12 @@ export class Node {
       if (depth === 0) {
         array[path] = value;
       } else {
-        array[path] = array[path].update(depth - 1, index, path === 0 ? offset : 0, value);
+        array[path] = array[path].update(
+          depth - 1,
+          index,
+          path === 0 ? offset : 0,
+          value
+        );
       }
     }
     return new Node(this.sizes, array);
@@ -95,14 +106,18 @@ export class Node {
 }
 
 function nodeNthDense(
-  node: Node, depth: number, index: number, offset: number
+  node: Node,
+  depth: number,
+  index: number,
+  offset: number
 ): any {
   index += offset;
   let path;
   let current = node;
   for (; depth >= 0; --depth) {
     path =
-      ((index >> (depth * branchBits)) & mask) - ((offset >> (depth * branchBits)) & mask);
+      ((index >> (depth * branchBits)) & mask) -
+      ((offset >> (depth * branchBits)) & mask);
     if (path !== 0) {
       offset = 0;
     }
@@ -217,7 +232,9 @@ function setSuffix(size: number, bits: number): number {
 }
 
 function setDepth(depth: number, bits: number): number {
-  return (depth << (affixBits * 2)) | (bits & (affixMask | (affixMask << affixBits)));
+  return (
+    (depth << (affixBits * 2)) | (bits & (affixMask | (affixMask << affixBits)))
+  );
 }
 
 function incrementPrefix(bits: number): number {
@@ -236,7 +253,11 @@ function decrementDepth(bits: number): number {
   return bits - (1 << (affixBits * 2));
 }
 
-function createBits(depth: number, prefixSize: number, suffixSize: number): number {
+function createBits(
+  depth: number,
+  prefixSize: number,
+  suffixSize: number
+): number {
   return (depth << (affixBits * 2)) | (prefixSize << affixBits) | suffixSize;
 }
 
@@ -258,10 +279,12 @@ export class List<A> {
     public root: Node | undefined,
     public suffix: A[],
     public prefix: A[]
-  ) { }
+  ) {}
   space(): number {
-    return (branchingFactor ** (getDepth(this) + 1))
-      - (this.length - getSuffixSize(this) - getPrefixSize(this) + this.offset);
+    return (
+      branchingFactor ** (getDepth(this) + 1) -
+      (this.length - getSuffixSize(this) - getPrefixSize(this) + this.offset)
+    );
   }
   [Symbol.iterator](): Iterator<A> {
     return new ListIterator(this);
@@ -384,11 +407,21 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
     if (getSuffixSize(l) === 0) {
       // ensure invariant 1
       return new List(
-        setSuffix(32, bits), l.offset, l.length + 1, undefined, reverseArray(l.prefix), newPrefix
+        setSuffix(32, bits),
+        l.offset,
+        l.length + 1,
+        undefined,
+        reverseArray(l.prefix),
+        newPrefix
       );
     }
     return new List(
-      bits, 0, l.length + 1, prefixToNode(l.prefix), l.suffix, newPrefix
+      bits,
+      0,
+      l.length + 1,
+      prefixToNode(l.prefix),
+      l.suffix,
+      newPrefix
     );
   }
   const prefixNode = prefixToNode(l.prefix);
@@ -406,12 +439,17 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
       );
     } else {
       // we need to create a new root
-      newOffset = depth === 0 ? 0 : (32 ** (depth + 1)) - 32;
+      newOffset = depth === 0 ? 0 : 32 ** (depth + 1) - 32;
       root = new Node(undefined, [createPath(depth, prefixNode), l.root]);
     }
   } else {
     newOffset = l.offset - branchingFactor;
-    root = l.root.update(depth - 1, (l.offset - 1) >> 5, l.offset >> 5, prefixNode);
+    root = l.root.update(
+      depth - 1,
+      (l.offset - 1) >> 5,
+      l.offset >> 5,
+      prefixNode
+    );
   }
   if (full === true) {
     bits = incrementDepth(bits);
@@ -451,9 +489,7 @@ export function list<A>(...elements: A[]): List<A> {
 }
 
 export function pair<A>(first: A, second: A): List<A> {
-  return new List(
-    2, 0, 2, undefined, [first, second], emptyAffix
-  );
+  return new List(2, 0, 2, undefined, [first, second], emptyAffix);
 }
 
 export function empty(): List<any> {
@@ -505,9 +541,7 @@ export function nth<A>(index: number, l: List<A>): A {
 
 // map
 
-function mapArray<A, B>(
-  f: (a: A) => B, array: A[]
-): B[] {
+function mapArray<A, B>(f: (a: A) => B, array: A[]): B[] {
   const result = new Array(array.length);
   for (let i = 0; i < array.length; ++i) {
     result[i] = f(array[i]);
@@ -515,9 +549,7 @@ function mapArray<A, B>(
   return result;
 }
 
-function mapNode<A, B>(
-  f: (a: A) => B, node: Node, depth: number
-): Node {
+function mapNode<A, B>(f: (a: A) => B, node: Node, depth: number): Node {
   if (depth !== 0) {
     const { array } = node;
     const result = new Array(array.length);
@@ -530,9 +562,7 @@ function mapNode<A, B>(
   }
 }
 
-function mapAffix<A, B>(
-  f: (a: A) => B, suffix: A[], length: number
-): B[] {
+function mapAffix<A, B>(f: (a: A) => B, suffix: A[], length: number): B[] {
   const newSuffix = new Array(length);
   for (let i = 0; i < length; ++i) {
     newSuffix[i] = f(suffix[i]);
@@ -562,7 +592,10 @@ export function range(start: number, end: number): List<number> {
 // fold
 
 function foldlSuffix<A, B>(
-  f: (acc: B, value: A) => B, acc: B, array: A[], length: number
+  f: (acc: B, value: A) => B,
+  acc: B,
+  array: A[],
+  length: number
 ): B {
   for (let i = 0; i < length; ++i) {
     acc = f(acc, array[i]);
@@ -571,7 +604,10 @@ function foldlSuffix<A, B>(
 }
 
 function foldlPrefix<A, B>(
-  f: (acc: B, value: A) => B, acc: B, array: A[], length: number
+  f: (acc: B, value: A) => B,
+  acc: B,
+  array: A[],
+  length: number
 ): B {
   for (let i = length - 1; 0 <= i; --i) {
     acc = f(acc, array[i]);
@@ -580,7 +616,10 @@ function foldlPrefix<A, B>(
 }
 
 function foldlNode<A, B>(
-  f: (acc: B, value: A) => B, acc: B, node: Node, depth: number
+  f: (acc: B, value: A) => B,
+  acc: B,
+  node: Node,
+  depth: number
 ): B {
   const { array } = node;
   if (depth === 0) {
@@ -592,7 +631,11 @@ function foldlNode<A, B>(
   return acc;
 }
 
-export function foldl<A, B>(f: (acc: B, value: A) => B, initial: B, l: List<A>): B {
+export function foldl<A, B>(
+  f: (acc: B, value: A) => B,
+  initial: B,
+  l: List<A>
+): B {
   const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
   initial = foldlPrefix(f, initial, l.prefix, prefixSize);
@@ -605,15 +648,18 @@ export function foldl<A, B>(f: (acc: B, value: A) => B, initial: B, l: List<A>):
 export const reduce = foldl;
 
 export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
-  return foldl((acc, a) => predicate(a) ? append(a, acc) : acc, empty(), l);
+  return foldl((acc, a) => (predicate(a) ? append(a, acc) : acc), empty(), l);
 }
 
 export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
-  return foldl((acc, a) => predicate(a) ? acc : append(a, acc), empty(), l);
+  return foldl((acc, a) => (predicate(a) ? acc : append(a, acc)), empty(), l);
 }
 
 function foldrSuffix<A, B>(
-  f: (value: A, acc: B) => B, initial: B, array: A[], length: number
+  f: (value: A, acc: B) => B,
+  initial: B,
+  array: A[],
+  length: number
 ): B {
   let acc = initial;
   for (let i = length - 1; 0 <= i; --i) {
@@ -623,7 +669,10 @@ function foldrSuffix<A, B>(
 }
 
 function foldrPrefix<A, B>(
-  f: (value: A, acc: B) => B, initial: B, array: A[], length: number
+  f: (value: A, acc: B) => B,
+  initial: B,
+  array: A[],
+  length: number
 ): B {
   let acc = initial;
   for (let i = 0; i < length; ++i) {
@@ -633,7 +682,10 @@ function foldrPrefix<A, B>(
 }
 
 function foldrNode<A, B>(
-  f: (value: A, acc: B) => B, initial: B, { array }: Node, depth: number
+  f: (value: A, acc: B) => B,
+  initial: B,
+  { array }: Node,
+  depth: number
 ): B {
   if (depth === 0) {
     return foldrSuffix(f, initial, array, array.length);
@@ -645,7 +697,11 @@ function foldrNode<A, B>(
   return acc;
 }
 
-export function foldr<A, B>(f: (value: A, acc: B) => B, initial: B, l: List<A>): B {
+export function foldr<A, B>(
+  f: (value: A, acc: B) => B,
+  initial: B,
+  l: List<A>
+): B {
   const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
   let acc = foldrSuffix(f, initial, l.suffix, suffixSize);
@@ -662,21 +718,30 @@ export const reduceRight = foldr;
 type FoldCb<Input, State> = (input: Input, state: State) => boolean;
 
 function foldlSuffixCb<A, B>(
-  cb: FoldCb<A, B>, state: B, array: A[], length: number
+  cb: FoldCb<A, B>,
+  state: B,
+  array: A[],
+  length: number
 ): boolean {
-  for (var i = 0; i < length && cb(array[i], state); ++i) { }
+  for (var i = 0; i < length && cb(array[i], state); ++i) {}
   return i === length;
 }
 
 function foldlPrefixCb<A, B>(
-  cb: FoldCb<A, B>, state: B, array: A[], length: number
+  cb: FoldCb<A, B>,
+  state: B,
+  array: A[],
+  length: number
 ): boolean {
-  for (var i = length - 1; 0 <= i && cb(array[i], state); --i) { }
+  for (var i = length - 1; 0 <= i && cb(array[i], state); --i) {}
   return i === -1;
 }
 
 function foldlNodeCb<A, B>(
-  cb: FoldCb<A, B>, state: B, node: Node, depth: number
+  cb: FoldCb<A, B>,
+  state: B,
+  node: Node,
+  depth: number
 ): boolean {
   const { array } = node;
   if (depth === 0) {
@@ -686,7 +751,7 @@ function foldlNodeCb<A, B>(
     var i = 0;
     i < array.length && foldlNodeCb(cb, state, array[i], depth - 1);
     ++i
-  ) { }
+  ) {}
   return i === array.length;
 }
 
@@ -715,8 +780,8 @@ function foldlCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {
 // functions based on foldlCb
 
 type PredState = {
-  predicate: (a: any) => boolean,
-  result: any
+  predicate: (a: any) => boolean;
+  result: any;
 };
 
 function everyCb<A>(value: A, state: any): boolean {
@@ -744,7 +809,7 @@ export function none<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return !some(predicate, l);
 }
 
-function findCb<A>(value: A, state: PredState) {
+function findCb<A>(value: A, state: PredState): boolean {
   if (state.predicate(value)) {
     state.result = value;
     return false;
@@ -753,14 +818,18 @@ function findCb<A>(value: A, state: PredState) {
   }
 }
 
-export function find<A>(predicate: (a: A) => boolean, l: List<A>): A | undefined {
-  return foldlCb<A, PredState>(findCb, { predicate, result: undefined }, l).result;
+export function find<A>(
+  predicate: (a: A) => boolean,
+  l: List<A>
+): A | undefined {
+  return foldlCb<A, PredState>(findCb, { predicate, result: undefined }, l)
+    .result;
 }
 
 type FindIndexState = {
-  predicate: (a: any) => boolean,
-  found: boolean,
-  index: -1
+  predicate: (a: any) => boolean;
+  found: boolean;
+  index: -1;
 };
 
 function findIndexCb<A>(value: A, state: FindIndexState): boolean {
@@ -778,8 +847,8 @@ export function findIndex<A>(predicate: (a: A) => boolean, l: List<A>): number {
 }
 
 type ContainsState = {
-  element: any,
-  result: boolean
+  element: any;
+  result: boolean;
 };
 
 const containsState: ContainsState = {
@@ -788,7 +857,7 @@ const containsState: ContainsState = {
 };
 
 function containsCb(value: any, state: ContainsState): boolean {
-  return !(state.result = (value === state.element));
+  return !(state.result = value === state.element);
 }
 
 export function includes<A>(element: A, l: List<A>): boolean {
@@ -818,7 +887,7 @@ function createConcatPlan(array: Node[]): number[] | undefined {
     return undefined; // no rebalancing needed
   }
   while (optimalLength + eMax < n) {
-    while (sizes[i] > branchingFactor - (eMax / 2)) {
+    while (sizes[i] > branchingFactor - eMax / 2) {
       // Skip nodes that are already sufficiently balanced
       ++i;
     }
@@ -847,7 +916,9 @@ function createConcatPlan(array: Node[]): number[] | undefined {
  * concatenated into `center`.
  */
 function concatNodeMerge<A>(
-  left: Node | undefined, center: Node, right: Node | undefined
+  left: Node | undefined,
+  center: Node,
+  right: Node | undefined
 ): Node[] {
   const array = [];
   if (left !== undefined) {
@@ -866,7 +937,11 @@ function concatNodeMerge<A>(
   return array;
 }
 
-function executeConcatPlan(merged: Node[], plan: number[], height: number): any[] {
+function executeConcatPlan(
+  merged: Node[],
+  plan: number[],
+  height: number
+): any[] {
   const result = [];
   let sourceIdx = 0; // the current node we're copying from
   let offset = 0; // elements in source already used
@@ -923,7 +998,9 @@ function rebalance<A>(
     } else {
       // Return a single node with extra height for balancing at next
       // level
-      return new Node(undefined, [setSizes(new Node(undefined, balanced), height)]);
+      return new Node(undefined, [
+        setSizes(new Node(undefined, balanced), height)
+      ]);
     }
   } else {
     return new Node(undefined, [
@@ -934,13 +1011,29 @@ function rebalance<A>(
 }
 
 function concatSubTree<A>(
-  left: Node, lDepth: number, right: Node, rDepth: number, isTop: boolean
+  left: Node,
+  lDepth: number,
+  right: Node,
+  rDepth: number,
+  isTop: boolean
 ): Node {
   if (lDepth > rDepth) {
-    const c = concatSubTree(arrayLast(left.array), lDepth - 1, right, rDepth, false);
+    const c = concatSubTree(
+      arrayLast(left.array),
+      lDepth - 1,
+      right,
+      rDepth,
+      false
+    );
     return rebalance(left, c, undefined, lDepth, isTop);
   } else if (lDepth < rDepth) {
-    const c = concatSubTree(left, lDepth, arrayFirst(right.array), rDepth - 1, false);
+    const c = concatSubTree(
+      left,
+      lDepth,
+      arrayFirst(right.array),
+      rDepth - 1,
+      false
+    );
     return rebalance(undefined, c, right, rDepth, isTop);
   } else if (lDepth === 0) {
     return new Node(undefined, [left, right]);
@@ -971,10 +1064,7 @@ function getHeight(node: Node): number {
  * the tree will _not_ be mutated.
  * @param node The node that should be appended to the tree.
  */
-function appendNodeToTree<A>(
-  l: List<A>,
-  node: Node
-): List<A> {
+function appendNodeToTree<A>(l: List<A>, node: Node): List<A> {
   if (l.root === undefined) {
     // The old list has no content in tree, all content is in affixes
     if (getPrefixSize(l) === 0) {
@@ -1031,9 +1121,7 @@ function appendNodeToTree<A>(
 
   if (nodesToCopy === 0) {
     // there was no room in the found node
-    const newPath = nodesVisited === 0
-      ? node
-      : createPath(nodesVisited, node);
+    const newPath = nodesVisited === 0 ? node : createPath(nodesVisited, node);
     const newRoot = new Node(undefined, [l.root, newPath]);
     l.root = newRoot;
     l.bits = incrementDepth(l.bits);
@@ -1053,7 +1141,10 @@ function appendNodeToTree<A>(
  * @param leafSize The number of elements in the leaf that will be inserted.
  */
 function copyFirstK(
-  oldList: List<any>, newList: List<any>, k: number, leafSize: number
+  oldList: List<any>,
+  newList: List<any>,
+  k: number,
+  leafSize: number
 ): Node {
   let currentNode = cloneNode(oldList.root!); // copy root
   newList.root = currentNode; // install root
@@ -1154,9 +1245,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     // right is nothing but a prefix and a suffix
     const nrOfAffixes = concatAffixes(left, right);
     for (var i = 0; i < nrOfAffixes; ++i) {
-      newList = appendNodeToTree(
-        newList, new Node(undefined, concatBuffer[i])
-      );
+      newList = appendNodeToTree(newList, new Node(undefined, concatBuffer[i]));
       newList.length += concatBuffer[i].length;
       // wipe pointer, otherwise it might end up keeping the array alive
       concatBuffer[i] = undefined;
@@ -1170,7 +1259,13 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     newList = appendNodeToTree(newList, suffixToNode(left.suffix));
     newList.length += getSuffixSize(left);
     newList = appendNodeToTree(newList, prefixToNode(right.prefix));
-    const newNode = concatSubTree(newList.root!, getDepth(newList), right.root, getDepth(right), true);
+    const newNode = concatSubTree(
+      newList.root!,
+      getDepth(newList),
+      right.root,
+      getDepth(right),
+      true
+    );
     const newDepth = getHeight(newNode);
     setSizes(newNode, newDepth);
     const bits = createBits(newDepth, getPrefixSize(newList), rightSuffixSize);
@@ -1192,7 +1287,12 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
     newSuffix[index - (l.length - suffixSize)] = a;
     newList.suffix = newSuffix;
   } else {
-    newList.root = l.root!.update(getDepth(l), index - prefixSize + l.offset, l.offset, a);
+    newList.root = l.root!.update(
+      getDepth(l),
+      index - prefixSize + l.offset,
+      l.offset,
+      a
+    );
   }
   return newList;
 }
@@ -1206,7 +1306,10 @@ export function adjust<A>(f: (a: A) => A, index: number, l: List<A>): List<A> {
 let newAffix: any[];
 
 function sliceLeft(
-  tree: Node, depth: number, index: number, offset: number
+  tree: Node,
+  depth: number,
+  index: number,
+  offset: number
 ): Node | undefined {
   const curOffset = (offset >> (depth * branchBits)) & mask;
   let path = ((index >> (depth * branchBits)) & mask) - curOffset;
@@ -1217,7 +1320,12 @@ function sliceLeft(
     return undefined;
   } else {
     // slice the child
-    const child = sliceLeft(tree.array[path], depth - 1, index, path === 0 ? offset : 0);
+    const child = sliceLeft(
+      tree.array[path],
+      depth - 1,
+      index,
+      path === 0 ? offset : 0
+    );
     if (child === undefined) {
       // there is nothing in the child after slicing so we don't include it
       ++path;
@@ -1234,7 +1342,10 @@ function sliceLeft(
 }
 
 function sliceRight(
-  tree: Node, depth: number, index: number, offset: number
+  tree: Node,
+  depth: number,
+  index: number,
+  offset: number
 ): Node | undefined {
   const curOffset = (offset >> (depth * branchBits)) & mask;
   let path = ((index >> (depth * branchBits)) & mask) - curOffset;
@@ -1247,7 +1358,12 @@ function sliceRight(
     // slice the child, note that we subtract 1 then the radix lookup
     // algorithm can find the last element that we want to include
     // and sliceRight will do a slice that is inclusive on the index.
-    const child = sliceRight(tree.array[path], depth - 1, index, path === 0 ? offset : 0);
+    const child = sliceRight(
+      tree.array[path],
+      depth - 1,
+      index,
+      path === 0 ? offset : 0
+    );
     if (child === undefined) {
       // there is nothing in the child after slicing so we don't include it
       --path;
@@ -1267,7 +1383,12 @@ function sliceRight(
 }
 
 function sliceTreeList<A>(
-  from: number, to: number, tree: Node, depth: number, offset: number, l: List<A>
+  from: number,
+  to: number,
+  tree: Node,
+  depth: number,
+  offset: number,
+  l: List<A>
 ): List<A> {
   const curOffset = (offset >> (depth * branchBits)) & mask;
   let pathLeft = ((from >> (depth * branchBits)) & mask) - curOffset;
@@ -1284,13 +1405,25 @@ function sliceTreeList<A>(
     // can reduce the height
     // l.bits = decrementDepth(l.bits);
     // return sliceTreeList(from, to, tree.array[pathLeft], depth - 1, pathLeft === 0 ? offset : 0, l);
-    const rec = sliceTreeList(from, to, tree.array[pathLeft], depth - 1, pathLeft === 0 ? offset : 0, l);
+    const rec = sliceTreeList(
+      from,
+      to,
+      tree.array[pathLeft],
+      depth - 1,
+      pathLeft === 0 ? offset : 0,
+      l
+    );
     if (rec.root !== undefined) {
       rec.root = new Node(undefined, [rec.root]);
     }
     return rec;
   } else {
-    const childLeft = sliceLeft(tree.array[pathLeft], depth - 1, from, pathLeft === 0 ? offset : 0);
+    const childLeft = sliceLeft(
+      tree.array[pathLeft],
+      depth - 1,
+      from,
+      pathLeft === 0 ? offset : 0
+    );
     l.bits = setPrefix(newAffix.length, l.bits);
     l.prefix = newAffix;
     const childRight = sliceRight(tree.array[pathRight], depth - 1, to, 0);
@@ -1376,7 +1509,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   const newList = cloneList(l);
 
   // both indices lie in the tree
-  if (prefixSize <= from && to <= (length - suffixSize)) {
+  if (prefixSize <= from && to <= length - suffixSize) {
     sliceTreeList(
       from - prefixSize + l.offset,
       to - prefixSize + l.offset - 1,
@@ -1401,7 +1534,10 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       // if we're here `to` can't lie in the tree, so we can set the
       // root
       newList.root = sliceLeft(
-        newList.root!, getDepth(l), from - prefixSize + l.offset, l.offset
+        newList.root!,
+        getDepth(l),
+        from - prefixSize + l.offset,
+        l.offset
       );
       bits = setPrefix(newAffix.length, bits);
       newList.offset += from - prefixSize + newAffix.length;
@@ -1412,16 +1548,19 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   }
 
   if (to < length) {
-    if ((length - to) < suffixSize) {
+    if (length - to < suffixSize) {
       bits = setSuffix(suffixSize - (length - to), bits);
     } else {
       newList.root = sliceRight(
-        newList.root!, getDepth(l), to - prefixSize + newList.offset - 1, newList.offset
+        newList.root!,
+        getDepth(l),
+        to - prefixSize + newList.offset - 1,
+        newList.offset
       );
       bits = setSuffix(newAffix.length, bits);
       newList.suffix = newAffix;
     }
-    newList.length -= (length - to);
+    newList.length -= length - to;
   }
   newList.bits = bits;
   return newList;

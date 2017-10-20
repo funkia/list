@@ -1,5 +1,5 @@
 export class Cons<A> {
-  constructor(public value: A, public next: Cons<A> | undefined) { }
+  constructor(public value: A, public next: Cons<A> | undefined) {}
   toArray(): A[] {
     const array = [];
     let cur: Cons<A> | undefined = this;
