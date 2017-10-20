@@ -989,7 +989,6 @@ function appendNodeToTree<A>(
   let index = l.length - 1 - getPrefixSize(l);
   let nodesToCopy = 0;
   let nodesVisited = 0;
-  let pos = 0;
   let shift = depth * 5;
   let currentNode = l.root;
   if (32 ** (depth + 1) < index) {
@@ -1011,14 +1010,12 @@ function appendNodeToTree<A>(
       // we are not going down the far right path, this implies that
       // there is still room in the current node
       nodesToCopy = nodesVisited;
-      pos = childIndex;
     }
     currentNode = currentNode.array[childIndex];
     if (currentNode === undefined) {
       // This will only happend in a pvec subtree. The index does not
       // exist so we'll have to create a new path from here on.
       nodesToCopy = nodesVisited;
-      pos = childIndex;
       shift = 5; // Set shift to break out of the while-loop
     }
     shift -= 5;
@@ -1029,7 +1026,6 @@ function appendNodeToTree<A>(
     if (currentNode.array.length < branchingFactor) {
       // there is room in the found node
       nodesToCopy = nodesVisited;
-      pos = currentNode.array.length;
     }
   }
 
