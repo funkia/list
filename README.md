@@ -80,18 +80,18 @@ together with Ramda.
 ### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 29/115
+has currently been implemented on the immutable list: 30/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `filter`, `find`, `findIndex`, `head`, `init`,
-`last`, `length`, `map`, `none`, `nth`, `pair`, `prepend`, `range`,
-`reduce`, `reduceRight`, `reject`, `repeat`, `slice`, `take`, `tail`,
-`takeLast`, `update`.
+`last`, `length`, `join`, `map`, `none`, `nth`, `pair`, `prepend`,
+`range`, `reduce`, `reduceRight`, `reject`, `repeat`, `slice`, `take`,
+`tail`, `takeLast`, `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `dropWhile`, `endsWith`, `findLast`,
 `findLastIndex`, `flatten`, `fromPairs`, `groupBy`, `groupWith`,
-`indexBy`, `indexOf`, `insert`, `insertAll`, `intersperse`, `join`,
+`indexBy`, `indexOf`, `insert`, `insertAll`, `intersperse`,
 `lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`,
 `pluck`, `reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`,
 `sequence`, `sort`, `splitAt`, `splitEvery`, `splitWhen`,
@@ -563,6 +563,17 @@ includes(3, list(0, 1, 2, 3, 4, 5)); //=> true
 includes(3, list(0, 1, 2, 4, 5)); //=> false
 ```
 
+### `join`
+
+Concats the strings in a list seperated by a specified seperator.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+join(", ", list("one", "two", "three")); //=> "one, two, three"
+```
 ## Benchmarks
 
 The benchmarks are located in the [`bench` directory](/bench).

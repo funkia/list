@@ -33,7 +33,8 @@ import {
   dropLast,
   takeLast,
   filter,
-  reject
+  reject,
+  join
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -576,6 +577,12 @@ describe("List", () => {
       for (let i = 0; i < length(l2); ++i) {
         assert.isFalse(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
       }
+    });
+  });
+  describe("foldl based functions", () => {
+    it("join", () => {
+      const s = join(", ", list("one", "two", "three"));
+      assert.equal(s, "one, two, three");
     });
   });
   describe("every, some, and none", () => {

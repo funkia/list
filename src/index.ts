@@ -655,6 +655,10 @@ export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
   return foldl((acc, a) => (predicate(a) ? acc : append(a, acc)), empty(), l);
 }
 
+export function join(separator: string, l: List<string>): string {
+  return foldl((a, b) => a.length === 0 ? b : a + separator + b, "", l);
+}
+
 function foldrSuffix<A, B>(
   f: (value: A, acc: B) => B,
   initial: B,
