@@ -1,10 +1,10 @@
 node_modules/
+package-lock.json
 bench/hydrogen-*
 bench/code.asm
 bench/list-old
 bench/data.json
 dist
-typings
 *~
 .nyc_output
 coverage
