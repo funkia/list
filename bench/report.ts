@@ -14,13 +14,16 @@ import * as L from "../dist/index";
 import * as Lo from "./list-old/dist/index";
 
 function runAsync(benchmark: Benchmark) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     benchmark.on("complete", resolve).run();
   });
 }
 
 async function runTest<A>(
-  name: string, suite: Bench<any>, test: Test<A>, input: A[]
+  name: string,
+  suite: Bench<any>,
+  test: Test<A>,
+  input: A[]
 ): Promise<Benchmark[]> {
   const results = [];
   for (const n of input) {
@@ -43,39 +46,42 @@ function plotData(name: string, ns: number[], stats: Benchmark[]): any {
   return {
     name: name,
     x: ns,
-    y: stats.map((s) => s.stats.mean),
+    y: stats.map(s => s.stats.mean),
     type: "scatter",
     error_y: {
-      type: "data", visible: true, array: stats.map((s) => s.stats.moe)
+      type: "data",
+      visible: true,
+      array: stats.map(s => s.stats.moe)
     },
-    text: stats.map((s) => s.hz.toFixed(2) + " op/s")
+    text: stats.map(s => s.hz.toFixed(2) + " op/s")
   };
 }
 
 type Test<Input> = {
-  before?: (input: Input) => void,
-  run: () => void
+  before?: (input: Input) => void;
+  run: () => void;
 };
 
 type Tests<Input> = { [name: string]: Test<Input> | (() => void) };
 
 type BenchmarkOptions<Input> = {
-  name: string,
-  input?: Input[]
-  before?: (input: Input) => void
+  name: string;
+  input?: Input[];
+  before?: (input: Input) => void;
 };
 
 type Bench<Input> = {
-  name: string,
-  tests: Tests<Input>
-  input?: Input[]
-  before?: (input: Input) => void
+  name: string;
+  tests: Tests<Input>;
+  input?: Input[];
+  before?: (input: Input) => void;
 };
 
 const benchmarks: Bench<any>[] = [];
 
 export function benchmark<Input = any>(
-  name: string | BenchmarkOptions<Input>, tests: Tests<Input>
+  name: string | BenchmarkOptions<Input>,
+  tests: Tests<Input>
 ): void {
   if (typeof name === "string") {
     name = { name: name };
@@ -85,12 +91,14 @@ export function benchmark<Input = any>(
 
 let n = 0;
 
-benchmark({
-  name: "append",
-  input: [10, 100, 500, 1000]
-}, {
+benchmark(
+  {
+    name: "append",
+    input: [10, 100, 500, 1000]
+  },
+  {
     List: {
-      before: (nn) => {
+      before: nn => {
         n = nn;
       },
       run: () => {
@@ -102,7 +110,7 @@ benchmark({
       }
     },
     "Old list": {
-      before: (nn) => {
+      before: nn => {
         n = nn;
       },
       run: () => {
@@ -113,52 +121,55 @@ benchmark({
         return list.length === n;
       }
     }
-  });
+  }
+);
 
 let left: any;
 let right: any;
 
-benchmark({
-  name: "concat",
-  input: [10, 200, 2000]
-}, {
+benchmark(
+  {
+    name: "concat",
+    input: [10, 50, 200, 2000, 20000]
+  },
+  {
     "List, current": {
-      before: (n) => {
+      before: n => {
         left = L.range(0, n);
         right = L.range(n, 2 * n);
       },
       run: () => L.concat(left, right)
     },
     "List, old": {
-      before: (n) => {
+      before: n => {
         left = Lo.range(0, n);
         right = Lo.range(n, 2 * n);
       },
       run: () => Lo.concat(left, right)
     },
-    "Lodash": {
-      before: (n) => {
+    Lodash: {
+      before: n => {
         left = _.range(0, n);
         right = _.range(n, 2 * n);
       },
       run: () => _.concat(left, right)
     },
     "Array#concat": {
-      before: (n) => {
+      before: n => {
         left = _.range(0, n);
         right = _.range(n, 2 * n);
       },
       run: () => left.concat(right)
     },
     "Immutable.js": {
-      before: (n) => {
+      before: n => {
         left = List(_.range(0, n));
         right = List(_.range(n, 2 * n));
       },
       run: () => left.concat(right)
     },
-    "Finger": {
-      before: (n) => {
+    Finger: {
+      before: n => {
         left = Finger.nil;
         for (let i = 0; i < n; ++i) {
           left = Finger.append(i, left);
@@ -170,16 +181,21 @@ benchmark({
       },
       run: () => Finger.concat(left, right)
     }
-  });
+  }
+);
 
 function areSubstrings(s: string, ss: string[]): boolean {
-  return ss.some((s2) => s.toLowerCase().includes(s2));
+  return ss.some(s2 => s.toLowerCase().includes(s2));
 }
 
-async function runBenchmarks(benchmarkNames: string[], p: string[]): Promise<void> {
+async function runBenchmarks(
+  benchmarkNames: string[],
+  p: string[]
+): Promise<void> {
   (<any>require)("./random-access.perf");
   (<any>require)("./foldl.perf");
   (<any>require)("./foldl-iterator.perf");
+  (<any>require)("./update.perf");
 
   const startTime = Date.now();
   const results = [];
@@ -194,12 +210,11 @@ async function runBenchmarks(benchmarkNames: string[], p: string[]): Promise<voi
     const names =
       p === undefined
         ? Object.keys(tests)
-        : Object.keys(tests).filter((name) => areSubstrings(name, p));
+        : Object.keys(tests).filter(name => areSubstrings(name, p));
     for (const testName of names) {
       const testData = tests[testName];
-      const test = typeof testData === "function"
-        ? { run: testData }
-        : testData;
+      const test =
+        typeof testData === "function" ? { run: testData } : testData;
       const result = await runTest(testName, suite, test, input);
       const plot = plotData(testName, input, result);
       data.push(plot);
@@ -213,18 +228,24 @@ async function runBenchmarks(benchmarkNames: string[], p: string[]): Promise<voi
 
 // tslint:disable-next-line:no-unused-expression
 yargs
-  .command("run", "run the benchmarks", (yargs) => yargs, (argv) => {
-    runBenchmarks(argv.b, argv.p);
-  })
+  .command(
+    "run",
+    "run the benchmarks",
+    yargs => yargs,
+    argv => {
+      runBenchmarks(argv.b, argv.p);
+    }
+  )
   .option("b", {
     alias: "benchmarks",
-    describe: "Filtering of benchmarks. Only run those that include one of the names.",
+    describe:
+      "Filtering of benchmarks. Only run those that include one of the names.",
     type: "array"
   })
   .option("p", {
     alias: "performers",
-    describe: "Filtering of performers. Only run those that include one of the names.",
+    describe:
+      "Filtering of performers. Only run those that include one of the names.",
     type: "array"
   })
-  .help()
-  .argv;
+  .help().argv;

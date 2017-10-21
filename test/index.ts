@@ -711,6 +711,19 @@ describe("List", () => {
       }
       assertIndicesFromTo(l, 0, length);
     });
+    it("works with size tables", () => {
+      const size = 32 * 5 + 1;
+      const catenated = concat(appendList(0, size), appendList(size, size * 2));
+
+      const list1 = update(32 * 7, 0, catenated);
+      assert.strictEqual(nth(32 * 7, list1), 0);
+
+      const list2 = update(32 + 162, 0, catenated);
+      assert.strictEqual(nth(32 + 162, list2), 0);
+
+      const list3 = update(40, 0, catenated);
+      assert.strictEqual(nth(40, list3), 0);
+    });
   });
   describe("adjust", () => {
     it("it applies function to index", () => {

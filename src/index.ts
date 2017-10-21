@@ -53,16 +53,6 @@ function arrayPrepend<A>(value: A, array: A[]): A[] {
   return result;
 }
 
-function arrayAppend<A>(value: A, array: A[]): A[] {
-  const { length } = array;
-  const result = new Array(length + 1);
-  for (let i = 0; i < length; ++i) {
-    result[i] = array[i];
-  }
-  result[length] = value;
-  return result;
-}
-
 /**
  * Create a reverse _copy_ of an array.
  */
@@ -78,31 +68,45 @@ function arrayLast<A>(array: A[]): A {
   return array[array.length - 1];
 }
 
+function updateNode(
+  node: Node,
+  depth: number,
+  index: number,
+  offset: number,
+  value: any
+): Node {
+  const curOffset = (offset >> (depth * branchBits)) & mask;
+  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
+  if (node.sizes !== undefined) {
+    while (node.sizes[path] <= index) {
+      path++;
+    }
+    const traversed = path === 0 ? 0 : node.sizes[path - 1];
+    index -= traversed;
+  }
+  let array;
+  if (path < 0) {
+    // TOOD: Once `prepend` no longer uses `update` this should be removed
+    array = arrayPrepend(createPath(depth, value), node.array);
+  } else {
+    array = copyArray(node.array);
+    if (depth === 0) {
+      array[path] = value;
+    } else {
+      array[path] = updateNode(
+        array[path],
+        depth - 1,
+        index,
+        path === 0 ? offset : 0,
+        value
+      );
+    }
+  }
+  return new Node(node.sizes, array);
+}
+
 export class Node {
   constructor(public sizes: number[] | undefined, public array: any[]) {}
-  update(depth: number, index: number, offset: number, value: any): Node {
-    const curOffset = (offset >> (depth * branchBits)) & mask;
-    const path = ((index >> (depth * branchBits)) & mask) - curOffset;
-    let array;
-    if (path < 0) {
-      array = arrayPrepend(createPath(depth, value), this.array);
-    } else if (this.array.length <= path) {
-      array = arrayAppend(createPath(depth, value), this.array);
-    } else {
-      array = copyArray(this.array);
-      if (depth === 0) {
-        array[path] = value;
-      } else {
-        array[path] = array[path].update(
-          depth - 1,
-          index,
-          path === 0 ? offset : 0,
-          value
-        );
-      }
-    }
-    return new Node(this.sizes, array);
-  }
 }
 
 function nodeNthDense(
@@ -130,7 +134,7 @@ function nodeNth(node: Node, depth: number, index: number): any {
   let path;
   let current = node;
   while (current.sizes !== undefined) {
-    path = (index >> (depth * 5)) & mask;
+    path = (index >> (depth * branchBits)) & mask;
     while (current.sizes[path] <= index) {
       path++;
     }
@@ -444,7 +448,8 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
     }
   } else {
     newOffset = l.offset - branchingFactor;
-    root = l.root.update(
+    root = updateNode(
+      l.root,
       depth - 1,
       (l.offset - 1) >> 5,
       l.offset >> 5,
@@ -656,7 +661,7 @@ export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
 }
 
 export function join(separator: string, l: List<string>): string {
-  return foldl((a, b) => a.length === 0 ? b : a + separator + b, "", l);
+  return foldl((a, b) => (a.length === 0 ? b : a + separator + b), "", l);
 }
 
 function foldrSuffix<A, B>(
@@ -1291,7 +1296,8 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
     newSuffix[index - (l.length - suffixSize)] = a;
     newList.suffix = newSuffix;
   } else {
-    newList.root = l.root!.update(
+    newList.root = updateNode(
+      l.root!,
       getDepth(l),
       index - prefixSize + l.offset,
       l.offset,
