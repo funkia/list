@@ -253,9 +253,9 @@ function incrementDepth(bits: number): number {
   return bits + (1 << (affixBits * 2));
 }
 
-function decrementDepth(bits: number): number {
-  return bits - (1 << (affixBits * 2));
-}
+// function decrementDepth(bits: number): number {
+//   return bits - (1 << (affixBits * 2));
+// }
 
 function createBits(
   depth: number,
@@ -464,7 +464,6 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
 
 export function append<A>(value: A, l: List<A>): List<A> {
   const suffixSize = getSuffixSize(l);
-  const depth = getDepth(l);
   if (suffixSize < 32) {
     return new List(
       incrementSuffix(l.bits),
@@ -521,7 +520,7 @@ export function first<A>(l: List<A>): A | undefined {
   }
 }
 
-export function last(l: List<any>): number | undefined {
+export function last<A>(l: List<A>): A | undefined {
   if (getSuffixSize(l) !== 0) {
     return arrayLast(l.suffix);
   } else if (getPrefixSize(l) !== 0) {
@@ -888,7 +887,6 @@ function createConcatPlan(array: Node[]): number[] | undefined {
     sum += array[i].array.length; // FIXME: maybe only access array once
     sizes[i] = array[i].array.length;
   }
-  const origSize = sizes.slice(0);
   const optimalLength = Math.ceil(sum / branchingFactor);
   let n = array.length;
   let i = 0;
@@ -924,7 +922,7 @@ function createConcatPlan(array: Node[]): number[] | undefined {
  * of `left` and the first child of `right is ignored as they've been
  * concatenated into `center`.
  */
-function concatNodeMerge<A>(
+function concatNodeMerge(
   left: Node | undefined,
   center: Node,
   right: Node | undefined
@@ -990,7 +988,7 @@ function executeConcatPlan(
  * three nodes. Note: The returned node does not have its size table
  * set correctly. The caller musta do that.
  */
-function rebalance<A>(
+function rebalance(
   left: Node | undefined,
   center: Node,
   right: Node | undefined,

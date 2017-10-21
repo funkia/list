@@ -1,23 +1,13 @@
 {
   "defaultSeverity": "warning",
   "rules": {
-    "align": [
-      true,
-      "parameters",
-      "statements"
-    ],
+    "align": [true, "parameters", "statements"],
     "class-name": true,
-    "comment-format": [
-      true,
-      "check-space"
-    ],
+    "comment-format": [true, "check-space"],
     "curly": true,
     "eofline": true,
     "forin": true,
-    "indent": [
-      true,
-      "spaces"
-    ],
+    "indent": [true, "spaces"],
     "jsdoc-format": true,
     "label-position": true,
     "max-line-length": false,
@@ -27,14 +17,7 @@
     "no-bitwise": false,
     "no-conditional-assignment": true,
     "no-consecutive-blank-lines": true,
-    "no-console": [
-      true,
-      "debug",
-      "info",
-      "time",
-      "timeEnd",
-      "trace"
-    ],
+    "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
     "no-construct": true,
     "no-debugger": true,
     "no-duplicate-variable": true,
@@ -44,11 +27,11 @@
     "no-null-keyword": true,
     "no-reference": true,
     "no-require-imports": true,
-    "no-shadowed-variable": true,
+    "no-shadowed-variable": false,
     "no-string-literal": true,
     "no-trailing-whitespace": true,
     "no-unused-expression": true,
-    "no-unused-variable": [true, {"ignore-pattern": "^_"}],
+    "no-unused-variable": [true, { "ignore-pattern": "^_" }],
     "no-var-keyword": false,
     "no-var-requires": true,
     "one-line": [
@@ -59,15 +42,8 @@
       "check-finally",
       "check-whitespace"
     ],
-    "one-variable-per-declaration": [
-      true,
-      "ignore-for-loop"
-    ],
-    "quotemark": [
-      true,
-      "double",
-      "avoid-escape"
-    ],
+    "one-variable-per-declaration": [true, "ignore-for-loop"],
+    "quotemark": [true, "double", "avoid-escape"],
     "radix": true,
     "semicolon": [true, "always"],
     "switch-default": true,
@@ -78,9 +54,7 @@
         "singleline": "never"
       }
     ],
-    "triple-equals": [
-      true
-    ],
+    "triple-equals": [true],
     "typedef": [
       true,
       "call-signature",

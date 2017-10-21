@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -P tsconfig-build.json",
     "test": "nyc mocha  --timeout 5000 --recursive test/**/*.ts",
-    "test-watch": "mocha -R progress --timeout 5000 --watch --compilers ts:ts-node/register test/**/*.ts",
+    "test-watch":
+      "mocha -R progress --timeout 5000 --watch --compilers ts:ts-node/register test/**/*.ts",
     "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
@@ -36,18 +37,8 @@
     "typescript": "^2.5.2"
   },
   "nyc": {
-    "extension": [
-      ".ts"
-    ],
-    "require": [
-      "ts-node/register",
-      "source-map-support/register"
-    ],
-    "reporter": [
-      "json",
-      "html",
-      "text",
-      "lcov"
-    ]
+    "extension": [".ts"],
+    "require": ["ts-node/register", "source-map-support/register"],
+    "reporter": ["json", "html", "text", "lcov"]
   }
 }

@@ -238,7 +238,7 @@ describe("List", () => {
   });
   describe("first and last", () => {
     it("gets the last element of a short list", () => {
-      assert.strictEqual(last(list(0, 1, 2, 3)), 3);
+      assert.strictEqual(last(list("a", "b", "c", "d")), "d");
     });
     it("gets the last element of a long list", () => {
       assert.strictEqual(last(appendList(0, 100)), 99);
@@ -446,12 +446,10 @@ describe("List", () => {
           sum += size;
           l = concat(l, list2);
         }
-        const lol = nth(10228, l);
         assertIndicesFromTo(l, 0, sum);
       });
     });
-    /*
-    it.only("randomly generated tests", () => {
+    it.skip("randomly generated tests", () => {
       // Test concat by running a series of randomly generated tests
       for (let i = 0; i < 1000; ++i) {
         let sum = 0;
@@ -471,8 +469,7 @@ describe("List", () => {
           throw err;
         }
       }
-    }).timeout(40000);
-    */
+    }); // `.timeout(40000);
   });
   describe("monoid", () => {
     it("has fantasy land empty", () => {
@@ -509,7 +506,6 @@ describe("List", () => {
     });
   });
   describe("fold", () => {
-    const subtract = (n: number, m: number) => n - m;
     it("folds from the left appended", () => {
       [10, 32 * 4 + 5].forEach(n => {
         const result = foldl(
@@ -517,8 +513,6 @@ describe("List", () => {
           <number[]>[],
           prependList(0, n)
         );
-        const a = foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
-        const b = foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
         assert.deepEqual(result, numberArray(0, n));
       });
     });
