@@ -80,13 +80,13 @@ together with Ramda.
 ### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 30/115
+has currently been implemented on the immutable list: 32/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `filter`, `find`, `findIndex`, `head`, `init`,
 `last`, `length`, `join`, `map`, `none`, `nth`, `pair`, `prepend`,
-`range`, `reduce`, `reduceRight`, `reject`, `repeat`, `slice`, `take`,
-`tail`, `takeLast`, `update`.
+`range`, `reduce`, `reduceRight`, `reject`, `repeat`, `slice`,
+`splitAt`, `take`, `tail`, `takeLast`, `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `dropWhile`, `endsWith`, `findLast`,
@@ -94,10 +94,10 @@ Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `indexBy`, `indexOf`, `insert`, `insertAll`, `intersperse`,
 `lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`,
 `pluck`, `reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`,
-`sequence`, `sort`, `splitAt`, `splitEvery`, `splitWhen`,
-`startsWith`, `takeLastWhile`, `takeWhile`, `times`, `transpose`,
-`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest`
-`without`, `xprod`, `zip`, `zipObj`, `zipWith`.
+`sequence`, `sort`, `splitEvery`, `splitWhen`, `startsWith`,
+`takeLastWhile`, `takeWhile`, `times`, `transpose`, `traverse`,
+`unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`,
+`zip`, `zipObj`, `zipWith`.
 
 ## Fantasy Land
 
@@ -293,6 +293,22 @@ take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
 ### `takeLast`
 
 Takes the last `n` elements from a list and returns them in a new list.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+splitAt(4, l); //=> [list(0, 1, 2, 3, 4), list(5, 6, 7, 8)]
+```
+
+### `splitAt`
+
+Splits a list at the given index and return the two sides in a pair.
+The left side will contain all elements before but not including the
+element at the given index. The right side contains the element at the
+index and all elements after it.
 
 **Complexity**: `O(log(n))`
 
@@ -546,6 +562,7 @@ none(isEven, empty()); //=> true
 none(isEven, list(2, 4, 6, 8)); //=> false
 none(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
 none(isEven, list(1, 3, 5, 7)); //=> true
+```
 
 ### `includes`
 

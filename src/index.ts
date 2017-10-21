@@ -1468,6 +1468,7 @@ function sliceTreeList<A>(
 export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   let { bits, length } = l;
 
+  to = Math.min(length, to);
   // handle negative indices
   if (from < 0) {
     from = length + from;
@@ -1580,6 +1581,10 @@ export function take<A>(n: number, l: List<A>): List<A> {
 
 export function takeLast<A>(n: number, l: List<A>): List<A> {
   return slice(l.length - n, l.length, l);
+}
+
+export function splitAt<A>(index: number, l: List<A>): [List<A>, List<A>] {
+  return [slice(0, index, l), slice(index, Infinity, l)];
 }
 
 export function drop<A>(n: number, l: List<A>): List<A> {

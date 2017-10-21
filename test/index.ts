@@ -20,6 +20,7 @@ import {
   take,
   every,
   some,
+  splitAt,
   none,
   find,
   findIndex,
@@ -739,6 +740,11 @@ describe("List", () => {
       assert.strictEqual(length(slice(50, 50, l)), 0);
       assert.strictEqual(length(slice(55, 34, l)), 0);
     });
+    it("can slice to infinity", () => {
+      const sliced = slice(2, Infinity, list(0, 1, 2, 3, 4, 5));
+      assert.equal(sliced.length, 4);
+      assertIndicesFromTo(sliced, 2, 5);
+    });
     [
       {
         n: 32 * 3 + 10,
@@ -956,6 +962,20 @@ describe("List", () => {
         assert.strictEqual(taken.length, amount);
         assertIndicesFromTo(taken, n - amount, n);
       });
+    });
+  });
+  describe("splitAt", () => {
+    it("splits at index", () => {
+      const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+      const [left, right] = splitAt(4, l);
+      assertIndicesFromTo(left, 0, 3);
+      assertIndicesFromTo(right, 4, 8);
+    });
+    it("splits at negative index", () => {
+      const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0);
+      const [left, right] = splitAt(-4, l);
+      assertIndicesFromTo(left, 0, 6);
+      assertIndicesFromTo(right, 7, 0);
     });
   });
   describe("tail", () => {
