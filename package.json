@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -P tsconfig-build.json",
-    "test": "nyc mocha  --timeout 5000 --recursive test/**/*.ts",
+    "test": "nyc mocha --timeout 5000 --recursive test/**/*.ts",
     "test-watch":
-      "mocha -R progress --timeout 5000 --watch --compilers ts:ts-node/register test/**/*.ts",
+      "mocha -R progress --timeout 5000 --watch --require ts-node/register --watch-extensions ts test/**/*.ts",
     "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
