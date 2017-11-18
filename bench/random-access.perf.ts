@@ -17,19 +17,21 @@ let list: L.List<number>;
 let indices: number[] = [];
 let l: any;
 
-benchmark({
-  name: "random access",
-  input: [10, 10000, 1000000],
-  before: (m) => {
-    // n = m;
-    // for (let i = 0; i < n; ++i) {
-    //   indices.push(i);
-    // }
-    // shuffle(indices);
-  }
-}, {
+benchmark(
+  {
+    name: "random access",
+    input: [10, 10000, 1000000],
+    before: m => {
+      // n = m;
+      // for (let i = 0; i < n; ++i) {
+      //   indices.push(i);
+      // }
+      // shuffle(indices);
+    }
+  },
+  {
     "List, current": {
-      before: (m) => {
+      before: m => {
         n = m;
         l = L.empty();
         for (let i = 0; i < n; ++i) {
@@ -39,13 +41,13 @@ benchmark({
       run: () => {
         let sum = 0;
         for (let i = 0; i < n; ++i) {
-          sum += l.nth(i);
+          sum += L.nth(i, l);
         }
         return sum;
       }
     },
     "List, old": {
-      before: (m) => {
+      before: m => {
         n = m;
         l = Lo.empty();
         for (let i = 0; i < n; ++i) {
@@ -55,13 +57,13 @@ benchmark({
       run: () => {
         let sum = 0;
         for (let i = 0; i < n; ++i) {
-          sum += l.nth(i);
+          sum += Lo.nth(i, l);
         }
         return sum;
       }
     },
-    "Array": {
-      before: (m) => {
+    Array: {
+      before: m => {
         n = m;
         l = [];
         for (let i = 0; i < n; ++i) {
@@ -76,4 +78,5 @@ benchmark({
         return sum;
       }
     }
-  });
+  }
+);

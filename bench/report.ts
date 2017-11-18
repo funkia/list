@@ -89,41 +89,6 @@ export function benchmark<Input = any>(
   benchmarks.push(Object.assign({}, name, { tests }));
 }
 
-let n = 0;
-
-benchmark(
-  {
-    name: "append",
-    input: [10, 100, 500, 1000]
-  },
-  {
-    List: {
-      before: nn => {
-        n = nn;
-      },
-      run: () => {
-        let list = L.empty();
-        for (let i = 0; i < n; ++i) {
-          list = list.append(i);
-        }
-        return list.length === n;
-      }
-    },
-    "Old list": {
-      before: nn => {
-        n = nn;
-      },
-      run: () => {
-        let list = Lo.empty();
-        for (let i = 0; i < n; ++i) {
-          list = list.append(i);
-        }
-        return list.length === n;
-      }
-    }
-  }
-);
-
 let left: any;
 let right: any;
 
@@ -193,6 +158,7 @@ async function runBenchmarks(
   p: string[]
 ): Promise<void> {
   (<any>require)("./random-access.perf");
+  (<any>require)("./prepend.perf");
   (<any>require)("./foldl.perf");
   (<any>require)("./foldl-iterator.perf");
   (<any>require)("./update.perf");
