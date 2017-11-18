@@ -53,8 +53,7 @@ function appendList(start: number, end: number, l = empty()): List<number> {
   return l;
 }
 
-function prependList(start: number, end: number): List<number> {
-  let l = empty();
+function prependList(start: number, end: number, l = empty()): List<number> {
   for (let i = end - 1; i >= start; --i) {
     l = prepend(i, l);
   }
@@ -180,6 +179,28 @@ describe("List", () => {
         }
         assertIndicesFromTo(l, 0, n);
       });
+    });
+    it("should work with size tables", () => {
+      // Attempt prepending to a list that has size-tables from
+      // concatenation
+      const size = 32 * 5 + 1;
+      const list1 = concat(
+        appendList(size, size * 2),
+        appendList(size * 2, size * 3)
+      );
+      const list2 = prependList(0, size, list1);
+      assertIndicesFromTo(list2, 0, size * 3);
+    });
+    it("should work with two levels of size tables", () => {
+      const size = 32 * 10 + 1;
+      const l1 = appendList(size * 1, size * 2);
+      const l2 = appendList(size * 2, size * 3);
+      const l3 = appendList(size * 3, size * 4);
+      const l4 = appendList(size * 4, size * 5);
+      const l5 = appendList(size * 5, size * 6);
+      const catenated = concat(concat(concat(concat(l1, l2), l3), l4), l5);
+      const final = prependList(0, size, catenated);
+      assertIndicesFromTo(final, 0, size * 6);
     });
   });
   describe("append and prepend", () => {

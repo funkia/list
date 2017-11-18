@@ -54,6 +54,22 @@ function arrayPrepend<A>(value: A, array: A[]): A[] {
 }
 
 /**
+ * Prepends an element to a node
+ */
+function nodePrepend(value: any, size: number, node: Node): Node {
+  const array = arrayPrepend(value, node.array);
+  let sizes = undefined;
+  if (node.sizes !== undefined) {
+    sizes = new Array(node.sizes.length + 1);
+    sizes[0] = size;
+    for (let i = 0; i < node.sizes.length; ++i) {
+      sizes[i + 1] = node.sizes[i] + size;
+    }
+  }
+  return new Node(sizes, array);
+}
+
+/**
  * Create a reverse _copy_ of an array.
  */
 function reverseArray<A>(array: A[]): A[] {
@@ -394,7 +410,6 @@ class ListIterator<A> implements Iterator<A> {
 
 export function prepend<A>(value: A, l: List<A>): List<A> {
   const prefixSize = getPrefixSize(l);
-  const depth = getDepth(l);
   if (prefixSize < 32) {
     return new List<A>(
       incrementPrefix(l.bits),
@@ -404,62 +419,190 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
       l.suffix,
       affixPush(value, l.prefix, prefixSize)
     );
+  } else {
+    const newList = cloneList(l);
+    prependNodeToTree(newList, reverseArray(l.prefix));
+    const newPrefix = [value];
+    newList.prefix = newPrefix;
+    newList.length++;
+    newList.bits = setPrefix(1, newList.bits);
+    return newList;
   }
-  const newPrefix = [value];
-  let bits = setPrefix(1, l.bits);
+}
+
+/**
+ * Traverses down the left edge of the tree and copies k nodes.
+ * Returns the last copied node.
+ * @param l
+ * @param k The number of nodes to copy. Will always be at least 1.
+ * @param leafSize The number of elements in the leaf that will be
+ * inserted.
+ */
+function copyLeft(l: List<any>, k: number, leafSize: number): Node {
+  let currentNode = cloneNode(l.root!); // copy root
+  l.root = currentNode; // install copy of root
+
+  for (let i = 1; i < k; ++i) {
+    const index = 0; // go left
+    if (currentNode.sizes !== undefined) {
+      for (let i = 0; i < currentNode.sizes.length; ++i) {
+        currentNode.sizes[i] += leafSize;
+      }
+    }
+    const newNode = cloneNode(currentNode.array[index]);
+    // Install the copied node
+    currentNode.array[index] = newNode;
+    currentNode = newNode;
+  }
+  return currentNode;
+}
+
+/**
+ * Prepends a node to a tree. Either by shifting the nodes in the root
+ * left or by increasing the height
+ */
+function prependTopTree<A>(l: List<A>, depth: number, node: Node) {
+  let newOffset;
+  if (l.root!.array.length < branchingFactor) {
+    // There is space in the root
+    newOffset = 32 ** depth - 32;
+    l.root = new Node(
+      undefined,
+      arrayPrepend(createPath(depth - 1, node), l.root!.array)
+    );
+  } else {
+    // We need to create a new root
+    l.bits = incrementDepth(l.bits);
+    newOffset = depth === 0 ? 0 : 32 ** (depth + 1) - 32;
+    l.root = new Node(undefined, [createPath(depth, node), l.root]);
+  }
+  return newOffset;
+}
+
+/**
+ * Takes a RRB-tree and a node tail. It then prepends the node to the
+ * tree.
+ * @param l The subject for prepending. `l` will be mutated. Nodes in
+ * the tree will _not_ be mutated.
+ * @param node The node that should be prepended to the tree.
+ */
+function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
   if (l.root === undefined) {
     if (getSuffixSize(l) === 0) {
       // ensure invariant 1
-      return new List(
-        setSuffix(32, bits),
-        l.offset,
-        l.length + 1,
-        undefined,
-        reverseArray(l.prefix),
-        newPrefix
-      );
-    }
-    return new List(
-      bits,
-      0,
-      l.length + 1,
-      prefixToNode(l.prefix),
-      l.suffix,
-      newPrefix
-    );
-  }
-  const prefixNode = prefixToNode(l.prefix);
-  let full = l.offset === 0;
-  let root;
-  let newOffset = 0;
-  if (full === true) {
-    if (l.root.array.length < branchingFactor) {
-      // there is space in the root
-      newOffset = 32 ** (depth + 0) - 32;
-      full = false;
-      root = new Node(
-        undefined,
-        arrayPrepend(createPath(depth - 1, prefixNode), l.root.array)
-      );
+      l.bits = setSuffix(array.length, l.bits);
+      l.suffix = array;
     } else {
-      // we need to create a new root
-      newOffset = depth === 0 ? 0 : 32 ** (depth + 1) - 32;
-      root = new Node(undefined, [createPath(depth, prefixNode), l.root]);
+      l.root = new Node(undefined, array);
     }
+    return l;
   } else {
-    newOffset = l.offset - branchingFactor;
-    root = updateNode(
-      l.root,
-      depth - 1,
-      (l.offset - 1) >> 5,
-      l.offset >> 5,
-      prefixNode
-    );
+    const node = new Node(undefined, array);
+    const depth = getDepth(l);
+    let newOffset = 0;
+    if (l.root.sizes === undefined) {
+      if (l.offset !== 0) {
+        newOffset = l.offset - branchingFactor;
+        l.root = prependDense(
+          l.root,
+          depth - 1,
+          (l.offset - 1) >> 5,
+          l.offset >> 5,
+          node
+        );
+      } else {
+        // in this case we can be sure that the is not room in the tree
+        // for the new node
+        newOffset = prependTopTree(l, depth, node);
+      }
+    } else {
+      // represents how many nodes _with size-tables_ that we should copy.
+      let copyableCount = 0;
+      // go down while there is size tables
+      let nodesTraversed = 0;
+      let currentNode = l.root;
+      while (currentNode.sizes !== undefined && nodesTraversed < depth) {
+        ++nodesTraversed;
+        if (currentNode.array.length < 31) {
+          // there is room if offset is > 0 or if the first node does not
+          // contain as many nodes as it possibly can
+          copyableCount = nodesTraversed;
+        }
+        currentNode = currentNode.array[0];
+      }
+      if (l.offset !== 0) {
+        l.offset = l.offset - branchingFactor;
+        const copiedNode = copyLeft(l, nodesTraversed, 32);
+        for (let i = 0; i < copiedNode.sizes!.length; ++i) {
+          copiedNode.sizes![i] += branchingFactor;
+        }
+        copiedNode.array[0] = prependDense(
+          copiedNode.array[0],
+          depth - nodesTraversed - 1,
+          (l.offset - 1) >> 5,
+          l.offset >> 5,
+          node
+        );
+        return l;
+      } else {
+        if (copyableCount === 0) {
+          l.offset = prependTopTree(l, depth, node);
+        } else {
+          let parent: Node | undefined;
+          let prependableNode: Node;
+          // Copy the part of the path with size tables
+          if (copyableCount > 1) {
+            parent = copyLeft(l, copyableCount - 1, 32);
+            prependableNode = parent.array[0];
+          } else {
+            parent = undefined;
+            prependableNode = l.root!;
+          }
+          const path = createPath(depth - copyableCount, node);
+          // add offset
+          l.offset = 32 ** (depth - copyableCount + 1) - 32;
+          const prepended = nodePrepend(path, 32, prependableNode);
+          if (parent === undefined) {
+            l.root = prepended;
+          } else {
+            parent.array[0] = prepended;
+          }
+        }
+        return l;
+      }
+    }
+    l.offset = newOffset;
+    return l;
   }
-  if (full === true) {
-    bits = incrementDepth(bits);
+}
+
+function prependDense(
+  node: Node,
+  depth: number,
+  index: number,
+  offset: number,
+  value: any
+): Node {
+  const curOffset = (offset >> (depth * branchBits)) & mask;
+  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
+  let array;
+  if (path < 0) {
+    array = arrayPrepend(createPath(depth, value), node.array);
+  } else {
+    array = copyArray(node.array);
+    if (depth === 0) {
+      array[path] = value;
+    } else {
+      array[path] = updateNode(
+        array[path],
+        depth - 1,
+        index,
+        path === 0 ? offset : 0,
+        value
+      );
+    }
   }
-  return new List(bits, newOffset, l.length + 1, root, l.suffix, newPrefix);
+  return new Node(node.sizes, array);
 }
 
 export function append<A>(value: A, l: List<A>): List<A> {
