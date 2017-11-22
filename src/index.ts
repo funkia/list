@@ -523,7 +523,7 @@ function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
       let currentNode = l.root;
       while (currentNode.sizes !== undefined && nodesTraversed < depth) {
         ++nodesTraversed;
-        if (currentNode.array.length < 31) {
+        if (currentNode.array.length < 32) {
           // there is room if offset is > 0 or if the first node does not
           // contain as many nodes as it possibly can
           copyableCount = nodesTraversed;

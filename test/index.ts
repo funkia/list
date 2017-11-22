@@ -183,6 +183,18 @@ describe("List", () => {
       const list2 = prependList(0, size, list1);
       assertIndicesFromTo(list2, 0, size * 3);
     });
+    it("properly fills up a tree of depth one that has size tables", () => {
+      const prependSize = 896;
+      const size = 65;
+
+      const list = prependList(prependSize, prependSize + size);
+      const list2 = prependList(prependSize + size, prependSize + size + size);
+
+      const concatenated = concat(list, list2);
+      const final = prependList(0, prependSize, concatenated);
+
+      assertIndicesFromTo(final, 0, prependSize + size + size);
+    });
     it("should work with two levels of size tables", () => {
       const size = 32 * 10 + 1;
       const l1 = appendList(size * 1, size * 2);
