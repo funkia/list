@@ -60,14 +60,6 @@ function prependList(start: number, end: number, l = empty()): List<number> {
   return l;
 }
 
-/**
- * Returns a random integer between min (inclusive) and max (inclusive)
- * Using Math.round() will give you a non-uniform distribution!
- */
-function randomInInterval(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 function assertIndicesFromTo(
   list: List<number>,
   from: number,
@@ -471,27 +463,6 @@ describe("List", () => {
         assertIndicesFromTo(l, 0, sum);
       });
     });
-    it.skip("randomly generated tests", () => {
-      // Test concat by running a series of randomly generated tests
-      for (let i = 0; i < 1000; ++i) {
-        let sum = 0;
-        const nrOfLists = 12;
-        let l = empty();
-        const sizes = [];
-        for (let j = 0; j < nrOfLists; ++j) {
-          const size = randomInInterval(0, 32 ** 3);
-          sizes.push(size);
-          const list2 = appendList(sum, sum + size);
-          sum += size;
-          l = concat(l, list2);
-        }
-        try {
-          cheapAssertIndicesFromTo(l, 0, sum);
-        } catch (err) {
-          throw err;
-        }
-      }
-    }); // `.timeout(40000);
   });
   describe("monoid", () => {
     it("has fantasy land empty", () => {
@@ -887,29 +858,6 @@ describe("List", () => {
         cheapAssertIndicesFromTo(sliced, from, end);
       }).timeout(50000);
     });
-    // Test slice by running a series of randomly generated tests
-    /*
-    const size = 32000097;
-    const l = appendList(0, size);
-    for (let i = 0; i < 10000; ++i) {
-      let left: number;
-      let right: number;
-      if (i % 2 === 0) {
-        left = randomInInterval(0, size);
-        right = randomInInterval(left, size);
-      } else {
-        right = randomInInterval(0, size);
-        left = randomInInterval(0, right);
-      }
-      try {
-        const sliced = slice(left, right, l);
-        cheapAssertIndicesFromTo(sliced, left, right);
-      } catch (err) {
-        console.log(left, "to", right);
-        throw err;
-      }
-    }
-    */
   });
   describe("drop", () => {
     it("drops element from the left", () => {
