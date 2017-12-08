@@ -6,9 +6,8 @@
   "scripts": {
     "build": "tsc -P tsconfig-build.json",
     "test": "nyc mocha --timeout 5000 --recursive test/*.ts",
-    "test-watch":
-      "mocha -R progress --timeout 5000 --watch --require ts-node/register --watch-extensions ts test/*.ts",
-    "test-property": "nyc mocha --timeout 0 --recursive test/property/*.ts",
+    "test-watch": "mocha -R progress --timeout 5000 --watch --require ts-node/register --watch-extensions ts test/*.ts",
+    "test-property": "mocha --timeout 0 --require ts-node/register --recursive test/property/*.ts",
     "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
@@ -23,23 +22,33 @@
     "ramda": "*"
   },
   "devDependencies": {
-    "@types/chai": "4.0.5",
+    "@types/chai": "4.0.8",
     "@types/mocha": "2.2.44",
-    "@types/ramda": "^0.25.6",
+    "@types/ramda": "^0.25.7",
     "chai": "4.1.2",
     "codecov": "3.0.0",
     "mocha": "4.0.1",
-    "np": "^2.17.0",
+    "np": "^2.18.2",
     "nyc": "11.3.0",
-    "prettier": "1.8.2",
+    "prettier": "1.9.1",
     "ramda": "0.25.0",
     "source-map-support": "^0.5.0",
     "ts-node": "3.3.0",
-    "typescript": "^2.6.1"
+    "typescript": "^2.6.2"
   },
   "nyc": {
-    "extension": [".ts"],
-    "require": ["ts-node/register", "source-map-support/register"],
-    "reporter": ["json", "html", "text", "lcov"]
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register",
+      "source-map-support/register"
+    ],
+    "reporter": [
+      "json",
+      "html",
+      "text",
+      "lcov"
+    ]
   }
 }
