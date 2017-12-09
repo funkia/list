@@ -184,7 +184,7 @@ describe("List", () => {
       assertIndicesFromTo(list2, 0, size * 3);
     });
     it("properly fills up a tree of depth one that has size tables", () => {
-      const prependSize = 896;
+      const prependSize = 1000;
       const size = 65;
 
       const list = prependList(prependSize, prependSize + size);

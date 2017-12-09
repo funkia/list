@@ -121,8 +121,10 @@ function updateNode(
   return new Node(node.sizes, array);
 }
 
+export type Sizes = number[] | undefined;
+
 export class Node {
-  constructor(public sizes: number[] | undefined, public array: any[]) {}
+  constructor(public sizes: Sizes, public array: any[]) {}
 }
 
 function nodeNthDense(
@@ -457,6 +459,19 @@ function copyLeft(l: List<any>, k: number, leafSize: number): Node {
   return currentNode;
 }
 
+function prependSizes(n: number, sizes: Sizes): Sizes {
+  if (sizes === undefined) {
+    return undefined;
+  } else {
+    const newSizes = new Array(sizes.length + 1);
+    newSizes[0] = n;
+    for (let i = 0; i < sizes.length; ++i) {
+      newSizes[i + 1] = sizes[i] + n;
+    }
+    return newSizes;
+  }
+}
+
 /**
  * Prepends a node to a tree. Either by shifting the nodes in the root
  * left or by increasing the height
@@ -467,14 +482,18 @@ function prependTopTree<A>(l: List<A>, depth: number, node: Node) {
     // There is space in the root
     newOffset = 32 ** depth - 32;
     l.root = new Node(
-      undefined,
+      prependSizes(32, l.root!.sizes),
       arrayPrepend(createPath(depth - 1, node), l.root!.array)
     );
   } else {
     // We need to create a new root
     l.bits = incrementDepth(l.bits);
+    const sizes =
+      l.root!.sizes === undefined
+        ? undefined
+        : [32, arrayLast(l.root!.sizes!) + 32];
     newOffset = depth === 0 ? 0 : 32 ** (depth + 1) - 32;
-    l.root = new Node(undefined, [createPath(depth, node), l.root]);
+    l.root = new Node(sizes, [createPath(depth, node), l.root]);
   }
   return newOffset;
 }
