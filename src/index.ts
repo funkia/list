@@ -314,6 +314,9 @@ export class List<A> {
   "fantasy-land/map"<B>(f: (a: A) => B): List<B> {
     return map(f, this);
   }
+  "fantasy-land/filter"(predicate: (a: A) => boolean): List<A> {
+    return filter(predicate, this);
+  }
   "fantasy-land/empty"(): List<any> {
     return empty();
   }

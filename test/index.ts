@@ -569,6 +569,12 @@ describe("List", () => {
         assert.isTrue(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
       }
     });
+    it("has Fantasy Land method", () => {
+      assert.strictEqual(
+        list(0, 1, 2, 3, 4, 5)["fantasy-land/filter"](isEven).length,
+        3
+      );
+    });
     it("rejects element", () => {
       const l1 = list(0, 1, 2, 3, 4, 5, 6);
       const l2 = reject(isEven, l1);
