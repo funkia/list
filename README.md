@@ -259,7 +259,7 @@ the value returned by applying the function to the value.
 **Example**
 
 ```js
-take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
+adjust(2, inc, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 3, 3, 4, 5)
 ```
 
 ### `slice`
