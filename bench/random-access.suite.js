@@ -6,7 +6,7 @@ const Denque = require("denque");
 const List = require("../dist/index");
 const OldList = require("./list-old/dist/index");
 const Finger = require("@paldepind/finger-tree");
-const {Cons} = require("../dist/list");
+const { Cons } = require("../dist/list");
 
 const n = 10000;
 
@@ -54,14 +54,14 @@ module.exports = Suite("random access")
     }
     return sum === result;
   })
-  .add("List", function () {
+  .add("List", function() {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
       sum += list.nth(i);
     }
     return sum === result;
   })
-  .add("Old list", function () {
+  .add("Old list", function() {
     let sum = 0;
     for (let i = 0; i < n; ++i) {
       sum += oldList.nth(i);
@@ -75,4 +75,4 @@ module.exports = Suite("random access")
     }
     return sum === result;
   })
-  .run({async: true});
+  .run({ async: true });

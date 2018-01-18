@@ -31,7 +31,6 @@ function appendList(start: number, end: number, l = empty()): List<number> {
   return l;
 }
 
-// @ts-ignore
 function prependList(start: number, end: number, l = empty()): List<number> {
   for (let i = end - 1; i >= start; --i) {
     l = prepend(i, l);
@@ -45,6 +44,11 @@ function prependList(start: number, end: number, l = empty()): List<number> {
  */
 function randomInInterval(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// @ts-ignore
+function randomBool() {
+  return Math.random() > 0.5;
 }
 
 function assertIndicesFromTo(
@@ -109,6 +113,29 @@ describe("properties", () => {
         cheapAssertIndicesFromTo(sliced, left, right);
       } catch (err) {
         console.log(left, "to", right);
+        throw err;
+      }
+    });
+  });
+  it("concat and prepend", () => {
+    times(10000, _n => {
+      try {
+        const prependSize = 10000;
+        const nrOfListsToConcat = randomInInterval(5, 25);
+
+        let offset = prependSize;
+        let concatenated = empty();
+        times(nrOfListsToConcat, () => {
+          const size = randomInInterval(100, 1000);
+          const list = prependList(offset, offset + size);
+          // side-effects
+          concatenated = concat(concatenated, list);
+          offset += size;
+        });
+        const final = prependList(0, prependSize, concatenated);
+        assertIndicesFromTo(final, 0, offset);
+      } catch (err) {
+        console.log(_n);
         throw err;
       }
     });
