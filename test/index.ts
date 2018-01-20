@@ -206,6 +206,19 @@ describe("List", () => {
       const final = prependList(0, size, catenated);
       assertIndicesFromTo(final, 0, size * 6);
     });
+    it("correctly uses offset when prepending in the presence of size tables", () => {
+      // This test ensures that prepending to a list with size-tables
+      // works correctly. In the test the height of the tree will be
+      // increased when prepending. This introduces a non-zero offset.
+      // The additional prepends fills up this offset.
+      const prependSize = 1259;
+      const size = 405;
+      const list1 = prependList(prependSize, prependSize + size);
+      const list2 = prependList(prependSize + size, prependSize + 2 * size);
+      const concatenated = concat(list1, list2);
+      const final = prependList(0, prependSize, concatenated);
+      assertIndicesFromTo(final, 0, prependSize + 2 * size);
+    });
   });
   describe("append and prepend", () => {
     it("prepend to 32 size appended", () => {

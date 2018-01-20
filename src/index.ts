@@ -553,7 +553,6 @@ function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
         currentNode = currentNode.array[0];
       }
       if (l.offset !== 0) {
-        l.offset = l.offset - branchingFactor;
         const copiedNode = copyLeft(l, nodesTraversed, 32);
         for (let i = 0; i < copiedNode.sizes!.length; ++i) {
           copiedNode.sizes![i] += branchingFactor;
@@ -565,6 +564,7 @@ function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
           l.offset >> 5,
           node
         );
+        l.offset = l.offset - branchingFactor;
         return l;
       } else {
         if (copyableCount === 0) {

@@ -133,7 +133,7 @@ describe("properties", () => {
           offset += size;
         });
         const final = prependList(0, prependSize, concatenated);
-        assertIndicesFromTo(final, 0, offset);
+        cheapAssertIndicesFromTo(final, 0, offset);
       } catch (err) {
         console.log(_n);
         throw err;
