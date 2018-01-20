@@ -411,6 +411,18 @@ filter(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
 
 ### Folds
 
+### `toArray`
+
+Converts a list into an array.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+toArray(list(0, 1, 2, 3, 4)); //=> [0, 1, 2, 3, 4]
+```
+
 ### `nth`
 
 Gets the `n`th element of the list.

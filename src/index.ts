@@ -1791,3 +1791,12 @@ export const init = pop;
 export function tail<A>(l: List<A>): List<A> {
   return slice(1, l.length, l);
 }
+
+function arrayPush<A>(array: A[], a: A): A[] {
+  array.push(a);
+  return array;
+}
+
+export function toArray<A>(l: List<A>): A[] {
+  return foldl<A, A[]>(arrayPush, [], l);
+}
