@@ -35,7 +35,8 @@ import {
   takeLast,
   filter,
   reject,
-  join
+  join,
+  takeWhile
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -962,6 +963,14 @@ describe("List", () => {
         assert.strictEqual(taken.length, amount);
         assertIndicesFromTo(taken, n - amount, n);
       });
+    });
+  });
+  describe("takeWhile", () => {
+    it("takes elements as long as predicate is true", () => {
+      const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+      const l2 = takeWhile((n) => n < 6, l);
+      assert.strictEqual(l2.length, 6);
+      assertIndicesFromTo(l2, 0, 5);
     });
   });
   describe("splitAt", () => {

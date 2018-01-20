@@ -80,13 +80,13 @@ together with Ramda.
 ### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 32/115
+has currently been implemented on the immutable list: 33/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `filter`, `find`, `findIndex`, `head`, `init`,
 `last`, `length`, `join`, `map`, `none`, `nth`, `pair`, `prepend`,
 `range`, `reduce`, `reduceRight`, `reject`, `repeat`, `slice`,
-`splitAt`, `take`, `tail`, `takeLast`, `update`.
+`splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `dropWhile`, `endsWith`, `findLast`,
@@ -95,9 +95,9 @@ Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`,
 `pluck`, `reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`,
 `sequence`, `sort`, `splitEvery`, `splitWhen`, `startsWith`,
-`takeLastWhile`, `takeWhile`, `times`, `transpose`, `traverse`,
-`unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`,
-`zip`, `zipObj`, `zipWith`.
+`takeLastWhile`, `times`, `transpose`, `traverse`, `unfold`, `uniq`,
+`uniqBy`, `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`,
+`zipWith`.
 
 ## Fantasy Land
 
@@ -290,9 +290,24 @@ Takes the first `n` elements from a list and returns them in a new list.
 take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
 ```
 
+### `takeWhile`
+
+Takes the first elements in the list for which the predicate returns
+`true`.
+
+**Complexity**: `O(k + log(n))` where `k` is the number of elements
+satisfying the predicate.
+
+**Example**
+
+```js
+takeWhile((n) => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 1, 2, 3)
+```
+
 ### `takeLast`
 
-Takes the last `n` elements from a list and returns them in a new list.
+Takes the last `n` elements from a list and returns them in a new
+list.
 
 **Complexity**: `O(log(n))`
 

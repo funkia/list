@@ -1002,7 +1002,7 @@ export function find<A>(
 type FindIndexState = {
   predicate: (a: any) => boolean;
   found: boolean;
-  index: -1;
+  index: number;
 };
 
 function findIndexCb<A>(value: A, state: FindIndexState): boolean {
@@ -1742,6 +1742,28 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
 
 export function take<A>(n: number, l: List<A>): List<A> {
   return slice(0, n, l);
+}
+
+type FindNotIndexState = {
+  predicate: (a: any) => boolean;
+  index: number;
+};
+
+function findNotIndexCb<A>(value: A, state: FindNotIndexState): boolean {
+  ++state.index;
+  return state.predicate(value);
+}
+
+export function takeWhile<A>(
+  predicate: (a: A) => boolean,
+  l: List<A>
+): List<A> {
+  const { index } = foldlCb<A, FindNotIndexState>(
+    findNotIndexCb,
+    { predicate, index: -1 },
+    l
+  );
+  return slice(0, index, l);
 }
 
 export function takeLast<A>(n: number, l: List<A>): List<A> {
