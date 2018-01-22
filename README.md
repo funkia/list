@@ -1,7 +1,7 @@
 # @funkia/list
 
-A very fast immutable lists. A purely functional replacement for
-arrays.
+A fast immutable list/sequence data structure with a functional API. A
+general purpose replacement for native arrays.
 
 [![Gitter](https://img.shields.io/gitter/room/funkia/General.svg)](https://gitter.im/funkia/General)
 [![Build Status](https://travis-ci.org/funkia/list.svg?branch=master)](https://travis-ci.org/funkia/list)
@@ -9,8 +9,6 @@ arrays.
 [![npm version](https://badge.fury.io/js/%40funkia%2Flist.svg)](https://badge.fury.io/js/%40funkia%2Flist)
 [![dependencies Status](https://david-dm.org/funkia/list/status.svg)](https://david-dm.org/funkia/list)
 [![devDependencies Status](https://david-dm.org/funkia/list/dev-status.svg)](https://david-dm.org/funkia/list?type=dev)
-
-Work in progress :construction:
 
 ## Features
 
@@ -20,15 +18,16 @@ Work in progress :construction:
 * [Seamless Ramda integration](#seamless-ramda-integration).
 * TypeScript support
 * [Fantasy Land support](#fantasy-land)
-* Full compatibility with tree-shaking. Only pay in size for the
+* Fully compatibility with tree-shaking. Only pay in size for the
   functions that you actually use.
 
 ## What & why?
 
-List is a purely functional alternative to arrays. List is exactly
-like arrays except for two major differences
+List is a purely functional alternative to arrays. It is an
+implementation of a fast sequential data structure. Compared to
+JavaScript arrays List has two major benefits.
 
-* Arrays has an API for mutating them. List don't. This means that if
+* Arrays have an API for mutating them. List don't. This means that if
   you want to do purely functional programming List is better suited
   and it wont tempt you with an imperative API.
 * Since List doesn't allows mutations it can be heavily optimized for
@@ -111,11 +110,11 @@ monad.
 
 The API is organized into three parts.
 
-1. Functions that create lists.
-2. Functions that takes one or more lists as argument and returns a
-   new list. I.e. functions that updates lists.
-3. Function that takes one or more lists as arguments and returns
-   something that is not a list.
+1. Functions that _create_ lists.
+2. Functions that _transform_ lits. That is, functions that takes one
+   or more lists as argument and returns a new list.
+3. Function _extracts_ vales from lists. They take one or more lists
+   as arguments and returns something that is not a list.
 
 ### Creating lists
 
@@ -201,8 +200,6 @@ repeat("foo", 3); //=> list("foo", "foo", "foo")
 
 Concatenates two lists.
 
-N.B. Concat has known bugs. You probably shouldn't use it yet.
-
 **Complexity**: `O(logn)`
 
 **Example**
@@ -222,12 +219,7 @@ list and `m` the length of the inner lists.
 **Example**
 
 ```js
-const nested = list(
-  list(0, 1, 2, 3),
-  list(4),
-  empty(),
-  list(5, 6)
-);
+const nested = list(list(0, 1, 2, 3), list(4), empty(), list(5, 6));
 flatten(nested); //=> list(0, 1, 2, 3, 4, 5, 6)
 ```
 
@@ -265,7 +257,7 @@ list with the values that the function return.
 **Example**
 
 ```js
-map((n) => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
+map(n => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
 ```
 
 ### `pluck`
@@ -275,7 +267,11 @@ Extracts the specified property from each object in the list.
 **Example**
 
 ```js
-const l = list({foo: 0, bar: "a"}, {foo: 1, bar: "b"}, {foo: 2, bar: "c"});
+const l = list(
+  { foo: 0, bar: "a" },
+  { foo: 1, bar: "b" },
+  { foo: 2, bar: "c" }
+);
 pluck("foo", l); //=> list(0, 1, 2)
 ```
 
@@ -344,7 +340,7 @@ satisfying the predicate.
 **Example**
 
 ```js
-takeWhile((n) => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 1, 2, 3)
+takeWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 1, 2, 3)
 ```
 
 ### `takeLast`
@@ -399,7 +395,7 @@ satisfying the predicate.
 **Example**
 
 ```js
-dropWhile((n) => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(4, 5, 6)
+dropWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(4, 5, 6)
 ```
 
 ### `dropLast`
@@ -547,7 +543,8 @@ Folds a function over a list. Left-associative.
 **Example**
 
 ```js
-foldl((n, m) => n - m, 1, list(2, 3, 4, 5)); (((1 - 2) - 3) - 4) - 5 //=> -13
+foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
+1 - 2 - 3 - 4 - 5; //=> -13
 ```
 
 ### `foldr`
@@ -562,7 +559,8 @@ Folds a function over a list. Right-associative.
 **Example**
 
 ```js
-foldr((n, m) => n - m, 5, list(1, 2, 3, 4)); 1 - (2 - (3 - (4 - 5))) //=> 3
+foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
+1 - (2 - (3 - (4 - 5))); //=> 3
 ```
 
 ### `every`
@@ -577,7 +575,7 @@ for all elements in the given list.
 **Example**
 
 ```js
-const isEven = (n) => n % 2 === 0;
+const isEven = n => n % 2 === 0;
 every(isEven, empty()); //=> true
 every(isEven, list(2, 4, 6, 8)); //=> true
 every(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
@@ -596,7 +594,7 @@ which the predicate returns `true`.
 **Example**
 
 ```js
-const isEven = (n) => n % 2 === 0;
+const isEven = n => n % 2 === 0;
 some(isEven, empty()); //=> false
 some(isEven, list(2, 4, 6, 8)); //=> true
 some(isEven, list(2, 3, 4, 6, 7, 8)); //=> true
@@ -641,7 +639,7 @@ for all elements in the given list.
 **Example**
 
 ```js
-const isEven = (n) => n % 2 === 0;
+const isEven = n => n % 2 === 0;
 none(isEven, empty()); //=> true
 none(isEven, list(2, 4, 6, 8)); //=> false
 none(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
@@ -675,6 +673,7 @@ Concats the strings in a list seperated by a specified seperator.
 ```js
 join(", ", list("one", "two", "three")); //=> "one, two, three"
 ```
+
 ## Benchmarks
 
 The benchmarks are located in the [`bench` directory](/bench).
