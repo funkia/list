@@ -1800,3 +1800,11 @@ function arrayPush<A>(array: A[], a: A): A[] {
 export function toArray<A>(l: List<A>): A[] {
   return foldl<A, A[]>(arrayPush, [], l);
 }
+
+export function fromArray<A>(array: A[]): List<A> {
+  let l = empty();
+  for (let i = 0; i < array.length; ++i) {
+    l = append(array[i], l);
+  }
+  return l;
+}

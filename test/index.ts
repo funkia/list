@@ -37,7 +37,8 @@ import {
   reject,
   join,
   takeWhile,
-  toArray
+  toArray,
+  fromArray
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -1009,6 +1010,14 @@ describe("List", () => {
       const l = list(0, 1, 2, 3, 4, 5, 6, 7);
       const array = toArray(l);
       assert.deepEqual(array, [0, 1, 2, 3, 4, 5, 6, 7]);
+    });
+  });
+  describe("fromArray", () => {
+    it("converts an array into a list", () => {
+      const array = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+      const l = fromArray(array);
+      assert.strictEqual(l.length, array.length);
+      assertIndicesFromTo(l, 0, 9);
     });
   });
 });

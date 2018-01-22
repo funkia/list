@@ -156,6 +156,18 @@ Takes two arguments and returns a list that contains them.
 pair("foo", "bar"); //=> list("foo", "bar")
 ```
 
+### `fromArray`
+
+Converts an array into a list.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+fromArray([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
+```
+
 ### `range`
 
 Returns a list of numbers between an an inclusive lower bound and an
