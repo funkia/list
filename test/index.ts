@@ -39,7 +39,8 @@ import {
   takeWhile,
   toArray,
   fromArray,
-  dropWhile
+  dropWhile,
+  flatten
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -525,6 +526,19 @@ describe("List", () => {
       for (let i = 0; i < n; ++i) {
         assert.strictEqual(nth(i, mapped), i * i);
       }
+    });
+  });
+  describe("flatten", () => {
+    it("flattens lists", () => {
+      const nested = list(
+        list(0, 1, 2, 3),
+        list(4),
+        empty(),
+        list(5, 6, 7, 8, 9)
+      );
+      const flattened = flatten(nested);
+      assert.strictEqual(flattened.length, 10);
+      assertIndicesFromTo(flattened, 0, 10);
     });
   });
   describe("fold", () => {

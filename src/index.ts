@@ -886,6 +886,10 @@ export function foldr<A, B>(
 
 export const reduceRight = foldr;
 
+export function flatten<A>(nested: List<List<A>>): List<A> {
+  return foldl<List<A>, List<A>>(concat, empty(), nested);
+}
+
 // callback fold
 
 type FoldCb<Input, State> = (input: Input, state: State) => boolean;

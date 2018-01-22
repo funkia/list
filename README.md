@@ -80,17 +80,17 @@ together with Ramda.
 ### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 34/115
+has currently been implemented on the immutable list: 35/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
-`head`, `init`, `last`, `length`, `join`, `map`, `none`, `nth`,
-`pair`, `prepend`, `range`, `reduce`, `reduceRight`, `reject`,
+`head`, `flatten`, `init`, `last`, `length`, `join`, `map`, `none`,
+`nth`, `pair`, `prepend`, `range`, `reduce`, `reduceRight`, `reject`,
 `repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`,
 `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
-`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`, `flatten`,
+`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `fromPairs`, `groupBy`, `groupWith`, `indexBy`, `indexOf`, `insert`,
 `insertAll`, `intersperse`, `lastIndexOf`, `mapAccum`,
 `mapAccumRight`, `mergeAll`, `partition`, `pluck`, `reduceBy`,
@@ -209,6 +209,26 @@ N.B. Concat has known bugs. You probably shouldn't use it yet.
 
 ```js
 concat(list(0, 1, 2), list(3, 4)); //=> list(0, 1, 2, 3, 4)
+```
+
+### `flatten`
+
+Flattens a list of lists into a list. Note that this function does
+_not_ flatten recursively. It removes one level of nesting only.
+
+**Complexity**: `O(n * log(m))` where `n` is the length of the outer
+list and `m` the length of the inner lists.
+
+**Example**
+
+```js
+const nested = list(
+  list(0, 1, 2, 3),
+  list(4),
+  empty(),
+  list(5, 6)
+);
+flatten(nested); //=> list(0, 1, 2, 3, 4, 5, 6)
 ```
 
 ### `prepend`
