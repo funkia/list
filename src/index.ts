@@ -750,6 +750,10 @@ export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
   );
 }
 
+export function pluck<A, K extends keyof A>(key: K, l: List<A>): List<A[K]> {
+  return map(a => a[key], l);
+}
+
 export function range(start: number, end: number): List<number> {
   let list = empty();
   for (let i = start; i < end; ++i) {

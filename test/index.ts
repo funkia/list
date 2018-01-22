@@ -40,7 +40,8 @@ import {
   toArray,
   fromArray,
   dropWhile,
-  flatten
+  flatten,
+  pluck
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -528,6 +529,19 @@ describe("List", () => {
       }
     });
   });
+  describe("pluck", () => {
+    it("gets properties from objects", () => {
+      const l = list(
+        { foo: 0, bar: "a" },
+        { foo: 1, bar: "b" },
+        { foo: 2, bar: "c" },
+        { foo: 3, bar: "d" }
+      );
+      const plucked = pluck("foo", l);
+      assert.strictEqual(plucked.length, 4);
+      assertIndicesFromTo(plucked, 0, 4);
+    });
+  });
   describe("flatten", () => {
     it("flattens lists", () => {
       const nested = list(
@@ -985,7 +999,7 @@ describe("List", () => {
   describe("takeWhile", () => {
     it("takes elements as long as predicate is true", () => {
       const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-      const l2 = takeWhile((n) => n < 6, l);
+      const l2 = takeWhile(n => n < 6, l);
       assert.strictEqual(l2.length, 6);
       assertIndicesFromTo(l2, 0, 6);
     });

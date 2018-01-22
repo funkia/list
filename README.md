@@ -85,19 +85,19 @@ has currently been implemented on the immutable list: 35/115
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
 `head`, `flatten`, `init`, `last`, `length`, `join`, `map`, `none`,
-`nth`, `pair`, `prepend`, `range`, `reduce`, `reduceRight`, `reject`,
-`repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`,
-`update`.
+`nth`, `pair`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
+`reject`, `repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`,
+`takeLast`, `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `fromPairs`, `groupBy`, `groupWith`, `indexBy`, `indexOf`, `insert`,
 `insertAll`, `intersperse`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `mergeAll`, `partition`, `pluck`, `reduceBy`,
-`reduceWhile`, `remove`, `reverse`, `scan`, `sequence`, `sort`,
-`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `times`,
-`transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
-`unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
+`mapAccumRight`, `mergeAll`, `partition`, `reduceBy`, `reduceWhile`,
+`remove`, `reverse`, `scan`, `sequence`, `sort`, `splitEvery`,
+`splitWhen`, `startsWith`, `takeLastWhile`, `times`, `transpose`,
+`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest`
+`without`, `xprod`, `zip`, `zipObj`, `zipWith`.
 
 ## Fantasy Land
 
@@ -266,6 +266,17 @@ list with the values that the function return.
 
 ```js
 map((n) => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
+```
+
+### `pluck`
+
+Extracts the specified property from each object in the list.
+
+**Example**
+
+```js
+const l = list({foo: 0, bar: "a"}, {foo: 1, bar: "b"}, {foo: 2, bar: "c"});
+pluck("foo", l); //=> list(0, 1, 2)
 ```
 
 ### `update`
