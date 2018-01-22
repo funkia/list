@@ -38,7 +38,8 @@ import {
   join,
   takeWhile,
   toArray,
-  fromArray
+  fromArray,
+  dropWhile
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -972,7 +973,15 @@ describe("List", () => {
       const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
       const l2 = takeWhile((n) => n < 6, l);
       assert.strictEqual(l2.length, 6);
-      assertIndicesFromTo(l2, 0, 5);
+      assertIndicesFromTo(l2, 0, 6);
+    });
+  });
+  describe("dropWhile", () => {
+    it("drops elements that satisfies the predicate", () => {
+      const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+      const l2 = dropWhile(n => n < 6, l);
+      assert.strictEqual(l2.length, 4);
+      assertIndicesFromTo(l2, 6, 10);
     });
   });
   describe("splitAt", () => {

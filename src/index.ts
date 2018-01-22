@@ -1766,12 +1766,24 @@ export function takeWhile<A>(
   return slice(0, index, l);
 }
 
+export function dropWhile<A>(
+  predicate: (a: A) => boolean,
+  l: List<A>
+): List<A> {
+  const { index } = foldlCb<A, FindNotIndexState>(
+    findNotIndexCb,
+    { predicate, index: -1 },
+    l
+  );
+  return slice(index, l.length, l);
+}
+
 export function takeLast<A>(n: number, l: List<A>): List<A> {
   return slice(l.length - n, l.length, l);
 }
 
 export function splitAt<A>(index: number, l: List<A>): [List<A>, List<A>] {
-  return [slice(0, index, l), slice(index, Infinity, l)];
+  return [slice(0, index, l), slice(index, l.length, l)];
 }
 
 export function drop<A>(n: number, l: List<A>): List<A> {

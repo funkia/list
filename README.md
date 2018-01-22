@@ -80,24 +80,24 @@ together with Ramda.
 ### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 33/115
+has currently been implemented on the immutable list: 34/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
-`drop`, `dropLast`, `filter`, `find`, `findIndex`, `head`, `init`,
-`last`, `length`, `join`, `map`, `none`, `nth`, `pair`, `prepend`,
-`range`, `reduce`, `reduceRight`, `reject`, `repeat`, `slice`,
-`splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `update`.
+`drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
+`head`, `init`, `last`, `length`, `join`, `map`, `none`, `nth`,
+`pair`, `prepend`, `range`, `reduce`, `reduceRight`, `reject`,
+`repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`,
+`update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
-`dropRepeatsWith`, `dropWhile`, `endsWith`, `findLast`,
-`findLastIndex`, `flatten`, `fromPairs`, `groupBy`, `groupWith`,
-`indexBy`, `indexOf`, `insert`, `insertAll`, `intersperse`,
-`lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`,
-`pluck`, `reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`,
-`sequence`, `sort`, `splitEvery`, `splitWhen`, `startsWith`,
-`takeLastWhile`, `times`, `transpose`, `traverse`, `unfold`, `uniq`,
-`uniqBy`, `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`,
-`zipWith`.
+`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`, `flatten`,
+`fromPairs`, `groupBy`, `groupWith`, `indexBy`, `indexOf`, `insert`,
+`insertAll`, `intersperse`, `lastIndexOf`, `mapAccum`,
+`mapAccumRight`, `mergeAll`, `partition`, `pluck`, `reduceBy`,
+`reduceWhile`, `remove`, `reverse`, `scan`, `sequence`, `sort`,
+`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `times`,
+`transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
+`unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
 
 ## Fantasy Land
 
@@ -355,6 +355,20 @@ Returns a new list without the first `n` elements.
 
 ```js
 drop(2, list(0, 1, 2, 3, 4, 5)); //=> list(2, 3, 4, 5)
+```
+
+### `dropWhile`
+
+Removes the first elements in the list for which the predicate returns
+`true`.
+
+**Complexity**: `O(k + log(n))` where `k` is the number of elements
+satisfying the predicate.
+
+**Example**
+
+```js
+dropWhile((n) => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(4, 5, 6)
 ```
 
 ### `dropLast`
