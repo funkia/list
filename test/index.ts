@@ -41,7 +41,8 @@ import {
   fromArray,
   dropWhile,
   flatten,
-  pluck
+  pluck,
+  indexOf
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -690,6 +691,17 @@ describe("List", () => {
       const l2 = appendList(0, 1500 * 6);
       const result = find(n => n % 1500 === 0 && n !== 0 && n !== 1500, l2);
       assert.strictEqual(result, 1500 * 2);
+    });
+  });
+  describe("indexOf", () => {
+    const l = list(12, 4, 2, 89, 6, 18, 7);
+    it("finds element by strict equality", () => {
+      assert.strictEqual(indexOf(89, l), 3);
+      assert.strictEqual(indexOf(7, l), 6);
+      assert.strictEqual(indexOf(12, l), 0);
+    });
+    it("return -1 if no element is found", () => {
+      assert.strictEqual(indexOf(10, l), -1);
     });
   });
   describe("contains", () => {

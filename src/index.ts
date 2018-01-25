@@ -2,6 +2,10 @@ const branchingFactor = 32;
 const branchBits = 5;
 const mask = 31;
 
+export let elementEquals = (a: any, b: any) => {
+  return a === b;
+};
+
 function createPath(depth: number, value: any): any {
   let current = value;
   for (let i = 0; i < depth; ++i) {
@@ -1005,6 +1009,26 @@ export function find<A>(
 ): A | undefined {
   return foldlCb<A, PredState>(findCb, { predicate, result: undefined }, l)
     .result;
+}
+
+type IndexOfState = {
+  element: any;
+  found: boolean;
+  index: number;
+};
+
+function indexOfCb<A>(value: A, state: IndexOfState): boolean {
+  ++state.index;
+  return !(state.found = elementEquals(value, state.element));
+}
+
+export function indexOf<A>(element: A, l: List<A>): number {
+  const { found, index } = foldlCb<A, IndexOfState>(
+    indexOfCb,
+    { element, found: false, index: -1 },
+    l
+  );
+  return found ? index : -1;
 }
 
 type FindIndexState = {

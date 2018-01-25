@@ -79,24 +79,24 @@ together with Ramda.
 ### Implemented functions
 
 This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 35/115
+has currently been implemented on the immutable list: 36/115
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
-`head`, `flatten`, `init`, `last`, `length`, `join`, `map`, `none`,
-`nth`, `pair`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
-`reject`, `repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`,
-`takeLast`, `update`.
+`head`, `flatten`, `indexOf`, `init`, `last`, `length`, `join`, `map`,
+`none`, `nth`, `pair`, `pluck`, `prepend`, `range`, `reduce`,
+`reduceRight`, `reject`, `repeat`, `slice`, `splitAt`, `take`,
+`takeWhile`, `tail`, `takeLast`, `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
-`fromPairs`, `groupBy`, `groupWith`, `indexBy`, `indexOf`, `insert`,
-`insertAll`, `intersperse`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `mergeAll`, `partition`, `reduceBy`, `reduceWhile`,
-`remove`, `reverse`, `scan`, `sequence`, `sort`, `splitEvery`,
-`splitWhen`, `startsWith`, `takeLastWhile`, `times`, `transpose`,
-`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest`
-`without`, `xprod`, `zip`, `zipObj`, `zipWith`.
+`fromPairs`, `groupBy`, `groupWith`, `indexBy`, `insert`, `insertAll`,
+`intersperse`, `lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`,
+`partition`, `reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`,
+`sequence`, `sort`, `splitEvery`, `splitWhen`, `startsWith`,
+`takeLastWhile`, `times`, `transpose`, `traverse`, `unfold`, `uniq`,
+`uniqBy`, `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`,
+`zipWith`.
 
 ## Fantasy Land
 
@@ -599,6 +599,23 @@ some(isEven, empty()); //=> false
 some(isEven, list(2, 4, 6, 8)); //=> true
 some(isEven, list(2, 3, 4, 6, 7, 8)); //=> true
 some(isEven, list(1, 3, 5, 7)); //=> false
+```
+
+### `indexOf`
+
+Returns the index of the first element in the list that is equal to
+the given element. If no such element is found the function returns
+`-1`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const l = list(12, 4, 2, 89, 6, 18, 7);
+indexOf(12, l); //=> 0
+indexOf(89, l); //=> 3
+indexOf(10, l); //=> -1
 ```
 
 ### `find`
