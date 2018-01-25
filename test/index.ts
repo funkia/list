@@ -42,7 +42,8 @@ import {
   dropWhile,
   flatten,
   pluck,
-  indexOf
+  indexOf,
+  equals
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -710,6 +711,26 @@ describe("List", () => {
     });
     it("returns false if element is not present", () => {
       assert.strictEqual(includes(3, list(0, 1, 2, 4, 5)), false);
+    });
+  });
+  describe("equals", () => {
+    it("returns false if lists are not of the same length", () => {
+      assert.isFalse(equals(list(0, 1, 2, 3), list(0, 1, 2, 3, 4)));
+    });
+    it("returns false if elements differ in content", () => {
+      assert.isFalse(equals(list(0, 1, 9, 3, 4), list(0, 1, 2, 3, 4)));
+    });
+    it("returns true if lists are identical", () => {
+      const l = list(0, 1, 2, 3, 4);
+      assert.isTrue(equals(l, l));
+    });
+    it("returns true if lists are equivalent", () => {
+      assert.isTrue(equals(list(0, 1, 2, 3, 4), list(0, 1, 2, 3, 4)));
+    });
+    it("has Fantasy Land method", () => {
+      assert.isTrue(
+        list(0, 1, 2, 3, 4)["fantasy-land/equals"](list(0, 1, 2, 3, 4))
+      );
     });
   });
   describe("iteration", () => {

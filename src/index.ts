@@ -315,6 +315,9 @@ export class List<A> {
   [Symbol.iterator](): Iterator<A> {
     return new ListIterator(this);
   }
+  "fantasy-land/equals"(l: List<A>): boolean {
+    return equals(this, l);
+  }
   "fantasy-land/map"<B>(f: (a: A) => B): List<B> {
     return map(f, this);
   }
@@ -1073,6 +1076,33 @@ export function includes<A>(element: A, l: List<A>): boolean {
 
 export const contains = includes;
 
+type EqualsState = {
+  iterator: Iterator<any>;
+  equals: boolean;
+};
+
+const equalsState: EqualsState = {
+  iterator: undefined as any,
+  equals: true
+};
+
+function equalsCb(value2: any, state: EqualsState): boolean {
+  const { value } = state.iterator.next();
+  return (state.equals = elementEquals(value, value2));
+}
+
+export function equals<A>(firstList: List<A>, secondList: List<A>): boolean {
+  if (firstList === secondList) {
+    return true;
+  } else if (firstList.length !== secondList.length) {
+    return false;
+  } else {
+    equalsState.iterator = secondList[Symbol.iterator]();
+    equalsState.equals = true;
+    return foldlCb<A, EqualsState>(equalsCb, equalsState, firstList).equals;
+  }
+}
+
 // concat
 
 const eMax = 2;
@@ -1183,7 +1213,7 @@ function executeConcatPlan(
 /**
  * Takes three nodes and returns a new node with the content of the
  * three nodes. Note: The returned node does not have its size table
- * set correctly. The caller musta do that.
+ * set correctly. The caller must do that.
  */
 function rebalance(
   left: Node | undefined,
@@ -1307,7 +1337,7 @@ function appendNodeToTree<A>(l: List<A>, node: Node): List<A> {
     }
     currentNode = currentNode.array[childIndex];
     if (currentNode === undefined) {
-      // This will only happend in a pvec subtree. The index does not
+      // This will only happened in a pvec subtree. The index does not
       // exist so we'll have to create a new path from here on.
       nodesToCopy = nodesVisited;
       shift = 5; // Set shift to break out of the while-loop

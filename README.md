@@ -101,10 +101,9 @@ Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 ## Fantasy Land
 
 List currently implements the following Fantasy Land abstractions:
-Semigroup, monoid, foldable, functor.
+Setoid, semigroup, monoid, foldable, functor.
 
-Not implemented yet: Setoid, apply, applicative, traversable, chain,
-monad.
+Not implemented yet: Apply, applicative, traversable, chain, monad.
 
 ## API
 
@@ -463,6 +462,19 @@ filter(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
 ```
 
 ### Folds
+
+### `equals`
+
+Returns true if the two lists are equivalent.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+equals(list(0, 1, 2, 3), list(0, 1, 2, 3)); //=> true
+equals(list("a", "b", "c"), list("a", "z", "c")); //=> false
+```
 
 ### `toArray`
 
