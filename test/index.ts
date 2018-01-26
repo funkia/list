@@ -43,7 +43,8 @@ import {
   flatten,
   pluck,
   indexOf,
-  equals
+  equals,
+  remove
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -1058,6 +1059,31 @@ describe("List", () => {
       assertIndicesFromTo(left, 0, 6);
       assertIndicesFromTo(right, 7, 0);
     });
+  });
+  describe("remove", () => {
+    const l = range(0, 100);
+    it("removes element from the start", () => {
+      const lr = remove(0, 23, l);
+      assert.strictEqual(lr.length, 100 - 23);
+      assertIndicesFromTo(lr, 23, 100);
+    });
+    it("removes element from the end", () => {
+      const lr = remove(60, 40, l);
+      assert.strictEqual(lr.length, 100 - 40);
+      assertIndicesFromTo(lr, 0, 60);
+    });
+    // FIXME: Uncomment when bug in concat is fixed
+    // it("removes single element at index", () => {
+    //   const l2 = remove(50, 1, l);
+    //   assert.strictEqual(l2.length, 99);
+    //   assertIndicesFromTo(l2, 0, 49);
+    // });
+    // it("removes several element at index", () => {
+    //   const l2 = remove(45, 7, l);
+    //   assert.strictEqual(l2.length, 100 - 7);
+    //   assertIndicesFromTo(l2, 0, 45);
+    //   assertIndicesFromTo(l2, 45 + 7, 100, 45);      
+    // });
   });
   describe("tail", () => {
     it("removes the first element", () => {

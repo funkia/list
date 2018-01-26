@@ -371,6 +371,22 @@ const li = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
 splitAt(4, li); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7, 8)]
 ```
 
+### `remove`
+
+Takes an index, an amount of elements to remove and a list. Returns a
+new list with the given amount of elements removed from the specified
+index.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+remove(4, 3, l); //=> list(0, 1, 2, 3, 7, 8)
+remove(2, 5, l); //=> list(0, 1, 7, 8)
+```
+
 ### `drop`
 
 Returns a new list without the first `n` elements.
