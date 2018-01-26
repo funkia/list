@@ -353,8 +353,7 @@ list.
 **Example**
 
 ```js
-const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
-splitAt(4, l); //=> [list(0, 1, 2, 3, 4), list(5, 6, 7, 8)]
+takeLast(3, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
 ```
 
 ### `splitAt`
@@ -369,7 +368,8 @@ index and all elements after it.
 **Example**
 
 ```js
-takeLast(3, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
+const li = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+splitAt(4, li); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7, 8)]
 ```
 
 ### `drop`
