@@ -1,4 +1,6 @@
-import { curry } from "ramda";
+
+// @ts-ignore
+import { curry, CurriedFunction2 } from "ramda";
 import * as L from "./index";
 
 export { Node, List, list } from "./index";
