@@ -955,6 +955,16 @@ describe("List", () => {
         cheapAssertIndicesFromTo(sliced, from, end);
       }).timeout(50000);
     });
+    it("sliced list can be concated", () => {
+      // This test catches a bug where the list `left` below would not
+      // get the correct height from `slice`. This incorrect height
+      // makes the following concat fail.
+      const l = range(0, 128);
+      const left = slice(0, 50, l);
+      const l2 = concat(left, range(50, 100));
+      assert.strictEqual(l2.length, 100);
+      assertIndicesFromTo(l2, 0, 100);
+    });
   });
   describe("drop", () => {
     it("drops element from the left", () => {
@@ -1072,18 +1082,17 @@ describe("List", () => {
       assert.strictEqual(lr.length, 100 - 40);
       assertIndicesFromTo(lr, 0, 60);
     });
-    // FIXME: Uncomment when bug in concat is fixed
-    // it("removes single element at index", () => {
-    //   const l2 = remove(50, 1, l);
-    //   assert.strictEqual(l2.length, 99);
-    //   assertIndicesFromTo(l2, 0, 49);
-    // });
-    // it("removes several element at index", () => {
-    //   const l2 = remove(45, 7, l);
-    //   assert.strictEqual(l2.length, 100 - 7);
-    //   assertIndicesFromTo(l2, 0, 45);
-    //   assertIndicesFromTo(l2, 45 + 7, 100, 45);      
-    // });
+    it("removes single element at index", () => {
+      const l2 = remove(50, 1, l);
+      assert.strictEqual(l2.length, 99);
+      assertIndicesFromTo(l2, 0, 49);
+    });
+    it("removes several element at index", () => {
+      const l2 = remove(45, 7, l);
+      assert.strictEqual(l2.length, 100 - 7);
+      assertIndicesFromTo(l2, 0, 45);
+      assertIndicesFromTo(l2, 45 + 7, 100, 45);
+    });
   });
   describe("tail", () => {
     it("removes the first element", () => {

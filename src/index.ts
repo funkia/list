@@ -1793,6 +1793,9 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
         to - prefixSize + newList.offset - 1,
         newList.offset
       );
+      if (newList.root === undefined) {
+        bits = setDepth(0, bits);
+      }
       bits = setSuffix(newAffix.length, bits);
       newList.suffix = newAffix;
     }
