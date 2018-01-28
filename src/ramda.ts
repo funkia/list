@@ -1,9 +1,12 @@
 
 // @ts-ignore
 import { curry, CurriedFunction2 } from "ramda";
+import * as R from "ramda";
 import * as L from "./index";
 
 export { Node, List, list } from "./index";
+
+L.setEquals(R.equals);
 
 export const prepend = curry(L.prepend);
 export const append = curry(L.append);
