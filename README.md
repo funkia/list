@@ -1,4 +1,4 @@
-# @funkia/list
+# List
 
 A fast immutable list/sequence data structure with a functional API. A
 general purpose replacement for native arrays.
@@ -12,14 +12,22 @@ general purpose replacement for native arrays.
 
 ## Features
 
-* Very good performance
 * API centered around functions with arguments ordered for
-  currying/partial application
-* [Seamless Ramda integration](#seamless-ramda-integration).
-* TypeScript support
-* [Fantasy Land support](#fantasy-land)
-* Fully compatibility with tree-shaking. Only pay in size for the
-  functions that you actually use.
+  currying/partial application.
+* [Seamless Ramda integration](#seamless-ramda-integration)—if you
+  know Ramda you already know how to use List.
+* Very good performance.
+* Written in TypeScript and comes with accurate types that cover the
+  entire library.
+* [Fantasy Land support](#fantasy-land).
+* Ships with tree-shaking compatible ES modules. You only pay in size
+  for the functions that you actually use.
+
+## Install
+
+```
+npm install @funkia/list
+```
 
 ## What & why?
 
@@ -29,8 +37,8 @@ JavaScript arrays List has two major benefits.
 
 * Arrays have an API for mutating them. List don't. This means that if
   you want to do purely functional programming List is better suited
-  and it wont tempt you with an imperative API.
-* Since List doesn't allows mutations it can be heavily optimized for
+  and it won't tempt you with an imperative API.
+* Since List doesn't allow mutations it can be heavily optimized for
   pure operations. This makes List much faster for functional
   programming than arrays.
 
@@ -50,16 +58,34 @@ in much better performance.
 
 ## Seamless Ramda integration
 
-List aims to integrate with Ramda in a way that is straightforward and
-seamless. This is achieved by implementing an API that is almost
-identical to Ramdas API for arrays.
+List is designed to work seamlessly together with Ramda. Ramda offers
+a large number of useful functions for working with arrays. List
+implements the same methods on its immutable data structure. This
+means that Ramda users can keep using the API they're familiar with.
 
-Consider this code example.
+Additionally, List offers an entry point where all functions are
+curried using Ramda's `R.curry` and where all equality comparisons are
+done using `R.equals`.
+
+```js
+import * as L from "@funkia/list/ramda";
+const indexOfFoo1 = indexOf({ foo: 1 });
+indexOfFoo1({ foo: 0 }, { foo: 1 }, { foo: 2 }); //=> 1
+```
+
+In the example above `indexOf` is curried and it uses `R.equals` to
+find an element equivalent to `{foo: 1}`.
+
+Since List implements Ramda's array API it is very easy to convert
+code from using arrays to using immutable lists. As an example,
+consider the code below.
 
 ```js
 import * as R from "ramda";
 
-R.compose(R.reduce(reducer, 0), R.map(fn), R.filter(predicate))(array);
+R.pipe(R.filter(n => n % 2 === 0), R.map(R.multiply(3)), R.reduce(R.add, 0))(
+  array
+);
 ```
 
 It can be converted to code using List as follows.
@@ -68,18 +94,21 @@ It can be converted to code using List as follows.
 import * as R from "ramda";
 import * as L from "@funkia/list";
 
-R.compose(L.reduce(reducer, 0), L.map(fn), L.filter(predicate))(list);
+R.pipe(L.filter(n => n % 2 === 0), L.map(R.multiply(3)), L.reduce(R.add, 0))(
+  list
+);
 ```
 
-For each function operating on arrays the `R` is simply changed to an
+For each function operating on arrays, the `R` is simply changed to an
 `L`. This works because List exports functions that have the same name
-and behavior as Ramdas functions. This makes it seamless to use List
-together with Ramda.
+and behavior as Ramdas functions.
 
-### Implemented functions
+### Implemented Ramda functions
 
-This keeps track of how many of the Ramda functions for Arrays that
-has currently been implemented on the immutable list: 36/115
+The goal is to implement the entirety of Ramda's array functions for
+List. The list below keeps track of how many of Ramda functions that
+are missing and of how many that are already implemented. Currently 36
+out of 115 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
@@ -100,19 +129,20 @@ Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 
 ## Fantasy Land
 
-List currently implements the following Fantasy Land abstractions:
+List currently implements the following Fantasy Land specifications:
 Setoid, semigroup, monoid, foldable, functor.
 
-Not implemented yet: Apply, applicative, traversable, chain, monad.
+The following specifications are planned but have not implemented yet:
+Apply, applicative, traversable, chain, monad.
 
 ## API
 
 The API is organized into three parts.
 
 1. Functions that _create_ lists.
-2. Functions that _transform_ lits. That is, functions that takes one
-   or more lists as argument and returns a new list.
-3. Function _extracts_ vales from lists. They take one or more lists
+2. Functions that _transform_ lits. That is, functions that take one
+   or more lists as arguments and returns a new list.
+3. Function _extracts_ values from lists. They take one or more lists
    as arguments and returns something that is not a list.
 
 ### Creating lists
@@ -168,7 +198,7 @@ fromArray([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
 
 ### `range`
 
-Returns a list of numbers between an an inclusive lower bound and an
+Returns a list of numbers between an inclusive lower bound and an
 exclusive upper bound.
 
 **Complexity**: `O(n)`
@@ -249,7 +279,7 @@ const newList = append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
 ### `map`
 
 Applies a function to each element in the given list and returns a new
-list with the values that the function return.
+list of the values that the function return.
 
 **Complexity**: `O(n)`
 
@@ -367,13 +397,13 @@ index and all elements after it.
 **Example**
 
 ```js
-const li = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
-splitAt(4, li); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7, 8)]
+const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+splitAt(4, l); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7, 8)]
 ```
 
 ### `remove`
 
-Takes an index, an amount of elements to remove and a list. Returns a
+Takes an index, a number of elements to remove and a list. Returns a
 new list with the given amount of elements removed from the specified
 index.
 
@@ -709,7 +739,7 @@ includes(3, list(0, 1, 2, 4, 5)); //=> false
 
 ### `join`
 
-Concats the strings in a list seperated by a specified seperator.
+Concats the strings in a list separated by a specified separator.
 
 **Complexity**: `O(n)`
 
