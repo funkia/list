@@ -1893,3 +1893,11 @@ export function fromArray<A>(array: A[]): List<A> {
   }
   return l;
 }
+
+export function fromIterable<A>(iterable: IterableIterator<A>): List<A> {
+  let l = empty();
+  for (const element of iterable) {
+    l = append(element, l);
+  }
+  return l;
+}

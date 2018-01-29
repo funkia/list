@@ -44,7 +44,8 @@ import {
   pluck,
   indexOf,
   equals,
-  remove
+  remove,
+  fromIterable
 } from "../src/index";
 
 function numberArray(start: number, end: number): number[] {
@@ -1123,6 +1124,18 @@ describe("List", () => {
       const l = fromArray(array);
       assert.strictEqual(l.length, array.length);
       assertIndicesFromTo(l, 0, 9);
+    });
+  });
+  describe("fromIterable", () => {
+    function* iterable(n: number) {
+      for (let i = 0; i < n; ++i) {
+        yield i;
+      }
+    }
+    it("converts an iterable into a list", () => {
+      const l = fromIterable(iterable(20));
+      assert.strictEqual(l.length, 20);
+      assertIndicesFromTo(l, 0, 20);
     });
   });
 });
