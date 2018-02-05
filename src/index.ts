@@ -349,76 +349,55 @@ function cloneList<A>(l: List<A>): List<A> {
   return new List(l.bits, l.offset, l.length, l.root, l.suffix, l.prefix);
 }
 
-const iteratorDone: IteratorResult<any> = { done: true, value: undefined };
-
 class ListIterator<A> implements Iterator<A> {
   stack: any[][];
   indices: number[];
-  prefixLeft: number;
-  constructor(private list: List<A>) {
-    this.stack = [];
-    this.indices = [];
-    this.prefixLeft = getPrefixSize(list);
-    if (list.root !== undefined) {
-      let currentNode = list.root.array;
-      const depth = getDepth(list);
-      for (let i = 0; i < depth + 1; ++i) {
-        this.stack.push(currentNode);
-        this.indices.push(0);
-        currentNode = arrayFirst(currentNode).array;
+  idx: number;
+  prefixSize: number;
+  middleSize: number;
+  result: IteratorResult<A> = { done: false, value: undefined as any };
+  constructor(private l: List<A>) {
+    this.idx = -1;
+    this.prefixSize = getPrefixSize(l);
+    this.middleSize = l.length - getSuffixSize(l);
+    if (l.root !== undefined) {
+      const depth = getDepth(l);
+      this.stack = new Array(depth + 1);
+      this.indices = new Array(depth + 1);
+      let currentNode = l.root.array;
+      for (let i = depth; 0 <= i; --i) {
+        this.stack[i] = currentNode;
+        this.indices[i] = 0;
+        currentNode = currentNode[0].array;
       }
-      this.indices[this.indices.length - 1] = -1;
-    } else {
-      this.indices.push(-1);
+      this.indices[0] = -1;
     }
-  }
-  goUp(): void {
-    this.stack.pop();
-    this.indices.pop();
-  }
-  remaining(): number {
-    const node = arrayLast(this.stack);
-    const idx = arrayLast(this.indices);
-    return node.length - idx - 1;
-  }
-  incrementIndex(): number {
-    return ++this.indices[this.indices.length - 1];
   }
   nextInTree(): void {
-    while (this.remaining() === 0) {
-      this.goUp();
-      if (this.stack.length === 0) {
-        return;
-      }
+    let i = 0;
+    while (++this.indices[i] === this.stack[i].length) {
+      this.indices[i] = 0;
+      ++i;
     }
-    this.incrementIndex();
-    const depth = getDepth(this.list);
-    for (let i = this.indices.length - 1; i < depth; ++i) {
-      this.stack.push(arrayLast(this.stack)[arrayLast(this.indices)].array);
-      this.indices.push(0);
+    for (; 0 < i; --i) {
+      this.stack[i - 1] = this.stack[i][this.indices[i]].array;
     }
   }
   next(): IteratorResult<A> {
-    if (this.prefixLeft > 0) {
-      --this.prefixLeft;
-      return { done: false, value: this.list.prefix[this.prefixLeft] };
-    } else if (this.stack.length !== 0) {
+    let newVal;
+    const idx = ++this.idx;
+    if (idx < this.prefixSize) {
+      newVal = this.l.prefix[this.prefixSize - idx - 1];
+    } else if (idx < this.middleSize) {
       this.nextInTree();
-      if (this.stack.length !== 0) {
-        const leaf = arrayLast(this.stack);
-        const idx = arrayLast(this.indices);
-        const value = leaf[idx];
-        return { done: false, value };
-      } else {
-        this.indices.push(-1);
-      }
+      newVal = this.stack[0][this.indices[0]];
+    } else if (idx < this.l.length) {
+      newVal = this.l.suffix[idx - this.middleSize];
+    } else {
+      this.result.done = true;
     }
-    const suffixSize = getSuffixSize(this.list);
-    if (this.indices[0] < suffixSize - 1) {
-      const idx = this.incrementIndex();
-      return { done: false, value: this.list.suffix[idx] };
-    }
-    return iteratorDone;
+    this.result.value = newVal;
+    return this.result;
   }
 }
 

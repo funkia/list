@@ -22,23 +22,30 @@ function addBenchmark(n) {
   }
 
   suite
-    .add("Array " + n, function () {
+    .add("Array " + n, function() {
       let sum = 0;
       for (const n of array) {
         sum += n;
       }
       return sum === result;
     })
-    .add("Immutable.js " + n, function () {
+    .add("Immutable.js " + n, function() {
       let sum = 0;
       for (const n of immut) {
         sum += n;
       }
       return sum === result;
     })
-    .add("List " + n, function () {
+    .add("List " + n, function() {
       let sum = 0;
       for (const n of list) {
+        sum += n;
+      }
+      return sum === result;
+    })
+    .add("List old " + n, function() {
+      let sum = 0;
+      for (const n of oldList) {
         sum += n;
       }
       return sum === result;
@@ -50,6 +57,6 @@ addBenchmark(50);
 addBenchmark(100);
 addBenchmark(1000);
 
-suite.run({ async: true })
+suite.run({ async: true });
 
 module.exports = suite;

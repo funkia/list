@@ -739,6 +739,7 @@ describe("List", () => {
     it("iterates over leftwise dense list", () => {
       [
         20, // a list where there is no elements in tree
+        50, // both suffix and prefix
         1000, // a tree with larger depth,
         32 ** 2 + 3 // an even larger tree
       ].forEach(n => {

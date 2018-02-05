@@ -161,6 +161,7 @@ async function runBenchmarks(
   (<any>require)("./prepend.perf");
   (<any>require)("./foldl.perf");
   (<any>require)("./foldl-iterator.perf");
+  (<any>require)("./iterator.perf");
   (<any>require)("./update.perf");
 
   const startTime = Date.now();
