@@ -7,6 +7,7 @@
     "strict": true,
     "sourceMap": true,
     "noUnusedLocals": true,
+    "strictPropertyInitialization": false,
     "noUnusedParameters": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
