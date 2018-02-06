@@ -1,5 +1,5 @@
 {
-  "name": "@funkia/list",
+  "name": "list",
   "version": "0.1.0",
   "description": "Fast purely functional immutable lists.",
   "main": "index.js",

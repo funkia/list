@@ -26,7 +26,7 @@ general purpose replacement for native arrays.
 ## Install
 
 ```
-npm install @funkia/list
+npm install list
 ```
 
 ## What & why?
