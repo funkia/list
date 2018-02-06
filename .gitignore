@@ -5,5 +5,8 @@ bench/list-old
 bench/data.json
 dist
 *~
+.vscode
 .nyc_output
 coverage
+bower_components
+purescript/output
