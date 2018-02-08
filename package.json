@@ -4,23 +4,28 @@
   "description": "Fast purely functional immutable lists.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -P tsconfig-build.json",
+    "build": "npm run build-es6; npm run build-cmjs",
+    "build-es6":
+      "tsc -P ./tsconfig-build.json --outDir 'dist/es' --module es2015",
+    "build-cmjs": "tsc -P ./tsconfig-build.json",
     "test": "nyc mocha --timeout 5000 --recursive test/*.ts",
-    "test-watch": "mocha -R progress --timeout 5000 --watch --require ts-node/register --watch-extensions ts test/*.ts",
-    "test-property": "mocha --timeout 0 --require ts-node/register --recursive test/property/*.ts",
+    "test-watch":
+      "mocha -R progress --timeout 5000 --watch --require ts-node/register --watch-extensions ts test/*.ts",
+    "test-property":
+      "mocha --timeout 0 --require ts-node/register --recursive test/property/*.ts",
     "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
-    "prepublishOnly": "npm run build; cp dist/* .",
-    "release-patch": "np patch",
-    "release-minor": "np minor",
-    "release-major": "np major"
+    "prepublishOnly": "npm run build; cp -r dist/* .",
+    "release": "np"
   },
   "author": "Simon Friis Vindum",
   "license": "MIT",
   "peerDependencies": {
     "ramda": "*"
   },
+  "module": "es/index.js",
+  "sideEffects": false,
   "devDependencies": {
     "@types/chai": "4.1.2",
     "@types/mocha": "2.2.48",
@@ -37,18 +42,8 @@
     "typescript": "^2.7.1"
   },
   "nyc": {
-    "extension": [
-      ".ts"
-    ],
-    "require": [
-      "ts-node/register",
-      "source-map-support/register"
-    ],
-    "reporter": [
-      "json",
-      "html",
-      "text",
-      "lcov"
-    ]
+    "extension": [".ts"],
+    "require": ["ts-node/register", "source-map-support/register"],
+    "reporter": ["json", "html", "text", "lcov"]
   }
 }
