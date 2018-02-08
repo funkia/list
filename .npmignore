@@ -1,0 +1,10 @@
+node_modules/
+src
+test
+dist
+bench
+purescript
+*~
+.vscode
+.nyc_output
+coverage
