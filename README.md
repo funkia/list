@@ -1,14 +1,21 @@
+<h3 align="center">
+  <img src="assets/listopard.png" alt="List logo" width=500 />
+</h3>
+
+<p align="center">
+A fast immutable list with a functional API.
+</p>
+
+<p align="center">
+  <a href="https://gitter.im/funkia/General"><img src="https://img.shields.io/gitter/room/funkia/General.svg" alt="Gitter" height="20"></a>
+  <a href="https://travis-ci.org/funkia/list"><img src="https://travis-ci.org/funkia/list.svg?branch=master" alt="Build Status" height="20"></a>
+  <a href="https://codecov.io/gh/funkia/list"><img src="https://codecov.io/gh/funkia/list/branch/master/graph/badge.svg" alt="codecov" height="20"></a>
+  <a href="https://badge.fury.io/js/list"><img src="https://badge.fury.io/js/list.svg" alt="npm version" height="20"></a>
+  <a href="https://david-dm.org/funkia/list"><img src="https://david-dm.org/funkia/list/status.svg" alt="npm version" height="20"></a>
+  <a href="https://david-dm.org/funkia/list?type=dev"><img src="https://david-dm.org/funkia/list/dev-status.svg" alt="npm version" height="20"></a>
+</p>
+
 # List
-
-A fast immutable list/sequence data structure with a functional API. A
-general purpose replacement for native arrays.
-
-[![Gitter](https://img.shields.io/gitter/room/funkia/General.svg)](https://gitter.im/funkia/General)
-[![Build Status](https://travis-ci.org/funkia/list.svg?branch=master)](https://travis-ci.org/funkia/list)
-[![codecov](https://codecov.io/gh/funkia/list/branch/master/graph/badge.svg)](https://codecov.io/gh/funkia/list)
-[![npm version](https://badge.fury.io/js/%40funkia%2Flist.svg)](https://badge.fury.io/js/%40funkia%2Flist)
-[![dependencies Status](https://david-dm.org/funkia/list/status.svg)](https://david-dm.org/funkia/list)
-[![devDependencies Status](https://david-dm.org/funkia/list/dev-status.svg)](https://david-dm.org/funkia/list?type=dev)
 
 ## Features
 
