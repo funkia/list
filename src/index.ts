@@ -310,38 +310,8 @@ export class List<A> {
     public suffix: A[],
     public prefix: A[]
   ) {}
-  space(): number {
-    return (
-      branchingFactor ** (getDepth(this) + 1) -
-      (this.length - getSuffixSize(this) - getPrefixSize(this) + this.offset)
-    );
-  }
   [Symbol.iterator](): Iterator<A> {
     return new ListIterator(this);
-  }
-  "fantasy-land/equals"(l: List<A>): boolean {
-    return equals(this, l);
-  }
-  "fantasy-land/map"<B>(f: (a: A) => B): List<B> {
-    return map(f, this);
-  }
-  "fantasy-land/filter"(predicate: (a: A) => boolean): List<A> {
-    return filter(predicate, this);
-  }
-  "fantasy-land/empty"(): List<any> {
-    return empty();
-  }
-  "fantasy-land/concat"(right: List<A>): List<A> {
-    return concat(this, right);
-  }
-  "fantasy-land/reduce"<B>(f: (acc: B, value: A) => B, initial: B): B {
-    return foldl(f, initial, this);
-  }
-  append(value: A): List<A> {
-    return append(value, this);
-  }
-  nth(index: number): A | undefined {
-    return nth(index, this);
   }
 }
 
@@ -747,7 +717,7 @@ export function pluck<A, K extends keyof A>(key: K, l: List<A>): List<A[K]> {
 export function range(start: number, end: number): List<number> {
   let list = empty();
   for (let i = start; i < end; ++i) {
-    list = list.append(i);
+    list = append(i, list);
   }
   return list;
 }

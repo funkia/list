@@ -11,6 +11,7 @@ import * as Finger from "@paldepind/finger-tree";
 import * as Benchmark from "benchmark";
 
 import * as L from "../dist/index";
+import "../dist/methods";
 import * as Lo from "./list-old/dist/index";
 
 function runAsync(benchmark: Benchmark) {

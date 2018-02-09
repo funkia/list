@@ -47,6 +47,7 @@ import {
   remove,
   fromIterable
 } from "../src/index";
+import "../src/fantasy-land";
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -115,20 +116,12 @@ describe("List", () => {
   });
   describe("append", () => {
     it("can append small", () => {
-      const list = empty()
-        .append(0)
-        .append(1)
-        .append(2)
-        .append(3);
+      const list = appendList(0, 4);
       assertIndicesFromTo(list, 0, 4);
     });
     it("can append 1000 elements", () => {
-      let list = empty();
-      const size = 1000;
-      for (let i = 0; i < size; ++i) {
-        list = list.append(i);
-      }
-      assertIndicesFromTo(list, 0, 1000);
+      const l = appendList(0, 1000);
+      assertIndicesFromTo(l, 0, 1000);
     });
     it("can append 97 elements", () => {
       let l = appendList(0, 97);
@@ -316,10 +309,7 @@ describe("List", () => {
   });
   describe("concat", () => {
     it("concats empty sides", () => {
-      const l = empty()
-        .append(1)
-        .append(2)
-        .append(3);
+      const l = appendList(0, 4);
       assert.strictEqual(concat(l, empty()), l);
       assert.strictEqual(concat(empty(), l), l);
     });

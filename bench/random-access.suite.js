@@ -4,6 +4,7 @@ const Immutable = require("immutable");
 const Denque = require("denque");
 
 const List = require("../dist/index");
+require("../dist/methods");
 const OldList = require("./list-old/dist/index");
 const Finger = require("@paldepind/finger-tree");
 const { Cons } = require("../dist/list");

@@ -4,8 +4,9 @@ const Denque = require("denque");
 const mori = require("mori");
 
 const Finger = require("@paldepind/finger-tree");
-const {Cons} = require("../dist/list");
+const { Cons } = require("../dist/list");
 const List = require("../dist/index");
+require("../dist/methods");
 const OldList = require("./list-old/dist/index");
 
 const n = 100;
@@ -39,7 +40,7 @@ module.exports = Suite("append")
     }
     return denque.length === n;
   })
-  .add("mori", function () {
+  .add("mori", function() {
     let list = mori.vector();
     for (let i = 0; i < n; ++i) {
       list = mori.conj(list, i);
@@ -53,14 +54,14 @@ module.exports = Suite("append")
     }
     return cons.value === n - 1;
   })
-  .add("List", function () {
+  .add("List", function() {
     let list = List.empty();
     for (let i = 0; i < n; ++i) {
       list = list.append(i);
     }
     return list.length === n;
   })
-  .add("Old List", function () {
+  .add("Old List", function() {
     let list = OldList.empty();
     for (let i = 0; i < n; ++i) {
       list = list.append(i);
@@ -74,4 +75,4 @@ module.exports = Suite("append")
     }
     return tree.suffix.c === n - 1;
   })
-  .run({async: true});
+  .run({ async: true });

@@ -5,6 +5,7 @@ const mori = require("mori");
 const { nil, append, concat } = require("@paldepind/finger-tree");
 const C = require("../dist/list");
 const List = require("../dist/index");
+require("../dist/methods");
 
 const n = 20000;
 
@@ -31,19 +32,19 @@ let immutA = new Immutable.List(arrayA);
 let immutB = new Immutable.List(arrayB);
 
 module.exports = Suite("concat")
-  .add("Array", function () {
+  .add("Array", function() {
     return arrayA.concat(arrayB).length;
   })
-  .add("Immutable.js", function () {
+  .add("Immutable.js", function() {
     return immutA.concat(immutB).size;
   })
-  .add("Cons-list", function () {
+  .add("Cons-list", function() {
     return C.concat(consA, consB);
   })
-  .add("Finger", function () {
+  .add("Finger", function() {
     return concat(treeA, treeB).size;
   })
-  .add("List", function () {
+  .add("List", function() {
     return List.concat(listA, listB).length;
   })
   .run({ async: true });
