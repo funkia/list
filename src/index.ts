@@ -135,25 +135,23 @@ export class Node {
   constructor(public sizes: Sizes, public array: any[]) {}
 }
 
-function nodeNthDense(
-  node: Node,
-  depth: number,
-  index: number,
-  offset: number
-): any {
-  index += offset;
-  let path;
+function nodeNthDense(node: Node, depth: number, index: number): any {
   let current = node;
   for (; depth >= 0; --depth) {
-    path =
-      ((index >> (depth * branchBits)) & mask) -
-      ((offset >> (depth * branchBits)) & mask);
-    if (path !== 0) {
-      offset = 0;
-    }
-    current = current.array[path];
+    current = current.array[(index >> (depth * branchBits)) & mask];
   }
   return current;
+}
+
+function handleOffset(depth: number, offset: number, index: number): number {
+  index += offset;
+  for (; depth >= 0; --depth) {
+    index = index - (offset & (mask << (depth * branchBits)));
+    if (((index >> (depth * branchBits)) & mask) !== 0) {
+      break;
+    }
+  }
+  return index;
 }
 
 function nodeNth(node: Node, depth: number, index: number): any {
@@ -169,7 +167,28 @@ function nodeNth(node: Node, depth: number, index: number): any {
     depth--;
     current = current.array[path];
   }
-  return nodeNthDense(current, depth, index, 0);
+  return nodeNthDense(current, depth, index);
+}
+
+export function nth<A>(index: number, l: List<A>): A {
+  const prefixSize = getPrefixSize(l);
+  const suffixSize = getSuffixSize(l);
+  const { offset } = l;
+  if (index < prefixSize) {
+    return l.prefix[prefixSize - index - 1];
+  } else if (index >= l.length - suffixSize) {
+    return l.suffix[index - (l.length - suffixSize)];
+  }
+  const depth = getDepth(l);
+  return l.root!.sizes === undefined
+    ? nodeNthDense(
+        l.root!,
+        depth,
+        offset === 0
+          ? index - prefixSize
+          : handleOffset(depth, offset, index - prefixSize)
+      )
+    : nodeNth(l.root!, depth, index - prefixSize);
 }
 
 function cloneNode({ sizes, array }: Node): Node {
@@ -651,21 +670,6 @@ export function last<A>(l: List<A>): A | undefined {
   } else if (getPrefixSize(l) !== 0) {
     return arrayFirst(l.prefix);
   }
-}
-
-export function nth<A>(index: number, l: List<A>): A {
-  const prefixSize = getPrefixSize(l);
-  const suffixSize = getSuffixSize(l);
-  const { offset } = l;
-  if (index < prefixSize) {
-    return l.prefix[prefixSize - index - 1];
-  } else if (index >= l.length - suffixSize) {
-    return l.suffix[index - (l.length - suffixSize)];
-  }
-  const depth = getDepth(l);
-  return l.root!.sizes === undefined
-    ? nodeNthDense(l.root!, depth, index - prefixSize, offset)
-    : nodeNth(l.root!, depth, index - prefixSize);
 }
 
 // map

@@ -16,11 +16,12 @@ let n: number;
 let list: L.List<number>;
 let indices: number[] = [];
 let l: any;
+let imm: any;
 
 benchmark(
   {
     name: "random access",
-    input: [10, 10000, 1000000],
+    input: [50, 100, 1000, 5000, 10000],
     before: m => {
       // n = m;
       // for (let i = 0; i < n; ++i) {
@@ -41,7 +42,7 @@ benchmark(
       run: () => {
         let sum = 0;
         for (let i = 0; i < n; ++i) {
-          sum += L.nth(i, l);
+          sum += l.nth(i);
         }
         return sum;
       }
@@ -57,7 +58,7 @@ benchmark(
       run: () => {
         let sum = 0;
         for (let i = 0; i < n; ++i) {
-          sum += Lo.nth(i, l);
+          sum += l.nth(i);
         }
         return sum;
       }
@@ -74,6 +75,22 @@ benchmark(
         let sum = 0;
         for (let i = 0; i < n; ++i) {
           sum += l[i];
+        }
+        return sum;
+      }
+    },
+    "Immutable.js": {
+      before: m => {
+        n = m;
+        imm = List();
+        for (let i = 0; i < n; ++i) {
+          imm = imm.push(i);
+        }
+      },
+      run: () => {
+        let sum = 0;
+        for (let i = 0; i < n; ++i) {
+          sum += imm.get(i);
         }
         return sum;
       }
