@@ -3,12 +3,28 @@ import * as Plotly from "plotly.js/lib/core";
 import * as data from "./data.json";
 
 for (const plot of data) {
-  const header = document.createElement("h1");
-  header.textContent = plot.name;
   const plotElm = document.createElement("div");
-  Plotly.plot(plotElm, plot.data, {
-    margin: { t: 0 }
-  });
-  document.body.appendChild(header);
+  Plotly.plot(
+    plotElm,
+    plot.data,
+    {
+      title: plot.name
+    },
+    {
+      modeBarButtons: [
+        [
+          "zoom2d",
+          "pan2d",
+          "zoomIn2d",
+          "zoomOut2d",
+          "autoScale2d",
+          "resetScale2d",
+          "hoverClosestCartesian",
+          "hoverCompareCartesian"
+        ]
+      ],
+      displaylogo: false
+    }
+  );
   document.body.appendChild(plotElm);
 }
