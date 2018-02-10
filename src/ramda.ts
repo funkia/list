@@ -56,3 +56,5 @@ export const tail = curry(L.tail);
 export const toArray = curry(L.toArray);
 export const fromArray = curry(L.fromArray);
 export const fromIterable = curry(L.fromIterable);
+export const insert = curry(L.insert);
+export const insertAll = curry(L.insertAll);

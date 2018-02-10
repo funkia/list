@@ -48,6 +48,8 @@ import {
   fromIterable
 } from "../src/index";
 import "../src/fantasy-land";
+import { insert } from "../src";
+import { insertAll } from "../src";
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -1127,6 +1129,19 @@ describe("List", () => {
       const l = fromIterable(iterable(20));
       assert.strictEqual(l.length, 20);
       assertIndicesFromTo(l, 0, 20);
+    });
+  });
+  describe("insert and insertAll", () => {
+    it("inserts element in list", () => {
+      const l = list(0, 1, 2, 3, 5, 6, 7);
+      const l2 = insert(4, 4, l);
+      assert.strictEqual(nth(4, l2), 4);
+      assertIndicesFromTo(l2, 0, 8);
+    });
+    it("inserts all elements in list", () => {
+      const l = list(0, 1, 2, 6, 7, 8);
+      const l2 = insertAll(3, list(3, 4, 5), l);
+      assertIndicesFromTo(l2, 0, 9);
     });
   });
 });

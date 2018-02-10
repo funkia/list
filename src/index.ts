@@ -1857,3 +1857,18 @@ export function fromIterable<A>(iterable: IterableIterator<A>): List<A> {
   }
   return l;
 }
+
+export function insert<A>(index: number, element: A, l: List<A>): List<A> {
+  return concat(append(element, slice(0, index, l)), slice(index, l.length, l));
+}
+
+export function insertAll<A>(
+  index: number,
+  elements: List<A>,
+  l: List<A>
+): List<A> {
+  return concat(
+    concat(slice(0, index, l), elements),
+    slice(index, l.length, l)
+  );
+}

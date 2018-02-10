@@ -114,25 +114,24 @@ and behavior as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 36
+are missing and of how many that are already implemented. Currently 38
 out of 115 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
-`head`, `flatten`, `indexOf`, `init`, `last`, `length`, `join`, `map`,
-`none`, `nth`, `pair`, `pluck`, `prepend`, `range`, `reduce`,
-`reduceRight`, `reject`, `repeat`, `slice`, `splitAt`, `take`,
-`takeWhile`, `tail`, `takeLast`, `update`.
+`head`, `flatten`, `indexOf`, `init`, `insert`, `insertAll`, `last`,
+`length`, `join`, `map`, `none`, `nth`, `pair`, `pluck`, `prepend`,
+`range`, `reduce`, `reduceRight`, `reject`, `repeat`, `slice`,
+`splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
-`fromPairs`, `groupBy`, `groupWith`, `indexBy`, `insert`, `insertAll`,
-`intersperse`, `lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`,
-`partition`, `reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`,
-`sequence`, `sort`, `splitEvery`, `splitWhen`, `startsWith`,
-`takeLastWhile`, `times`, `transpose`, `traverse`, `unfold`, `uniq`,
-`uniqBy`, `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`,
-`zipWith`.
+`fromPairs`, `groupBy`, `groupWith`, `indexBy`, `intersperse`,
+`lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`,
+`reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`, `sequence`,
+`sort`, `splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`,
+`times`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
+`uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
 
 ## Fantasy Land
 
@@ -511,7 +510,31 @@ list for which the predicate returns `false`.
 **Example**
 
 ```js
-filter(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
+reject(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
+```
+
+### `insert`
+
+Inserts the given element at the given index in the list.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+insert(2, "c", list("a", "b", "d", "e")); //=> list("a", "b", "c", "d", "e")
+```
+
+### `insertAll`
+
+Inserts the given list of elements at the given index in the list.
+
+**Complexity**: `O(log(n))`
+
+**Example**
+
+```js
+insertAll(2, list("c", "d"), list("a", "b", "e", "f")); //=> list("a", "b", "c", "d", "e", "f")
 ```
 
 ### Folds
