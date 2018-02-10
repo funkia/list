@@ -5,8 +5,7 @@
   "description": "Benchmarks.",
   "main": "index.js",
   "scripts": {
-    "create-report-data": "ts-node report.ts",
-    "serve-report": "webpack-dev-server"
+    "create-report": "ts-node report.ts"
   },
   "author": "",
   "license": "MIT",

@@ -1,6 +1,8 @@
 import * as util from "util";
 import * as fs from "fs";
 const writeFile = util.promisify(fs.writeFile);
+const webpack = require("webpack");
+const webpackAsync = util.promisify(webpack);
 import prettyMs = require("pretty-ms");
 import yargs = require("yargs");
 
@@ -10,6 +12,7 @@ import * as Finger from "@paldepind/finger-tree";
 
 import * as Benchmark from "benchmark";
 
+const webpackConfig = require("./webpack.config");
 import * as L from "../dist/index";
 import "../dist/methods";
 import * as Lo from "./list-old/dist/index";
@@ -191,6 +194,8 @@ async function runBenchmarks(
   }
   await writeFile("data.json", JSON.stringify(results));
   const endTime = Date.now();
+  console.log("Generating bundle");
+  await webpackAsync(webpackConfig);
   console.log("Done in ", prettyMs(endTime - startTime));
 }
 

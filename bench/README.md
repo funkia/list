@@ -37,14 +37,13 @@ node index.js
 Generate the data for the graphs with.
 
 ```
-npm run create-report-data -- run
+npm run create-report -- run
 ```
 
-And view them in your browser by running the following command and
-opening [localhost:8080](localhost:8080).
+And then view the results in you browser by openening the `index.html` file.
 
 ```
-npm run serve-report
+open index.html
 ```
 
 Generating all the data for the benchmarks can take a long time (5-10
