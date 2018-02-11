@@ -114,24 +114,25 @@ and behavior as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 38
-out of 115 functions have been implemented.
+are missing and of how many that are already implemented. Currently 41
+out of 114 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
 `head`, `flatten`, `indexOf`, `init`, `insert`, `insertAll`, `last`,
-`length`, `join`, `map`, `none`, `nth`, `pair`, `pluck`, `prepend`,
-`range`, `reduce`, `reduceRight`, `reject`, `repeat`, `slice`,
-`splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `update`.
+`length`, `join`, `map`, `none`, `nth`, `pair`, `partition`, `pluck`,
+`prepend`, `range`, `reduce`, `reduceRight`, `reject`, `remove`,
+`repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`,
+`update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
-`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
-`fromPairs`, `groupBy`, `groupWith`, `indexBy`, `intersperse`,
-`lastIndexOf`, `mapAccum`, `mapAccumRight`, `mergeAll`, `partition`,
-`reduceBy`, `reduceWhile`, `remove`, `reverse`, `scan`, `sequence`,
-`sort`, `splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`,
-`times`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
-`uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`, `zipWith`.
+`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`, `groupBy`,
+`groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
+`mapAccumRight`, `mergeAll`, `reduceBy`, `reduceWhile`, `reverse`,
+`scan`, `sequence`, `sort`, `splitEvery`, `splitWhen`, `startsWith`,
+`takeLastWhile`, `times`, `transpose`, `traverse`, `unfold`, `uniq`,
+`uniqBy`, `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`,
+`zipWith`.
 
 ## Fantasy Land
 
@@ -511,6 +512,20 @@ list for which the predicate returns `false`.
 
 ```js
 reject(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
+```
+
+### `partition`
+
+Splits the list into two lists. One list that contains all the values
+for which the predicate returns `true` and one containing the values for
+which it returns `false`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+partition(isEven, list(0, 1, 2, 3, 4, 5)); //=> list(list(0, 2, 4), list(1, 3, 5))
 ```
 
 ### `insert`

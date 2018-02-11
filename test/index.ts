@@ -45,11 +45,12 @@ import {
   indexOf,
   equals,
   remove,
-  fromIterable
+  fromIterable,
+  partition,
+  insert,
+  insertAll
 } from "../src/index";
 import "../src/fantasy-land";
-import { insert } from "../src";
-import { insertAll } from "../src";
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -623,6 +624,11 @@ describe("List", () => {
       for (let i = 0; i < length(l2); ++i) {
         assert.isFalse(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
       }
+    });
+    it("partitions elements in two lists", () => {
+      const l = partition(isEven, list(0, 1, 2, 3, 4, 5));
+      assert.isTrue(equals(nth(0, l), list(0, 2, 4)));
+      assert.isTrue(equals(nth(1, l), list(1, 3, 5)));
     });
   });
   describe("foldl based functions", () => {

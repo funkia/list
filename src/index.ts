@@ -792,6 +792,18 @@ export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
   return foldl((acc, a) => (predicate(a) ? acc : append(a, acc)), empty(), l);
 }
 
+export function partition<A>(
+  predicate: (a: A) => boolean,
+  l: List<A>
+): List<List<A>> {
+  const {fst, snd} = foldl(
+    (obj, a) => (predicate(a) ? obj.fst = append(a, obj.fst) : obj.snd = append(a, obj.snd), obj),
+    { fst: empty(), snd: empty() },
+    l
+  );
+  return pair(fst, snd);
+}
+
 export function join(separator: string, l: List<string>): string {
   return foldl((a, b) => (a.length === 0 ? b : a + separator + b), "", l);
 }

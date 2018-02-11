@@ -23,6 +23,7 @@ export const foldl = curry(L.foldl);
 export const reduce = foldl;
 export const filter = curry(L.filter);
 export const reject = curry(L.reject);
+export const partition = curry(L.partition);
 export const join = curry(L.join);
 export const foldr = curry(L.foldr);
 export const reduceRight = foldr;
