@@ -2,7 +2,7 @@ node_modules/
 src
 test
 dist
-bench
+assets
 purescript
 *~
 .vscode

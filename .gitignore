@@ -1,8 +1,8 @@
 node_modules/
-bench/hydrogen-*
-bench/code.asm
-bench/list-old
-bench/data.json
+test/bench/hydrogen-*
+test/bench/code.asm
+test/bench/list-old
+test/bench/data.json
 dist
 *~
 .vscode
