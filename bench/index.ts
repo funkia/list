@@ -8,7 +8,13 @@ for (const plot of data) {
     plotElm,
     plot.data,
     {
-      title: plot.name
+      title: plot.name,
+      yaxis: {
+        title: "Time spent"
+      },
+      xaxis: {
+        title: "Number of elements"
+      }
     },
     {
       modeBarButtons: [

@@ -6,16 +6,9 @@ const webpackAsync = util.promisify(webpack);
 import prettyMs = require("pretty-ms");
 import yargs = require("yargs");
 
-import * as _ from "lodash";
-import { List } from "immutable";
-import * as Finger from "@paldepind/finger-tree";
-
 import * as Benchmark from "benchmark";
 
 const webpackConfig = require("./webpack.config");
-import * as L from "../dist/index";
-import "../dist/methods";
-import * as Lo from "./list-old/dist/index";
 
 function runAsync(benchmark: Benchmark) {
   return new Promise(resolve => {
@@ -93,66 +86,6 @@ export function benchmark<Input = any>(
   benchmarks.push(Object.assign({}, name, { tests }));
 }
 
-let left: any;
-let right: any;
-
-benchmark(
-  {
-    name: "concat",
-    input: [10, 50, 200, 2000, 20000]
-  },
-  {
-    "List, current": {
-      before: n => {
-        left = L.range(0, n);
-        right = L.range(n, 2 * n);
-      },
-      run: () => L.concat(left, right)
-    },
-    "List, old": {
-      before: n => {
-        left = Lo.range(0, n);
-        right = Lo.range(n, 2 * n);
-      },
-      run: () => Lo.concat(left, right)
-    },
-    Lodash: {
-      before: n => {
-        left = _.range(0, n);
-        right = _.range(n, 2 * n);
-      },
-      run: () => _.concat(left, right)
-    },
-    "Array#concat": {
-      before: n => {
-        left = _.range(0, n);
-        right = _.range(n, 2 * n);
-      },
-      run: () => left.concat(right)
-    },
-    "Immutable.js": {
-      before: n => {
-        left = List(_.range(0, n));
-        right = List(_.range(n, 2 * n));
-      },
-      run: () => left.concat(right)
-    },
-    Finger: {
-      before: n => {
-        left = Finger.nil;
-        for (let i = 0; i < n; ++i) {
-          left = Finger.append(i, left);
-        }
-        right = Finger.nil;
-        for (let i = n; i < 2 * n; ++i) {
-          right = Finger.append(i, right);
-        }
-      },
-      run: () => Finger.concat(left, right)
-    }
-  }
-);
-
 function areSubstrings(s: string, ss: string[]): boolean {
   return ss.some(s2 => s.toLowerCase().includes(s2));
 }
@@ -167,6 +100,7 @@ async function runBenchmarks(
   (<any>require)("./foldl-iterator.perf");
   (<any>require)("./iterator.perf");
   (<any>require)("./update.perf");
+  (<any>require)("./concat.perf");
 
   const startTime = Date.now();
   const results = [];
