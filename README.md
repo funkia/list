@@ -1,5 +1,5 @@
 <h3 align="center">
-  <img src="assets/listopard.png" alt="List logo" width=500 />
+  <img align="center" src="assets/listopard.png" alt="List logo" width=400 />
 </h3>
 
 <p align="center">
@@ -17,51 +17,56 @@ A fast immutable list with a functional API.
 
 # List
 
+List is a purely functional alternative to arrays. It is an
+implementation of a fast persistent sequence data structure. Compared
+to JavaScript's `Array` List has two major benefits.
+
+* **Safety**. List is immutable. This makes it safer and better suited
+  for functional programming. It doesn't tempt you with an imperative
+  API and accidental mutations won't be a source bugs.
+* **Performance**. Since List doesn't allow mutations it can be
+  heavily optimized for pure operations. This makes List much faster
+  for functional programming than arrays.
+
 ## Features
 
-* API centered around functions with arguments ordered for
+* **Familiar functional API**. List follows the naming conventions
+  common in functional programming and has arguments ordered for
   currying/partial application.
-* [Seamless Ramda integration](#seamless-ramda-integration)—if you
-  know Ramda you already know how to use List.
-* Very good performance.
-* Written in TypeScript and comes with accurate types that cover the
-  entire library.
-* [Fantasy Land support](#fantasy-land).
-* Ships with tree-shaking compatible ES modules. You only pay in size
-  for the functions that you actually use.
+* **Extensive API**. List has all the functions you know from `Array`
+  and a lot of other functions that I'll save the day once you need
+  them.
+* **Extremely fast**. List is a carefully optimized implementation of
+  the highly efficient data-structure _relaxed radix balanced trees_.
+  Performance has been a central focus from the beginning and we have
+  an [extensive benchmark suite](/test/bench) to ensure optimal
+  performance.
+* **Does one thing well**. Instead of offering a wealth of data
+  structures List has a tight focus on being the best immutable list
+  possible. It doesn't do everything but is designed to work well with
+  the libraries you're already using.
+* **Seamless Ramda integration**. If you know Ramda you already know
+  how to use List. List includes a [Ramda
+  specific](#seamless-ramda-integration) module where functions are
+  curried using Ramda's `R.curry` and where equality comparisons are
+  done using `R.equals`.
+* **Type safe**. List is written in TypeScript and comes with accurate
+  types that cover the entire library.
+* **Fantasy Land support**. List
+  [implements](#fantasy-land-static-land) both the Fantasy Land and
+  the Static Land specification.
+* **Fully compatible with tree-shaking**. List ships with tree-shaking
+  compatible ECMAScript modules. `import * as L from "list"` in itself
+  adds zero bytes to your bundle when using Webpack. Using a function
+  adds only that function and the very small (<1KB) core of the
+  library. You only pay in size for the functions that you actually
+  use.
 
 ## Install
 
 ```
 npm install list
 ```
-
-## What & why?
-
-List is a purely functional alternative to arrays. It is an
-implementation of a fast sequential data structure. Compared to
-JavaScript arrays List has two major benefits.
-
-* Arrays have an API for mutating them. List don't. This means that if
-  you want to do purely functional programming List is better suited
-  and it won't tempt you with an imperative API.
-* Since List doesn't allow mutations it can be heavily optimized for
-  pure operations. This makes List much faster for functional
-  programming than arrays.
-
-Since List is immutable it provides increased safety compared to
-arrays. It is impossible to accidentally mutate a list because it
-offers no API for mutating it. If you're doing functional programming
-with arrays their impure API is nothing but a source of bugs.
-
-Due to the way List is implemented it can be many times faster than
-arrays for functional programming. If, for instance, you concatenate
-two arrays both arrays will have to be copied into a new array. This
-is because potential mutations to the old arrays must not affect the
-new concatenated array. List, on the other hand, is immutable and the
-concatenated list can share the majority of its structure with the old
-lists. This reduces copying, reduces memory allocations, and results
-in much better performance.
 
 ## Seamless Ramda integration
 
@@ -75,7 +80,7 @@ curried using Ramda's `R.curry` and where all equality comparisons are
 done using `R.equals`.
 
 ```js
-import * as L from "@funkia/list/ramda";
+import * as L from "list/ramda";
 const indexOfFoo1 = indexOf({ foo: 1 });
 indexOfFoo1({ foo: 0 }, { foo: 1 }, { foo: 2 }); //=> 1
 ```
@@ -99,7 +104,7 @@ It can be converted to code using List as follows.
 
 ```js
 import * as R from "ramda";
-import * as L from "@funkia/list";
+import * as L from "list";
 
 R.pipe(L.filter(n => n % 2 === 0), L.map(R.multiply(3)), L.reduce(R.add, 0))(
   list
@@ -134,23 +139,35 @@ Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`,
 `zipWith`.
 
-## Fantasy Land
+## Fantasy Land & Static Land
 
-List currently implements the following Fantasy Land specifications:
-Setoid, semigroup, monoid, foldable, functor.
+<img align="right" width="82" height="82" alt="Fantasy Land" src="https://raw.github.com/fantasyland/fantasy-land/master/logo.png">
+<img align="right" width="131" height="82" src="https://raw.githubusercontent.com/rpominov/static-land/master/logo/logo.png" />
 
-The following specifications are planned but have not implemented yet:
-Apply, applicative, traversable, chain, monad.
+List currently implements the following Fantasy Land and Static Land
+specifications: Setoid, semigroup, monoid, foldable, functor.
 
-## API
+The following specifications have not been implemented yet: Apply,
+applicative, traversable, chain, monad.
+
+Since methods hinder tree-shaking the Fantasy Land methods are not
+included by default. In order to get them you must import it likes this:
+
+```js
+import "list/fantasy-land";
+```
+
+## API documentation
 
 The API is organized into three parts.
 
-1. Functions that _create_ lists.
-2. Functions that _transform_ lits. That is, functions that take one
-   or more lists as arguments and returns a new list.
-3. Function _extracts_ values from lists. They take one or more lists
-   as arguments and returns something that is not a list.
+1. [Creating lists](#creating-lists) — Functions that _create_ lists.
+2. [Updating lists](#updating-lists) — Functions that _transform_ lits.
+   That is, functions that take one or more lists as arguments and
+   returns a new list.
+3. [Folds](#folds) — Functions that _extracts_ values based on lists.
+   They take one or more lists as arguments and returns something that
+   is not a list.
 
 ### Creating lists
 
@@ -796,17 +813,4 @@ join(", ", list("one", "two", "three")); //=> "one, two, three"
 
 ## Benchmarks
 
-The benchmarks are located in the [`bench` directory](/bench).
-
-Run the benchmarks like this (starting with CWD in the root).
-
-```
-npm install
-npm run build
-cd bench
-npm install
-./prepare-benchmarks.sh
-npm run bench
-```
-
-Note that in the output `List` corresponds to @funkia/list.
+The benchmarks are located in the [`bench` directory](/test/bench).
