@@ -82,11 +82,11 @@ done using `R.equals`.
 ```js
 import * as L from "list/ramda";
 const indexOfFoo1 = indexOf({ foo: 1 });
-indexOfFoo1({ foo: 0 }, { foo: 1 }, { foo: 2 }); //=> 1
+indexOfFoo1(list({ foo: 0 }, { foo: 1 }, { foo: 2 })); //=> 1
 ```
 
 In the example above `indexOf` is curried and it uses `R.equals` to
-find an element equivalent to `{foo: 1}`.
+find an element equivalent to `{ foo: 1 }`.
 
 Since List implements Ramda's array API it is very easy to convert
 code from using arrays to using immutable lists. As an example,
