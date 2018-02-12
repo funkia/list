@@ -10,7 +10,7 @@ import * as Finger from "@paldepind/finger-tree";
 
 import * as Benchmark from "benchmark";
 
-import * as L from "../dist/index";
+import * as L from "../../dist/index";
 import * as Lo from "./list-old/dist/index";
 
 function arrayFold<A>(f, initial, array: A[]): A[] {
@@ -53,7 +53,7 @@ benchmark({
     }
   }
 }, {
-    "List, current": {
+    "List": {
       run: () => {
         return L.foldl(subtract, 10, l);
       }

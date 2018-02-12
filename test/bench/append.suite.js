@@ -4,9 +4,9 @@ const Denque = require("denque");
 const mori = require("mori");
 
 const Finger = require("@paldepind/finger-tree");
-const { Cons } = require("../dist/list");
-const List = require("../dist/index");
-require("../dist/methods");
+const { Cons } = require("../../dist/list");
+const List = require("../../dist/index");
+require("../../dist/methods");
 const OldList = require("./list-old/dist/index");
 
 const n = 100;

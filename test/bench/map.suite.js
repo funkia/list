@@ -2,7 +2,7 @@ const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const _ = require("lodash");
 
-const List = require("../dist/index");
+const List = require("../../dist/index");
 const OldList = require("./list-old/dist/index");
 
 const result = 1;

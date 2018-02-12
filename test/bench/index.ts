@@ -1,12 +1,13 @@
 import * as Plotly from "plotly.js/lib/core";
-
+import * as _ from "lodash";
 import * as data from "./data.json";
 
 for (const plot of data) {
   const plotElm = document.createElement("div");
+  const sortedData = _.reverse(_.sortBy(plot.data, (d) => _.last(d.y)));
   Plotly.plot(
     plotElm,
-    plot.data,
+    sortedData,
     {
       title: plot.name,
       yaxis: {

@@ -2,9 +2,9 @@ const Suite = require("./default-suite").Suite;
 const Immutable = require("immutable");
 const Denque = require("denque");
 
-const L = require("../dist/index");
+const L = require("../../dist/index");
 const Finger = require("@paldepind/finger-tree");
-const {Cons} = require("../dist/list");
+const {Cons} = require("../../dist/list");
 
 const n = 10000;
 

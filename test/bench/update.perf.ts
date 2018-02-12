@@ -1,5 +1,5 @@
 import { benchmark } from "./report";
-import * as L from "../dist/index";
+import * as L from "../../dist/index";
 import * as Lo from "./list-old/dist/index";
 
 let idx1 = 0;

@@ -1,7 +1,10 @@
 import { List } from "immutable";
 import * as _ from "lodash";
 import * as Finger from "@paldepind/finger-tree";
+import { benchmark } from "./report";
 
+import * as L from "../../dist/index";
+import * as Lo from "./list-old/dist/index";
 
 let left: any;
 let right: any;

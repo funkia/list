@@ -1,6 +1,10 @@
 import { benchmark } from "./report";
-import * as L from "../dist/index";
+import * as L from "../../dist/index";
 import * as Lo from "./list-old/dist/index";
+import * as _ from "lodash";
+import * as Immutable from "immutable";
+import * as R from "ramda";
+import * as mori from "mori";
 
 let n = 0;
 
@@ -32,6 +36,42 @@ benchmark(
           list = list.append(i);
         }
         return list.length === n;
+      }
+    },
+    "Immutable.js": {
+      before: nn => {
+        n = nn;
+      },
+      run: () => {
+        let imm = Immutable.List();
+        for (let i = 0; i < n; ++i) {
+          imm = imm.push(i);
+        }
+        return imm.size === n;
+      }
+    },
+    "Ramda": {
+      before: nn => {
+        n = nn;
+      },
+      run: () => {
+        let arr: number[] = [];
+        for (let i = 0; i < n; ++i) {
+          arr = R.append(i, arr);
+        }
+        return arr.length === n;
+      }
+    },
+    "Mori": {
+      before: nn => {
+        n = nn;
+      },
+      run: () => {
+        let list = mori.vector();
+        for (let i = 0; i < n; ++i) {
+          list = mori.conj(list, i);
+        }
+        return mori.count(list);
       }
     }
   }

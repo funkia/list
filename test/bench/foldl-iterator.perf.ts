@@ -1,6 +1,6 @@
 import { benchmark } from "./report";
 
-const L = require("../dist/index");
+const L = require("../../dist/index");
 
 function subtract(n: number, m: number) {
   return n - m;
