@@ -120,7 +120,7 @@ and behavior as Ramdas functions.
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
 are missing and of how many that are already implemented. Currently 41
-out of 114 functions have been implemented.
+out of 75 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
@@ -131,13 +131,12 @@ Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
-`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`, `groupBy`,
+`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `mergeAll`, `reduceBy`, `reduceWhile`, `reverse`,
-`scan`, `sequence`, `sort`, `splitEvery`, `splitWhen`, `startsWith`,
-`takeLastWhile`, `times`, `transpose`, `traverse`, `unfold`, `uniq`,
-`uniqBy`, `uniqWith`, `unnest` `without`, `xprod`, `zip`, `zipObj`,
-`zipWith`.
+`mapAccumRight`, `reduceWhile`, `reverse`, `scan`, `sequence`, `sort`,
+`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `times`,
+`transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
+`unnest` `without`, `xprod`, `zip`, `zipWith`.
 
 ## Fantasy Land & Static Land
 
