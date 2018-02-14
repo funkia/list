@@ -101,6 +101,7 @@ async function runBenchmarks(
   (<any>require)("./iterator.perf");
   (<any>require)("./update.perf");
   (<any>require)("./concat.perf");
+  (<any>require)("./slice.perf");
 
   const startTime = Date.now();
   const results = [];
