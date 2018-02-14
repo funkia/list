@@ -530,6 +530,18 @@ list for which the predicate returns `false`.
 reject(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
 ```
 
+### `reverse`
+
+Reverses a list.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+reverse(list(0, 1, 2, 3, 4, 5)); //=> list(5, 4, 3, 2, 1, 0)
+```
+
 ### `partition`
 
 Splits the list into two lists. One list that contains all the values

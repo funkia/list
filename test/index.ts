@@ -51,6 +51,7 @@ import {
   insertAll
 } from "../src/index";
 import "../src/fantasy-land";
+import { reverse } from "../src";
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -1148,6 +1149,13 @@ describe("List", () => {
       const l = list(0, 1, 2, 6, 7, 8);
       const l2 = insertAll(3, list(3, 4, 5), l);
       assertIndicesFromTo(l2, 0, 9);
+    });
+  });
+  describe("reverse", () => {
+    it("reverses a list", () => {
+      const l = list(7, 6, 5, 4, 3, 2, 1, 0);
+      const l2 = reverse(l);
+      assertIndicesFromTo(l2, 0, 8);
     });
   });
 });

@@ -1884,3 +1884,7 @@ export function insertAll<A>(
     slice(index, l.length, l)
   );
 }
+
+export function reverse<A>(l: List<A>): List<A> {
+  return foldl((newL, element) => prepend(element, newL), empty(), l);
+}

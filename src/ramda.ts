@@ -49,6 +49,7 @@ export const dropWhile = curry(L.dropWhile);
 export const takeLast = curry(L.takeLast);
 export const splitAt = curry(L.splitAt);
 export const remove = curry(L.remove);
+export const reverse = curry(L.reverse);
 export const drop = curry(L.drop);
 export const dropLast = curry(L.dropLast);
 export const pop = curry(L.pop);
