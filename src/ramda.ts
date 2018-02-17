@@ -17,6 +17,7 @@ export const first = curry(L.first);
 export const last = curry(L.last);
 export const nth = curry(L.nth);
 export const map = curry(L.map);
+export const forEach = curry(L.forEach);
 export const pluck = curry(L.pluck as (<A>(key: string, l: L.List<A>) => A));
 export const range = curry(L.range);
 export const foldl = curry(L.foldl);

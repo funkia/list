@@ -784,6 +784,10 @@ export function foldl<A, B>(
 
 export const reduce = foldl;
 
+export function forEach<A>(callback: (a: A) => void, l: List<A>): void {
+  foldl((_, element) => callback(element), undefined as void, l);
+}
+
 export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
   return foldl((acc, a) => (predicate(a) ? append(a, acc) : acc), empty(), l);
 }

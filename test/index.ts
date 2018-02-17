@@ -52,6 +52,7 @@ import {
 } from "../src/index";
 import "../src/fantasy-land";
 import { reverse } from "../src";
+import { forEach } from "../src";
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -601,6 +602,13 @@ describe("List", () => {
         <number[]>[]
       );
       assert.deepEqual(result, numberArray(0, 6));
+    });
+  });
+  describe("forEach", () => {
+    it("calls function for each element", () => {
+      const arr: number[] = [];
+      forEach(element => arr.push(element), list(0, 1, 2, 3, 4));
+      assert.deepEqual(arr, [0, 1, 2, 3, 4]);
     });
   });
   describe("filter and reject", () => {
