@@ -34,6 +34,7 @@ let lOld = Lo.empty();
 
 benchmark({
   name: "foldl",
+  description: "foldl/reduce over a sequence.",
   input: [20, 100, 1000, 10000],
   before: (n) => {
     array = [];

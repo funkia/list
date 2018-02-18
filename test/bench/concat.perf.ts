@@ -12,10 +12,11 @@ let right: any;
 benchmark(
   {
     name: "concat",
-    input: [10, 50, 200, 2000, 20000]
+    description: "Concatenates two sequences of size n.",
+    input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {
-    "List, current": {
+    "List": {
       before: n => {
         left = L.range(0, n);
         right = L.range(n, 2 * n);

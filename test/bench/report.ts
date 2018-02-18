@@ -63,12 +63,14 @@ type Tests<Input> = { [name: string]: Test<Input> | (() => void) };
 
 type BenchmarkOptions<Input> = {
   name: string;
+  description?: string;
   input?: Input[];
   before?: (input: Input) => void;
 };
 
 type Bench<Input> = {
   name: string;
+  description?: string;
   tests: Tests<Input>;
   input?: Input[];
   before?: (input: Input) => void;
@@ -77,31 +79,29 @@ type Bench<Input> = {
 const benchmarks: Bench<any>[] = [];
 
 export function benchmark<Input = any>(
-  name: string | BenchmarkOptions<Input>,
+  options: string | BenchmarkOptions<Input>,
   tests: Tests<Input>
 ): void {
-  if (typeof name === "string") {
-    name = { name: name };
+  if (typeof options === "string") {
+    options = { name: options };
   }
-  benchmarks.push(Object.assign({}, name, { tests }));
+  benchmarks.push(Object.assign({}, options, { tests }));
 }
 
 function areSubstrings(s: string, ss: string[]): boolean {
   return ss.some(s2 => s.toLowerCase().includes(s2));
 }
 
-async function runBenchmarks(
-  benchmarkNames: string[],
-  p: string[]
-): Promise<void> {
-  (<any>require)("./random-access.perf");
+async function runBenchmarks(argv: any): Promise<void> {
+  const { b: benchmarkNames, p, exP } = argv;
   (<any>require)("./prepend.perf");
-  (<any>require)("./foldl.perf");
-  (<any>require)("./foldl-iterator.perf");
-  (<any>require)("./iterator.perf");
-  (<any>require)("./update.perf");
   (<any>require)("./concat.perf");
+  (<any>require)("./foldl.perf");
   (<any>require)("./slice.perf");
+  (<any>require)("./random-access.perf");
+  (<any>require)("./update.perf");
+  (<any>require)("./iterator.perf");
+  (<any>require)("./foldl-iterator.perf");
 
   const startTime = Date.now();
   const results = [];
@@ -110,23 +110,28 @@ async function runBenchmarks(
       ? benchmarks
       : benchmarks.filter(({ name }) => areSubstrings(name, benchmarkNames));
   console.log("Running", relevantBenchmarks.length, "benchmarks");
+
   for (const suite of relevantBenchmarks) {
-    const { name, input, tests } = suite;
+    const { name, description, input, tests } = suite;
+    console.log("des", description);
     const data = [];
-    const names =
-      p === undefined
-        ? Object.keys(tests)
-        : Object.keys(tests).filter(name => areSubstrings(name, p));
-    for (const testName of names) {
+    const names = Object.keys(tests);
+    const names2 =
+      p !== undefined ? names.filter(name => areSubstrings(name, p)) : names;
+    const names3 =
+      exP !== undefined
+        ? names2.filter(name => !areSubstrings(name, exP))
+        : names2;
+    for (const testName of names3) {
       const testData = tests[testName];
       const test =
         typeof testData === "function" ? { run: testData } : testData;
       const result = await runTest(testName, suite, test, input);
-      const plot = plotData(testName, input, result);
-      data.push(plot);
+      data.push({ testName, result });
     }
-    results.push({ name, data });
+    results.push({ name, description, input, data });
   }
+
   await writeFile("data.json", JSON.stringify(results));
   const endTime = Date.now();
   console.log("Generating bundle");
@@ -141,7 +146,7 @@ yargs
     "run the benchmarks",
     yargs => yargs,
     argv => {
-      runBenchmarks(argv.b, argv.p);
+      runBenchmarks(argv);
     }
   )
   .option("b", {
@@ -154,6 +159,11 @@ yargs
     alias: "performers",
     describe:
       "Filtering of performers. Only run those that include one of the names.",
+    type: "array"
+  })
+  .option("exP", {
+    alias: "excludePerformers",
+    describe: "Exclude any performers that includes any of the given strings.",
     type: "array"
   })
   .help().argv;

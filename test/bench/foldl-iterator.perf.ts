@@ -10,6 +10,7 @@ let l;
 
 benchmark({
   name: "foldl vs iterator",
+  description: "Iterating over a list with foldl vs with an iterator.",
   input: [100, 1000, 10000],
   before: (n) => {
     l = L.empty();

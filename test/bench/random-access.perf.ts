@@ -23,6 +23,7 @@ let imm: any;
 benchmark(
   {
     name: "random access",
+    description: "Access each element in a sequence by index.",
     input: [50, 100, 1000, 5000, 10000],
     before: m => {
       // n = m;

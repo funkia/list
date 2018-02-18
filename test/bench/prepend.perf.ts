@@ -11,7 +11,8 @@ let n = 0;
 benchmark(
   {
     name: "append",
-    input: [10, 100, 500, 1000]
+    description: "Creates a sequence of size n by repeatedly appending.",
+    input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {
     List: {
@@ -80,6 +81,7 @@ benchmark(
 benchmark(
   {
     name: "prepend",
+    description: "Creates a sequence of size n by repeatedly prepending.",
     input: [10, 100, 500, 1000]
   },
   {
