@@ -1,61 +1,56 @@
 import { benchmark } from "./report";
 import * as Immutable from "immutable";
 import * as R from "ramda";
+import * as mori from "mori";
 
 import * as L from "../../dist/index";
 import * as Lo from "./list-old/dist/index";
 
-let start = 0;
-let end = 0;
+let idx = 0;
 
 let l;
-let lOld;
 
 benchmark(
   {
-    name: "slice",
-    description: "Slice 25% off of both ends of a sequence.",
-    input: [10, 100, 500, 1000, 10000]
+    name: "insert",
+    description: "Insert an element in the middle of a sequence.",
+    input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {
     List: {
       before: to => {
         l = L.range(0, to);
-        start = (to / 4) | 0;
-        end = start * 3;
+        idx = (to / 2) | 0;
       },
       run: () => {
-        const l1 = L.slice(start, end, l);
+        const l1 = L.insert(idx, 0, l);
       }
     },
     "List, old": {
       before: to => {
         l = Lo.range(0, to);
-        start = (to / 4) | 0;
-        end = start * 3;
+        idx = (to / 2) | 0;
       },
       run: () => {
-        const l1 = Lo.slice(start, end, l);
+        const l1 = Lo.insert(idx, 0, l);
       }
     },
     "Immutable.js": {
       before: to => {
         l = Immutable.Range(0, to).toList();
-        start = (to / 4) | 0;
-        end = start * 3;
+        idx = (to / 2) | 0;
       },
       run: () => {
-        const l1 = l.slice(start, end);
+        const l1 = l.insert(idx, 0);
       }
     },
-    "Array#slice": {
+    Ramda: {
       before: to => {
         l = R.range(0, to);
-        start = (to / 4) | 0;
-        end = start * 3;
+        idx = (to / 2) | 0;
       },
       run: () => {
-        const l1 = l.slice(start, end);
+        const l1 = R.insert(idx, 0, l);
       }
     }
   }

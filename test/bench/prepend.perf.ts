@@ -11,7 +11,7 @@ let n = 0;
 benchmark(
   {
     name: "append",
-    description: "Creates a sequence of size n by repeatedly appending.",
+    description: "Construct a sequence of size n by repeatedly appending to it.",
     input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {
@@ -27,7 +27,7 @@ benchmark(
         return list.length === n;
       }
     },
-    "Old list": {
+    "List, old": {
       before: nn => {
         n = nn;
       },
@@ -78,6 +78,7 @@ benchmark(
   }
 );
 
+/*
 benchmark(
   {
     name: "prepend",
@@ -111,3 +112,4 @@ benchmark(
     }
   }
 );
+*/

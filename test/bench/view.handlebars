@@ -1,0 +1,54 @@
+<div id="wrapper">
+
+  <h1>List benchmarks</h1>
+  <p>
+    The tables shows the performance of the libraries in relation to the fastest. The numbers denote how many times slower than
+    the fastest the library is.
+  </p>
+  <p>
+    Lower is better.
+  </p>
+
+  <p>
+    <a href="https://github.com/funkia/list">GitHub repository</a> -
+    <a href="https://github.com/funkia/list/tree/master/test/bench">How to run the benchmarks</a>
+  </p>
+  <div>
+    {{#each benchmarks}}
+    <div class="benchmark">
+      <h2 class="benchmark-name" id="{{name}}">{{name}}</h2>
+
+      {{#if description}}
+      <p class="benchmark-description">{{description}}</p>
+      {{/if}}
+
+      <div class="benchmark-wrapper">
+        <div id="{{name}}-graph"></div>
+        <table>
+          <tr>
+            <th>n</th>
+            {{#each input}}
+            <th>{{this}}</th>
+            {{/each}}
+          </tr>
+          {{#each tableRows}}
+          <tr>
+            <td>{{name}}</td>
+            {{#each data}}
+            <td style="background-color: {{color}}">
+              {{n}}x
+              {{#if fastest}}
+              <div class="fastest">fastest</div>
+              {{else}}
+              <div class="slower">slower</div>
+              {{/if}}
+            </td>
+            {{/each}}
+          </tr>
+          {{/each}}
+        </table>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>

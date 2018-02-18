@@ -26,7 +26,8 @@ to JavaScript's `Array` List has two major benefits.
   API and accidental mutations won't be a source bugs.
 * **Performance**. Since List doesn't allow mutations it can be
   heavily optimized for pure operations. This makes List much faster
-  for functional programming than arrays.
+  for functional programming than arrays. [See the
+  benchmarks](https://funkia.github.io/list/benchmarks/).
 
 ## Features
 
@@ -39,7 +40,8 @@ to JavaScript's `Array` List has two major benefits.
 * **Extremely fast**. List is a carefully optimized implementation of
   the highly efficient data-structure _relaxed radix balanced trees_.
   Performance has been a central focus from the beginning and we have
-  an [extensive benchmark suite](/test/bench) to ensure optimal
+  an [extensive benchmark
+  suite](https://funkia.github.io/list/benchmarks/) to ensure optimal
   performance.
 * **Does one thing well**. Instead of offering a wealth of data
   structures List has a tight focus on being the best immutable list

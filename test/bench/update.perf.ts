@@ -16,7 +16,8 @@ let lOld;
 benchmark(
   {
     name: "update",
-    input: [10, 100, 500, 1000]
+    description: "Update elements at location 0.25, 0.5, and 0.75 i a sequence.",
+    input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {
     List: {
@@ -45,7 +46,7 @@ benchmark(
         const l3 = Lo.update(idx3, idx3, l2);
       }
     },
-    Immutable: {
+    "Immutable.js": {
       before: to => {
         l = Immutable.Range(0, to).toList();
         idx1 = (to / 4) | 0;

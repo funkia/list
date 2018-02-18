@@ -39,21 +39,6 @@ async function runTest<A>(
   return results;
 }
 
-function plotData(name: string, ns: number[], stats: Benchmark[]): any {
-  return {
-    name: name,
-    x: ns,
-    y: stats.map(s => s.stats.mean),
-    type: "scatter",
-    error_y: {
-      type: "data",
-      visible: true,
-      array: stats.map(s => s.stats.moe)
-    },
-    text: stats.map(s => s.hz.toFixed(2) + " op/s")
-  };
-}
-
 type Test<Input> = {
   before?: (input: Input) => void;
   run: () => void;
@@ -89,7 +74,7 @@ export function benchmark<Input = any>(
 }
 
 function areSubstrings(s: string, ss: string[]): boolean {
-  return ss.some(s2 => s.toLowerCase().includes(s2));
+  return ss.some(s2 => s.toLowerCase().includes(s2.toLowerCase()));
 }
 
 async function runBenchmarks(argv: any): Promise<void> {
@@ -100,6 +85,7 @@ async function runBenchmarks(argv: any): Promise<void> {
   (<any>require)("./slice.perf");
   (<any>require)("./random-access.perf");
   (<any>require)("./update.perf");
+  (<any>require)("./insert.perf");
   (<any>require)("./iterator.perf");
   (<any>require)("./foldl-iterator.perf");
 
@@ -113,7 +99,7 @@ async function runBenchmarks(argv: any): Promise<void> {
 
   for (const suite of relevantBenchmarks) {
     const { name, description, input, tests } = suite;
-    console.log("des", description);
+    console.log("Running", name);
     const data = [];
     const names = Object.keys(tests);
     const names2 =

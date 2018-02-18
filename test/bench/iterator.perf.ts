@@ -33,7 +33,7 @@ benchmark(
         return result;
       }
     },
-    "Old list": {
+    "List, old": {
       run: () => {
         var result = 10000;
         for (var cur of lOld) {

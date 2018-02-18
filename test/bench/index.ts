@@ -1,14 +1,15 @@
 import * as Plotly from "plotly.js/lib/core";
 import * as _ from "lodash";
 import * as R from "ramda";
-import * as interpolate from "color-interpolate";
 import * as Benchmark from "benchmark";
+import * as chroma from "chroma-js";
 
 import * as data from "./data.json";
 import * as tableView from "./view.handlebars";
 
-// const colormap = interpolate(["#27ae60", "#c0392b"]);
-const colormap = interpolate(["rgb(50, 213, 119)", "rgb(255, 84, 84)"]);
+const colormap = chroma
+  .scale(["rgb(50, 213, 119)", "rgb(255, 84, 84)"])
+  .mode("hsl");
 
 function scale(min: number, max: number, n: number): number {
   return (n - min) / (max - min);
@@ -37,7 +38,7 @@ type TableData = {
 
 function createTableData(plot): TableData {
   const getMean = R.path(["stats", "mean"]);
-  const fastest: number[] = R.pipe(
+  const lowHigh: [number, number][] = R.pipe(
     R.pluck("result"),
     R.map(R.map(getMean)),
     R.transpose,
@@ -53,7 +54,7 @@ function createTableData(plot): TableData {
       const color = colormap(scale(low, high, r.stats.mean));
       const n = (r.stats.mean / low).toFixed(2);
       return { color, n, fastest: getMean(r) === low };
-    }, R.zip(entry.result, fastest));
+    }, R.zip(entry.result, lowHigh));
     return {
       name: entry.testName,
       data
@@ -100,7 +101,6 @@ function insertGraphs(): void {
       plotElm,
       sortedData,
       {
-        // title: plot.name,
         yaxis: {
           title: "Time spent"
         },
