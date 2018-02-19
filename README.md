@@ -121,7 +121,7 @@ and behavior as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 41
+are missing and of how many that are already implemented. Currently 42
 out of 75 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
@@ -129,13 +129,13 @@ Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
 `head`, `flatten`, `indexOf`, `init`, `insert`, `insertAll`, `last`,
 `length`, `join`, `map`, `none`, `nth`, `pair`, `partition`, `pluck`,
 `prepend`, `range`, `reduce`, `reduceRight`, `reject`, `remove`,
-`repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`,
-`update`.
+`reverse`, `repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`,
+`takeLast`, `update`.
 
 Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `reduceWhile`, `reverse`, `scan`, `sequence`, `sort`,
+`mapAccumRight`, `reduceWhile`, `scan`, `sequence`, `sort`,
 `splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `times`,
 `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
 `unnest` `without`, `xprod`, `zip`, `zipWith`.
@@ -254,7 +254,7 @@ repeat("foo", 3); //=> list("foo", "foo", "foo")
 
 Concatenates two lists.
 
-**Complexity**: `O(log(n)`
+**Complexity**: `O(log(n))`
 
 **Example**
 
@@ -684,7 +684,6 @@ foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
 
 Folds a function over a list. Right-associative.
 
-**Aliases**: `reduceRight`
 **Aliases**: `reduceRight`
 
 **Complexity**: `O(n)`
