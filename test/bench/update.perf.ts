@@ -10,8 +10,7 @@ let idx1 = 0;
 let idx2 = 0;
 let idx3 = 0;
 
-let l;
-let lOld;
+let l: any;
 
 benchmark(
   {
@@ -28,9 +27,9 @@ benchmark(
         idx3 = idx1 * 3;
       },
       run: () => {
-        const l1 = L.update(idx1, idx1, l);
-        const l2 = L.update(idx2, idx2, l1);
-        const l3 = L.update(idx3, idx3, l2);
+        const l1 = L.update(idx1, 0, l);
+        const l2 = L.update(idx2, 0, l1);
+        const l3 = L.update(idx3, 0, l2);
       }
     },
     "List old": {
@@ -41,9 +40,9 @@ benchmark(
         idx3 = idx1 * 3;
       },
       run: () => {
-        const l1 = Lo.update(idx1, idx1, l);
-        const l2 = Lo.update(idx2, idx2, l1);
-        const l3 = Lo.update(idx3, idx3, l2);
+        const l1 = Lo.update(idx1, 0, l);
+        const l2 = Lo.update(idx2, 0, l1);
+        const l3 = Lo.update(idx3, 0, l2);
       }
     },
     "Immutable.js": {
@@ -54,9 +53,9 @@ benchmark(
         idx3 = idx1 * 3;
       },
       run: () => {
-        const l1 = l.set(idx1, idx1);
-        const l2 = l.set(idx2, idx2);
-        const l3 = l.set(idx3, idx2);
+        const l1 = l.set(idx1, 0);
+        const l2 = l1.set(idx2, 0);
+        const l3 = l2.set(idx3, 0);
       }
     },
     Ramda: {
@@ -67,9 +66,9 @@ benchmark(
         idx3 = idx1 * 3;
       },
       run: () => {
-        const l1 = R.update(idx1, idx1, l);
-        const l2 = R.update(idx2, idx2, l1);
-        const l3 = R.update(idx3, idx3, l2);
+        const l1 = R.update(idx1, 0, l);
+        const l2 = R.update(idx2, 0, l1);
+        const l3 = R.update(idx3, 0, l2);
       }
     },
     mori: {
@@ -83,9 +82,9 @@ benchmark(
         idx3 = idx1 * 3;
       },
       run: () => {
-        const l1 = mori.assoc(l, idx1, idx1);
-        const l2 = mori.assoc(l1, idx2, idx2);
-        const l3 = mori.assoc(l2, idx3, idx3);
+        const l1 = mori.assoc(l, idx1, 0);
+        const l2 = mori.assoc(l1, idx2, 0);
+        const l3 = mori.assoc(l2, idx3, 0);
       }
     }
   }
