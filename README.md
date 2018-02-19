@@ -23,7 +23,7 @@ to JavaScript's `Array` List has two major benefits.
 
 * **Safety**. List is immutable. This makes it safer and better suited
   for functional programming. It doesn't tempt you with an imperative
-  API and accidental mutations won't be a source bugs.
+  API and accidental mutations won't be a source of bugs.
 * **Performance**. Since List doesn't allow mutations it can be
   heavily optimized for pure operations. This makes List much faster
   for functional programming than arrays. [See the
@@ -254,7 +254,7 @@ repeat("foo", 3); //=> list("foo", "foo", "foo")
 
 Concatenates two lists.
 
-**Complexity**: `O(logn)`
+**Complexity**: `O(log(n)`
 
 **Example**
 
@@ -281,7 +281,7 @@ flatten(nested); //=> list(0, 1, 2, 3, 4, 5, 6)
 
 Prepends an element to the front of a list and returns the new list.
 
-**Complexity**: `O(logn)`, practically constant
+**Complexity**: `O(log(n))`, practically constant
 
 **Example**
 
@@ -293,7 +293,7 @@ const newList = prepend(0, list(1, 2, 3)); //=> list(0, 1, 2, 3)
 
 Appends an element to the end of a list and returns the new list.
 
-**Complexity**: `O(logn)`, practically constant
+**Complexity**: `O(log(n))`, practically constant
 
 **Example**
 
@@ -334,7 +334,7 @@ pluck("foo", l); //=> list(0, 1, 2)
 Returns a list that has the entry specified by the index replaced with
 the given value.
 
-**Complexity**: `O(logn)`
+**Complexity**: `O(log(n))`
 
 **Example**
 
@@ -347,7 +347,7 @@ update(2, "X", list("a", "b", "c", "d", "e")); //=> list("a", "b", "X", "d", "e"
 Returns a list that has the entry specified by the index replaced with
 the value returned by applying the function to the value.
 
-**Complexity**: `O(logn)`
+**Complexity**: `O(log(n))`
 
 **Example**
 
@@ -613,7 +613,7 @@ toArray(list(0, 1, 2, 3, 4)); //=> [0, 1, 2, 3, 4]
 
 Gets the `n`th element of the list.
 
-**Complexity**: `O(logn)`, practically constant
+**Complexity**: `O(log(n))`, practically constant
 
 **Example**
 
