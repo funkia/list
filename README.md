@@ -470,7 +470,7 @@ dropWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(4, 5, 6)
 
 ### `dropLast`
 
-Returns a new list without the first `n` elements.
+Returns a new list without the last `n` elements.
 
 **Complexity**: `O(log(n))`
 
