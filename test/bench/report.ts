@@ -81,6 +81,7 @@ async function runBenchmarks(argv: any): Promise<void> {
   const { b: benchmarkNames, p, exP } = argv;
   (<any>require)("./prepend.perf");
   (<any>require)("./concat.perf");
+  (<any>require)("./map.perf");
   (<any>require)("./foldl.perf");
   (<any>require)("./slice.perf");
   (<any>require)("./random-access.perf");

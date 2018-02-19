@@ -32,7 +32,7 @@ benchmark(
         const l3 = L.update(idx3, 0, l2);
       }
     },
-    "List old": {
+    "List, old": {
       before: to => {
         l = Lo.range(0, to);
         idx1 = (to / 4) | 0;
