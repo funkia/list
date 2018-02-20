@@ -13,6 +13,7 @@ export const of = curry(L.of);
 export const pair = curry(L.pair);
 export const empty = curry(L.empty);
 export const repeat = curry(L.repeat);
+export const repeatFunc = curry(L.repeatFunc);
 export const length = curry(L.length);
 export const first = curry(L.first);
 export const last = curry(L.last);

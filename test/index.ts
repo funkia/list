@@ -17,6 +17,7 @@ import {
   append,
   first,
   repeat,
+  repeatFunc,
   take,
   every,
   some,
@@ -121,6 +122,19 @@ describe("List", () => {
         }
       });
     });
+  });
+  describe("repeatFunc", () => {
+    it("creates list of n elements repeating a fonction n times", () => {
+      function num(n: number) {
+        return n;
+      }
+      [10, 100].forEach(i => {
+        const l = repeatFunc(() => num(i), 10);
+        for (const value of l) {
+          assert.strictEqual(value, i);
+        }
+      })
+    })
   });
   describe("append", () => {
     it("can append small", () => {

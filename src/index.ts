@@ -656,6 +656,14 @@ export function repeat<A>(value: A, times: number): List<A> {
   return l;
 }
 
+export function repeatFunc<A>(func: () => A, times: number): List<A> {
+  let l = empty();
+  while(--times >= 0) {
+    l = append(func(), l);
+  }
+  return l;
+}
+
 export function length(l: List<any>): number {
   return l.length;
 }
