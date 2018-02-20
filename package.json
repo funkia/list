@@ -12,8 +12,8 @@
     "test-property": "mocha --timeout 0 --require ts-node/register --recursive test/property/*.ts",
     "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench",
-    "format": "prettier --write \"{src,test}/**/*.ts\"",
-    "prepublishOnly": "npm run build; cp -r dist/* .",
+    "format": "prettier --write \"{src,test,scripts}/**/*.{js,ts}\"",
+    "prepublishOnly": "npm run build; node ./scripts/make-proxies",
     "release": "np"
   },
   "author": "Simon Friis Vindum",
