@@ -348,6 +348,23 @@ repeat(1, 7); //=> list(1, 1, 1, 1, 1, 1, 1)
 repeat("foo", 3); //=> list("foo", "foo", "foo")
 ```
 
+### `times`
+
+Returns a list of given length that contains the value of the given function called with current index.
+
+**Complecity**: `O(n)`
+
+**Example**
+
+```js
+const twoFirsOdds = times((i) => i * 2 + 1, 2);
+const dots = times(() => {
+  const x = Math.random() * width;
+  const y = Math.random() * height;
+  return { x, y };
+}, 50);
+```
+
 ### Updating lists
 
 ### `concat`
