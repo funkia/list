@@ -35,7 +35,7 @@ to JavaScript's `Array` List has two major benefits.
   common in functional programming and has arguments ordered for
   currying/partial application.
 * **Extensive API**. List has all the functions you know from `Array`
-  and a lot of other functions that I'll save the day once you need
+  and a lot of other functions that'll save the day once you need
   them.
 * **Extremely fast**. List is a carefully optimized implementation of
   the highly efficient data-structure _relaxed radix balanced trees_.
