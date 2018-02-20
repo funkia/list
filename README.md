@@ -54,21 +54,107 @@ to JavaScript's `Array` List has two major benefits.
   done using `R.equals`.
 * **Type safe**. List is written in TypeScript and comes with accurate
   types that cover the entire library.
-* **Fantasy Land support**. List
-  [implements](#fantasy-land-static-land) both the Fantasy Land and
-  the Static Land specification.
 * **Fully compatible with tree-shaking**. List ships with tree-shaking
   compatible ECMAScript modules. `import * as L from "list"` in itself
   adds zero bytes to your bundle when using Webpack. Using a function
   adds only that function and the very small (<1KB) core of the
   library. You only pay in size for the functions that you actually
   use.
+* **Iterable**. Implements the JavaScript iterable protocol. This
+  means that lists can be use in `for..of` loops, works with
+  destructuring, and can be passed to any function expecting an
+  iterable. [See more](#iterable).
+* **Fantasy Land support**. List
+  [implements](#fantasy-land-static-land) both the Fantasy Land and
+  the Static Land specification.
 
-## Install
+## Getting started
+
+This section explains how to get started using List. First you'll have
+to install the library.
 
 ```
 npm install list
 ```
+
+Then you can import it.
+
+```js
+// As an ES module
+import * as L from "list";
+// Or with require
+const L = require("list");
+```
+
+Then you can begin using List instead of arrays and enjoy immutability
+the performance benefits.
+
+As a replacement for array literals List offers the function `list`
+for constructing lists:
+
+```js
+// An array literal
+const myArray = [0, 1, 2, 3];
+// A list "literal"
+const myList = L.list(0, 1, 2, 3);
+```
+
+List has all the common functions that you know from native arrays and
+other libraries.
+
+```js
+const myList = L.list(0, 1, 2, 3, 4, 5);
+L.myList.length; //=> 6
+L.filter(isEven, myList); //=> list(0, 2, 4)
+L.map(n => n * n, myList); //=> list(0, 1, 4, 9, 16, 25)
+L.reduce((sum, n) => sum + n, 0, myList); //=> 15
+L.slice(2, 5, myList); //=> list(2, 3, 4)
+L.concat(myList, list(6, 7, 8)); list(0, 1, 2, 3, 4, 5, 6, 7, 8)
+```
+
+You'll probably also end up needing to convert between arrays and
+List. You can do that with the functions `fromArray` and `toArray`.
+
+```js
+L.toArray(L.list("foo", "bar")); ["foo", "bar"]
+L.fromArray(["foo", "bar"]); L.list("foo", "bar")
+```
+
+List offers a wealth of other useful and high-performing functions.
+You can see them all in the [API documentation](#api-documentation)
+
+## Iterable
+
+List implements the JavaScript iterable protocol. This means that
+lists can be used with array destructuring just like normal arrays.
+
+```js
+const myList = L.list("first", "second", "third", "fourth");
+const [first, second] = myList;
+first; //=> "first"
+second; //=> "second"
+```
+
+Lists can also be used in `for..of` loops.
+
+```js
+for (const element of myList) {
+  console.log(element);
+}
+// logs: first, second, third, fourth
+```
+
+And they can be passed to any functions that takes an iterable as its
+argument. As an example a list can be converted into a native
+[`Set`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).
+
+```js
+const mySet = new Set(myList);
+mySet.has("third"); //=> true
+```
+
+This works because the `Set` constructor accepts any iterable as
+argument.
 
 ## Seamless Ramda integration
 
