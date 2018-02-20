@@ -249,7 +249,7 @@ import "list/fantasy-land";
 The API is organized into three parts.
 
 1. [Creating lists](#creating-lists) — Functions that _create_ lists.
-2. [Updating lists](#updating-lists) — Functions that _transform_ lits.
+2. [Updating lists](#updating-lists) — Functions that _transform_ lists.
    That is, functions that take one or more lists as arguments and
    returns a new list.
 3. [Folds](#folds) — Functions that _extracts_ values based on lists.
