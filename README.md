@@ -109,15 +109,15 @@ L.filter(isEven, myList); //=> list(0, 2, 4)
 L.map(n => n * n, myList); //=> list(0, 1, 4, 9, 16, 25)
 L.reduce((sum, n) => sum + n, 0, myList); //=> 15
 L.slice(2, 5, myList); //=> list(2, 3, 4)
-L.concat(myList, list(6, 7, 8)); list(0, 1, 2, 3, 4, 5, 6, 7, 8)
+L.concat(myList, list(6, 7, 8)); //=> list(0, 1, 2, 3, 4, 5, 6, 7, 8);
 ```
 
 You'll probably also end up needing to convert between arrays and
 List. You can do that with the functions `fromArray` and `toArray`.
 
 ```js
-L.toArray(L.list("foo", "bar")); ["foo", "bar"]
-L.fromArray(["foo", "bar"]); L.list("foo", "bar")
+L.toArray(L.list("foo", "bar")); //=> ["foo", "bar"];
+L.fromArray(["foo", "bar"]); //=> L.list("foo", "bar");
 ```
 
 List offers a wealth of other useful and high-performing functions.
@@ -207,18 +207,18 @@ and behavior as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 42
+are missing and of how many that are already implemented. Currently 43
 out of 75 functions have been implemented.
 
-Implemented: `adjust`, `all`, `any`, `append`, `concat`, `contains`,
-`drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`,
-`head`, `flatten`, `indexOf`, `init`, `insert`, `insertAll`, `last`,
-`length`, `join`, `map`, `none`, `nth`, `pair`, `partition`, `pluck`,
-`prepend`, `range`, `reduce`, `reduceRight`, `reject`, `remove`,
-`reverse`, `repeat`, `slice`, `splitAt`, `take`, `takeWhile`, `tail`,
-`takeLast`, `update`.
+Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
+`contains`, `drop`, `dropLast`, `dropWhile`, `filter`, `find`,
+`findIndex`, `head`, `flatten`, `indexOf`, `init`, `insert`,
+`insertAll`, `last`, `length`, `join`, `map`, `none`, `nth`, `pair`,
+`partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
+`reject`, `remove`, `reverse`, `repeat`, `slice`, `splitAt`, `take`,
+`takeWhile`, `tail`, `takeLast`, `update`.
 
-Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
+Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
 `mapAccumRight`, `reduceWhile`, `scan`, `sequence`, `sort`,
@@ -232,13 +232,15 @@ Not implemented: `aperture`, `chain`, `dropLastWhile`, `dropRepeats`,
 <img align="right" width="131" height="82" src="https://raw.githubusercontent.com/rpominov/static-land/master/logo/logo.png" />
 
 List currently implements the following Fantasy Land and Static Land
-specifications: Setoid, semigroup, monoid, foldable, functor.
+specifications: Setoid, semigroup, monoid, foldable, functor, apply,
+applicative, chain, monad.
 
-The following specifications have not been implemented yet: Apply,
-applicative, traversable, chain, monad.
+The following specifications have not been implemented yet:
+Traversable.
 
 Since methods hinder tree-shaking the Fantasy Land methods are not
-included by default. In order to get them you must import it likes this:
+included by default. In order to get them you must import it likes
+this:
 
 ```js
 import "list/fantasy-land";
@@ -281,6 +283,18 @@ Returns an empty list.
 
 ```js
 const emptyList = empty(); //=> list()
+```
+
+### `of`
+
+Takes a single arguments and returns a singleton list that contains it.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+pair("foo"); //=> list("foo")
 ```
 
 ### `pair`
@@ -630,6 +644,29 @@ Reverses a list.
 reverse(list(0, 1, 2, 3, 4, 5)); //=> list(5, 4, 3, 2, 1, 0)
 ```
 
+### `ap`
+
+Applies a list of functions to a list of values.
+
+**Example**
+
+```js
+ap(list((n: number) => n + 2, n => 2 * n, n => n * n), list(1, 2, 3)); //=> list(3, 4, 5, 2, 4, 6, 1, 4, 9)
+```
+
+### `chain`
+
+Maps a function over a list and concatenates all the resulting lists
+together.
+
+Also known as `flatMap`.
+
+**Example**
+
+```js
+chain(n => list(n, 2 * n, n * n), list(1, 2, 3)); //=> list(1, 2, 1, 2, 4, 4, 3, 6, 9)
+```
+
 ### `partition`
 
 Splits the list into two lists. One list that contains all the values
@@ -797,7 +834,7 @@ constructs a new list `forEach` merely returns `undefined`. This makes
 
 ```js
 const l = list(0, 1, 2);
-forEach((element) => console.log(element));
+forEach(element => console.log(element));
 //=> 0
 //=> 1
 //=> 2

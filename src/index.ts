@@ -636,6 +636,10 @@ export function list<A>(...elements: A[]): List<A> {
   return l;
 }
 
+export function of<A>(a: A): List<A> {
+  return list(a);
+}
+
 export function pair<A>(first: A, second: A): List<A> {
   return new List(2, 0, 2, undefined, [first, second], emptyAffix);
 }
@@ -800,8 +804,13 @@ export function partition<A>(
   predicate: (a: A) => boolean,
   l: List<A>
 ): List<List<A>> {
-  const {fst, snd} = foldl(
-    (obj, a) => (predicate(a) ? obj.fst = append(a, obj.fst) : obj.snd = append(a, obj.snd), obj),
+  const { fst, snd } = foldl(
+    (obj, a) => (
+      predicate(a)
+        ? (obj.fst = append(a, obj.fst))
+        : (obj.snd = append(a, obj.snd)),
+      obj
+    ),
     { fst: empty(), snd: empty() },
     l
   );
@@ -870,8 +879,16 @@ export function foldr<A, B>(
 
 export const reduceRight = foldr;
 
+export function ap<A, B>(listF: List<(a: A) => B>, l: List<A>): List<B> {
+  return flatten(map(f => map(f, l), listF));
+}
+
 export function flatten<A>(nested: List<List<A>>): List<A> {
   return foldl<List<A>, List<A>>(concat, empty(), nested);
+}
+
+export function chain<A, B>(f: (a: A) => List<B>, l: List<A>): List<B> {
+  return flatten(map(f, l));
 }
 
 // callback fold

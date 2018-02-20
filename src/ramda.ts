@@ -9,6 +9,7 @@ L.setEquals(R.equals);
 
 export const prepend = curry(L.prepend);
 export const append = curry(L.append);
+export const of = curry(L.of);
 export const pair = curry(L.pair);
 export const empty = curry(L.empty);
 export const repeat = curry(L.repeat);
@@ -28,6 +29,8 @@ export const partition = curry(L.partition);
 export const join = curry(L.join);
 export const foldr = curry(L.foldr);
 export const reduceRight = foldr;
+export const ap = curry(L.ap);
+export const chain = curry(L.chain);
 export const flatten = curry(L.flatten);
 export const every = curry(L.every);
 export const all = every;

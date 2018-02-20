@@ -48,11 +48,14 @@ import {
   fromIterable,
   partition,
   insert,
-  insertAll
-} from "../src/index";
+  insertAll,
+  chain,
+  of,
+  ap,
+  reverse,
+  forEach
+} from "../src";
 import "../src/fantasy-land";
-import { reverse } from "../src";
-import { forEach } from "../src";
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -273,6 +276,13 @@ describe("List", () => {
     it("creates a list with the given elements", () => {
       const l = list(0, 1, 2, 3);
       assertIndicesFromTo(l, 0, 4);
+    });
+  });
+  describe("of", () => {
+    it("creates a singleton", () => {
+      const l = of("foo");
+      assert.strictEqual(l.length, 1);
+      assert.strictEqual(nth(0, l), "foo");
     });
   });
   describe("pair", () => {
@@ -541,7 +551,22 @@ describe("List", () => {
       assertIndicesFromTo(plucked, 0, 4);
     });
   });
-  describe("flatten", () => {
+  describe("applicative", () => {
+    it("ap", () => {
+      const l = ap(
+        list((n: number) => n + 2, n => 2 * n, n => n * n),
+        list(1, 2, 3)
+      );
+      assert.isTrue(equals(l, list(3, 4, 5, 2, 4, 6, 1, 4, 9)));
+    });
+    it("has Fantasy Land method", () => {
+      const l = list(1, 2, 3)["fantasy-land/ap"](
+        list((n: number) => n + 2, (n: number) => 2 * n, (n: number) => n * n)
+      );
+      assert.isTrue(equals(l, list(3, 4, 5, 2, 4, 6, 1, 4, 9)));
+    });
+  });
+  describe("monad", () => {
     it("flattens lists", () => {
       const nested = list(
         list(0, 1, 2, 3),
@@ -552,6 +577,17 @@ describe("List", () => {
       const flattened = flatten(nested);
       assert.strictEqual(flattened.length, 10);
       assertIndicesFromTo(flattened, 0, 10);
+    });
+    it("has chain", () => {
+      const l = list(1, 2, 3);
+      const l2 = chain(n => list(n, 2 * n, n * n), l);
+      console.log(l2);
+      assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
+    });
+    it("has Fantasy Land chain", () => {
+      const l = list(1, 2, 3);
+      const l2 = l["fantasy-land/chain"](n => list(n, 2 * n, n * n));
+      assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
     });
   });
   describe("fold", () => {
