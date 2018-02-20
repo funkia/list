@@ -1,0 +1,3 @@
+comment:
+  layout: "files"
+  require_changes: true  # only post the comment if coverage changes
