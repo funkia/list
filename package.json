@@ -18,9 +18,6 @@
   },
   "author": "Simon Friis Vindum",
   "license": "MIT",
-  "peerDependencies": {
-    "ramda": "*"
-  },
   "module": "es/index.js",
   "sideEffects": false,
   "devDependencies": {
