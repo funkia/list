@@ -2,7 +2,8 @@
   "name": "list",
   "version": "2.0.2",
   "description": "Fast purely functional immutable lists.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/es/index.js",
   "scripts": {
     "build": "npm run build-es6; npm run build-cmjs",
     "build-es6": "tsc -P ./tsconfig-build.json --outDir 'dist/es' --module es2015",
@@ -18,7 +19,6 @@
   },
   "author": "Simon Friis Vindum",
   "license": "MIT",
-  "module": "es/index.js",
   "sideEffects": false,
   "devDependencies": {
     "@types/chai": "4.1.2",
@@ -35,6 +35,12 @@
     "ts-node": "4.1.0",
     "typescript": "^2.7.1"
   },
+  "files": [
+    "dist",
+    "methods",
+    "fantasy-land",
+    "ramda"
+  ],
   "nyc": {
     "extension": [
       ".ts"
