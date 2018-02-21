@@ -294,7 +294,7 @@ Takes a single arguments and returns a singleton list that contains it.
 **Example**
 
 ```js
-pair("foo"); //=> list("foo")
+of("foo"); //=> list("foo")
 ```
 
 ### `pair`
