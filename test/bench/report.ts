@@ -82,6 +82,7 @@ async function runBenchmarks(argv: any): Promise<void> {
   (<any>require)("./prepend.perf");
   (<any>require)("./concat.perf");
   (<any>require)("./map.perf");
+  (<any>require)("./filter.perf");
   (<any>require)("./foldl.perf");
   (<any>require)("./slice.perf");
   (<any>require)("./random-access.perf");
