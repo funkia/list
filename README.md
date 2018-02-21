@@ -216,14 +216,14 @@ Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `insertAll`, `last`, `length`, `join`, `map`, `none`, `nth`, `pair`,
 `partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
 `reject`, `remove`, `reverse`, `repeat`, `slice`, `splitAt`, `take`,
-`takeWhile`, `tail`, `takeLast`, `update`.
+`takeWhile`, `tail`, `takeLast`, `times`, `update`.
 
 Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
 `mapAccumRight`, `reduceWhile`, `scan`, `sequence`, `sort`,
-`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `times`,
-`transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
+`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`, 
+`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
 `unnest` `without`, `xprod`, `zip`, `zipWith`.
 
 ## Fantasy Land & Static Land
@@ -352,7 +352,7 @@ repeat("foo", 3); //=> list("foo", "foo", "foo")
 
 Returns a list of given length that contains the value of the given function called with current index.
 
-**Complecity**: `O(n)`
+**Complexity**: `O(n)`
 
 **Example**
 
