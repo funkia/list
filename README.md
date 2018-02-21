@@ -104,7 +104,7 @@ other libraries.
 
 ```js
 const myList = L.list(0, 1, 2, 3, 4, 5);
-L.myList.length; //=> 6
+myList.length; //=> 6
 L.filter(isEven, myList); //=> list(0, 2, 4)
 L.map(n => n * n, myList); //=> list(0, 1, 4, 9, 16, 25)
 L.reduce((sum, n) => sum + n, 0, myList); //=> 15
