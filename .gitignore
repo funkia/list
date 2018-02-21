@@ -11,3 +11,9 @@ dist
 coverage
 bower_components
 purescript/output
+
+# proxy directories
+fantasy-land
+list
+methods
+ramda
