@@ -664,10 +664,8 @@ export function repeat<A>(value: A, times: number): List<A> {
  */
 export function times<A>(func: (index: number) => A, times: number): List<A> {
   let l = empty();
-  let i = 0;
-  while(i < times) {
+  for(let i = 0; i < times; i++) {
     l = append(func(i), l);
-    i++;
   }
   return l;
 }
