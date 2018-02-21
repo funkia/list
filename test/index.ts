@@ -17,6 +17,7 @@ import {
   append,
   first,
   repeat,
+  times,
   take,
   every,
   some,
@@ -121,6 +122,12 @@ describe("List", () => {
         }
       });
     });
+  });
+  describe("times", () => {
+    it("creates list of n elements repeating a fonction n times", () => {
+      const l = times(n => n * n, 4);
+      assert.isTrue(equals(l, list(0, 1, 4, 9)));
+    })
   });
   describe("append", () => {
     it("can append small", () => {

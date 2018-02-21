@@ -656,6 +656,20 @@ export function repeat<A>(value: A, times: number): List<A> {
   return l;
 }
 
+/**
+ * Generates a new list by calling a function with the current index n times.
+ * 
+ * @param func Function used to generate list values.
+ * @param times Number of values to generate.
+ */
+export function times<A>(func: (index: number) => A, times: number): List<A> {
+  let l = empty();
+  for(let i = 0; i < times; i++) {
+    l = append(func(i), l);
+  }
+  return l;
+}
+
 export function length(l: List<any>): number {
   return l.length;
 }

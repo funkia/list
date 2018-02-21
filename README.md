@@ -216,14 +216,14 @@ Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `insertAll`, `last`, `length`, `join`, `map`, `none`, `nth`, `pair`,
 `partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
 `reject`, `remove`, `reverse`, `repeat`, `slice`, `splitAt`, `take`,
-`takeWhile`, `tail`, `takeLast`, `update`.
+`takeWhile`, `tail`, `takeLast`, `times`, `update`.
 
 Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
 `mapAccumRight`, `reduceWhile`, `scan`, `sequence`, `sort`,
-`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `times`,
-`transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
+`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`, 
+`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
 `unnest` `without`, `xprod`, `zip`, `zipWith`.
 
 ## Fantasy Land & Static Land
@@ -346,6 +346,23 @@ all positions.
 ```js
 repeat(1, 7); //=> list(1, 1, 1, 1, 1, 1, 1)
 repeat("foo", 3); //=> list("foo", "foo", "foo")
+```
+
+### `times`
+
+Returns a list of given length that contains the value of the given function called with current index.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const twoFirsOdds = times((i) => i * 2 + 1, 2);
+const dots = times(() => {
+  const x = Math.random() * width;
+  const y = Math.random() * height;
+  return { x, y };
+}, 50);
 ```
 
 ### Updating lists
