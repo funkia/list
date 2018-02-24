@@ -17,6 +17,8 @@ A fast immutable list with a functional API.
 
 # List
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/funkia/list.svg)](https://greenkeeper.io/)
+
 List is a purely functional alternative to arrays. It is an
 implementation of a fast persistent sequence data structure. Compared
 to JavaScript's `Array` List has two major benefits.
