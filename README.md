@@ -428,7 +428,7 @@ list of the values that the function return.
 **Example**
 
 ```js
-map(n => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 12)
+map(n => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 16)
 ```
 
 ### `pluck`
