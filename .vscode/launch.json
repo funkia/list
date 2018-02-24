@@ -14,7 +14,7 @@
         "-r",
         "ts-node/register",
         "--colors",
-        "${workspaceRoot}/test/**/*.ts"
+        "${workspaceRoot}/test/*.ts"
       ],
       "outFiles": [
         "${workspaceRoot}/dist"
