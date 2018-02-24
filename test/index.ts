@@ -127,7 +127,7 @@ describe("List", () => {
     it("creates list of n elements repeating a fonction n times", () => {
       const l = times(n => n * n, 4);
       assert.isTrue(equals(l, list(0, 1, 4, 9)));
-    })
+    });
   });
   describe("append", () => {
     it("can append small", () => {
@@ -561,7 +561,7 @@ describe("List", () => {
   describe("applicative", () => {
     it("ap", () => {
       const l = ap(
-        list((n: number) => n + 2, n => 2 * n, n => n * n),
+        list((n: number) => n + 2, (n: number) => 2 * n, (n: number) => n * n),
         list(1, 2, 3)
       );
       assert.isTrue(equals(l, list(3, 4, 5, 2, 4, 6, 1, 4, 9)));
@@ -588,7 +588,6 @@ describe("List", () => {
     it("has chain", () => {
       const l = list(1, 2, 3);
       const l2 = chain(n => list(n, 2 * n, n * n), l);
-      console.log(l2);
       assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
     });
     it("has Fantasy Land chain", () => {
@@ -1016,6 +1015,33 @@ describe("List", () => {
       const l2 = concat(left, range(50, 100));
       assert.strictEqual(l2.length, 100);
       assertIndicesFromTo(l2, 0, 100);
+    });
+    it("reduces height", () => {
+      const size = 32 ** 3 + 32;
+      // This test case tests that the height of the tree is reduced
+      // when a deep tree is sliced into a very small tree.
+      const l = range(0, size);
+      const left = 15808;
+      const right = left + 2 * 32 + 16;
+      const l2 = slice(left, right, l);
+      // Tree should have one layer so we should find number in array
+      assert.isNumber(l2.root!.array[0]);
+      assert.strictEqual(nth(40, l2), left + 40);
+      assertIndicesFromTo(l2, left, left + 2 * 32 + 16);
+    });
+    it("reduces height when joining slices", () => {
+      // This test creates a tree with three layers and slices down
+      // left 0 -> 31 -> 3 and right 1 -> 1 -> 2. This means that
+      // since 0 != 1 we invoke sliceLeft and sliceRight with nothing
+      // in the middle. The left slice becomes undefined so the single
+      // right slice becomes the top of the tree and the height can
+      // then be reduced.
+      const size = 32 ** 3;
+      const l = range(0, size);
+      const l2 = slice(1027, 1090, l);
+      // Tree should have one layer so we should find number in array
+      assert.isNumber(l2.root!.array[0].array[0]);
+      assertIndicesFromTo(l2, 1027, 1090);
     });
   });
   describe("drop", () => {

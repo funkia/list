@@ -18,7 +18,10 @@ import {
 //   return array;
 // }
 
-function times(n: number, body: (n: number) => void) {
+/**
+ * Call the body n number of times.
+ */
+function times(n: number, body: (n: number) => void): void {
   for (let i = 0; i < n; ++i) {
     body(i);
   }
@@ -112,7 +115,7 @@ describe("properties", () => {
         const sliced = slice(left, right, l);
         cheapAssertIndicesFromTo(sliced, left, right);
       } catch (err) {
-        console.log(left, "to", right);
+        console.log("Slice error: ", left, "to", right);
         throw err;
       }
     });

@@ -298,9 +298,9 @@ function incrementDepth(bits: number): number {
   return bits + (1 << (affixBits * 2));
 }
 
-// function decrementDepth(bits: number): number {
-//   return bits - (1 << (affixBits * 2));
-// }
+function decrementDepth(bits: number): number {
+  return bits - (1 << (affixBits * 2));
+}
 
 function createBits(
   depth: number,
@@ -658,13 +658,13 @@ export function repeat<A>(value: A, times: number): List<A> {
 
 /**
  * Generates a new list by calling a function with the current index n times.
- * 
+ *
  * @param func Function used to generate list values.
  * @param times Number of values to generate.
  */
 export function times<A>(func: (index: number) => A, times: number): List<A> {
   let l = empty();
-  for(let i = 0; i < times; i++) {
+  for (let i = 0; i < times; i++) {
     l = append(func(i), l);
   }
   return l;
@@ -1642,9 +1642,8 @@ function sliceTreeList<A>(
   } else if (pathLeft === pathRight) {
     // Both ends are located in the same subtree, this means that we
     // can reduce the height
-    // l.bits = decrementDepth(l.bits);
-    // return sliceTreeList(from, to, tree.array[pathLeft], depth - 1, pathLeft === 0 ? offset : 0, l);
-    const rec = sliceTreeList(
+    l.bits = decrementDepth(l.bits);
+    return sliceTreeList(
       from,
       to,
       tree.array[pathLeft],
@@ -1652,10 +1651,6 @@ function sliceTreeList<A>(
       pathLeft === 0 ? offset : 0,
       l
     );
-    if (rec.root !== undefined) {
-      rec.root = new Node(undefined, [rec.root]);
-    }
-    return rec;
   } else {
     const childLeft = sliceLeft(
       tree.array[pathLeft],
@@ -1665,6 +1660,7 @@ function sliceTreeList<A>(
     );
     l.bits = setPrefix(newAffix.length, l.bits);
     l.prefix = newAffix;
+
     const childRight = sliceRight(tree.array[pathRight], depth - 1, to, 0);
     l.bits = setSuffix(newAffix.length, l.bits);
     l.suffix = newAffix;
@@ -1674,14 +1670,22 @@ function sliceTreeList<A>(
     if (childRight === undefined) {
       --pathRight;
     }
-    if (pathLeft > pathRight) {
-      // there is no tree left
-      l.bits = setDepth(0, l.bits);
-      l.root = undefined;
-      // } else if (pathLeft === pathRight) {
-      // height can be reduced
-      // l.bits = decrementDepth(l.bits);
-      // l.root = childLeft === undefined ? childRight : childLeft;
+    if (pathLeft >= pathRight) {
+      if (pathLeft > pathRight) {
+        // This only happens when `pathLeft` originally was equal to
+        // `pathRight + 1` and `childLeft === childRight === undefined`.
+        // In this case there is no tree left.
+        l.bits = setDepth(0, l.bits);
+        l.root = undefined;
+      } else {
+        // Height can be reduced
+        l.bits = decrementDepth(l.bits);
+        const newRoot =
+          childRight !== undefined
+            ? childRight
+            : childLeft !== undefined ? childLeft : tree.array[pathLeft];
+        l.root = new Node(newRoot.sizes, newRoot.array);
+      }
     } else {
       let array = tree.array.slice(pathLeft, pathRight + 1);
       if (childLeft !== undefined) {
@@ -1700,7 +1704,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   let { bits, length } = l;
 
   to = Math.min(length, to);
-  // handle negative indices
+  // Handle negative indices
   if (from < 0) {
     from = length + from;
   }
@@ -1708,11 +1712,12 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
     to = length + to;
   }
 
+  // Should we just return the empty list?
   if (to <= from || to <= 0 || length <= from) {
     return empty();
   }
 
-  // return list unchanged if we are slicing nothing off
+  // Return list unchanged if we are slicing nothing off
   if (from <= 0 && length <= to) {
     return l;
   }
@@ -1721,7 +1726,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   let prefixSize = getPrefixSize(l);
   const suffixSize = getSuffixSize(l);
 
-  // both indices lie in the prefix
+  // Both indices lie in the prefix
   if (to <= prefixSize) {
     return new List(
       setPrefix(newLength, 0),
@@ -1734,7 +1739,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   }
 
   const suffixStart = length - suffixSize;
-  // both indices lie in the suffix
+  // Both indices lie in the suffix
   if (suffixStart <= from) {
     return new List(
       setSuffix(newLength, 0),
@@ -1748,8 +1753,8 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
 
   const newList = cloneList(l);
 
-  // both indices lie in the tree
-  if (prefixSize <= from && to <= length - suffixSize) {
+  // Both indices lie in the tree
+  if (prefixSize <= from && to <= suffixStart) {
     sliceTreeList(
       from - prefixSize + l.offset,
       to - prefixSize + l.offset - 1,
@@ -1759,7 +1764,12 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       newList
     );
     if (newList.root !== undefined) {
-      newList.offset += from - prefixSize + getPrefixSize(newList);
+      // The height of the tree might have been reduced. The offset
+      // will be for a deeper tree. By clearing some of the left-most
+      // bits we can make the offset fit the new height of the tree.
+      const bits = ~(~0 << (getDepth(newList) * branchBits));
+      newList.offset =
+        (newList.offset + from - prefixSize + getPrefixSize(newList)) & bits;
     }
     newList.length = to - from;
     return newList;
