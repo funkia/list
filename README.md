@@ -111,7 +111,7 @@ L.filter(isEven, myList); //=> list(0, 2, 4)
 L.map(n => n * n, myList); //=> list(0, 1, 4, 9, 16, 25)
 L.reduce((sum, n) => sum + n, 0, myList); //=> 15
 L.slice(2, 5, myList); //=> list(2, 3, 4)
-L.concat(myList, list(6, 7, 8)); //=> list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+L.concat(myList, L.list(6, 7, 8)); //=> list(0, 1, 2, 3, 4, 5, 6, 7, 8);
 ```
 
 You'll probably also end up needing to convert between arrays and
