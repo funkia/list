@@ -13,11 +13,11 @@ A fast immutable list with a functional API.
   <a href="https://badge.fury.io/js/list"><img src="https://badge.fury.io/js/list.svg" alt="npm version" height="20"></a>
   <a href="https://david-dm.org/funkia/list"><img src="https://david-dm.org/funkia/list/status.svg" alt="npm version" height="20"></a>
   <a href="https://david-dm.org/funkia/list?type=dev"><img src="https://david-dm.org/funkia/list/dev-status.svg" alt="npm version" height="20"></a>
+  <a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/funkia/list.svg" alt="Greenkeeper badge"></a>
 </p>
 
 # List
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/funkia/list.svg)](https://greenkeeper.io/)
 
 List is a purely functional alternative to arrays. It is an
 implementation of a fast persistent sequence data structure. Compared
@@ -146,7 +146,7 @@ for (const element of myList) {
 // logs: first, second, third, fourth
 ```
 
-And they can be passed to any functions that takes an iterable as its
+And they can be passed to any function that takes an iterable as its
 argument. As an example a list can be converted into a native
 [`Set`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).
 
