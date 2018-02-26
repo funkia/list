@@ -3,7 +3,7 @@ const Immutable = require("immutable");
 const mori = require("mori");
 
 const { nil, append, concat } = require("@paldepind/finger-tree");
-const C = require("../../dist/list");
+const C = require("./list");
 const List = require("../../dist/index");
 require("../../dist/methods");
 

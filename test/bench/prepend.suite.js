@@ -4,7 +4,7 @@ const Denque = require("denque");
 
 const L = require("../../dist/index");
 const Finger = require("@paldepind/finger-tree");
-const {Cons} = require("../../dist/list");
+const {Cons} = require("./list");
 
 const n = 10000;
 

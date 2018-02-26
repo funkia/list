@@ -5,7 +5,7 @@ const mori = require("mori");
 const _ = require("lodash");
 
 const Finger = require("@paldepind/finger-tree");
-const { Cons } = require("../../dist/list");
+const { Cons } = require("./list");
 
 const List = require("../../dist/index");
 
