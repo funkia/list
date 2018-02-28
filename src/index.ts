@@ -1977,3 +1977,7 @@ export function insertAll<A>(
 export function reverse<A>(l: List<A>): List<A> {
   return foldl((newL, element) => prepend(element, newL), empty(), l);
 }
+
+export function isList<A>(l: any): l is List<A> {
+  return typeof l === "object" && Array.isArray(l.suffix);
+}

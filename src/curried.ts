@@ -6,6 +6,7 @@ export {
   Node,
   List,
   list,
+  isList,
   length,
   of,
   empty,

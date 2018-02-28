@@ -8,6 +8,7 @@ export { Node, List, list } from "./index";
 L.setEquals(R.equals);
 
 export const prepend = curry(L.prepend);
+export const isList = curry(L.prepend);
 export const append = curry(L.append);
 export const of = curry(L.of);
 export const pair = curry(L.pair);

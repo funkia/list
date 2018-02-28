@@ -1258,4 +1258,21 @@ describe("List", () => {
       assertIndicesFromTo(l2, 0, 8);
     });
   });
+  describe("isList", () => {
+    it("returns true for list", () => {
+      assert.isTrue(L.isList(list(0, 1, 2, 3)));
+    });
+    it("gives correct type", () => {
+      const l: any = list(0, 1, 2, 3, 4);
+      if (L.isList<number>(l)) {
+        L.append(5, l); // this should not give type error
+      }
+    });
+    it("returns false for other things", () => {
+      assert.isFalse(L.isList([0, 1, 2, 3, 4]));
+      assert.isFalse(L.isList({ foo: 0, bar: 1 }));
+      assert.isFalse(L.isList(7));
+      assert.isFalse(L.isList("hello"));
+    });
+  });
 });

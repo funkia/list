@@ -22,7 +22,7 @@ function getDepth(l: List<any>): number {
 }
 
 function computeDepth(node: any, direction: number): number {
-  if (node && Array.isArray(node.array) && ("sizes" in node)) {
+  if (node && Array.isArray(node.array) && "sizes" in node) {
     // This is a node
     const path = Math.floor((node.array.length - 1) * direction);
     return 1 + computeDepth(node.array[path], direction);
@@ -76,7 +76,7 @@ export function installCheck(library: any): any {
       const fn = library[name];
       newLibrary[name] = (...args: any[]) => {
         const result = fn(...args);
-        if ("root" in result && "suffix" in result) {
+        if (L.isList(result)) {
           // This is a list, apply checks
           checkList(result);
         }

@@ -755,6 +755,21 @@ insertAll(2, list("c", "d"), list("a", "b", "e", "f")); //=> list("a", "b", "c",
 
 ### Folds
 
+### `isList`
+
+Returns `true` if the given argument is a list.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+isList([0, 1, 2]); //=> false
+isList("string"); //=> false
+isList({ foo: 0, bar: 1 }); //=> false
+isList(list(0, 1, 2)); //=> true
+```
+
 ### `equals`
 
 Returns true if the two lists are equivalent.
