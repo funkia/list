@@ -18,7 +18,6 @@ A fast immutable list with a functional API.
 
 # List
 
-
 List is a purely functional alternative to arrays. It is an
 implementation of a fast persistent sequence data structure. Compared
 to JavaScript's `Array` List has two major benefits.
@@ -158,6 +157,36 @@ mySet.has("third"); //=> true
 This works because the `Set` constructor accepts any iterable as
 argument.
 
+Lists also work with [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax). For instannce, you can call a function like this.
+
+```js
+console.log(...list("hello", "there", "i'm", "logging", "elements"));
+```
+
+And each element of the list will be passed as an argument to `console.log`.
+
+The iterable protocol allows for some very convenient patterns and
+means that lists can integrate nicely with JavaScript syntax. But,
+here are two anti-patterns that you should be aware of.
+
+1. Don't overuse `for..of` loops. Functions like [`map`](#map) and
+   [`foldl`](#foldl) are often a better choice. If you want to perform
+   a side-effect for each element in a list you should probably use
+   [`forEach`](#forEach).
+2. Don't use the spread syntax in destructuring
+   ```js
+   const [a, b, ...cs] = myList; // Don't do this
+   ```
+   The syntax converts the rest of the iterable (in this case a list)
+   into an array by iterating through the entire iterable. This is
+   slow and it turns our list into an array. This alternative avoids
+   both problems.
+   ```js
+   const [[a, b], cs] = splitAt(2, myList); // Do this
+   ```
+   This uses the [`splitAt`](#splitAt) function which splits and
+   creates the list `cs` very efficiently in `O(log(n))` time.
+
 ## Seamless Ramda integration
 
 List is designed to work seamlessly together with Ramda. Ramda offers
@@ -224,7 +253,7 @@ Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
 `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
 `mapAccumRight`, `reduceWhile`, `scan`, `sequence`, `sort`,
-`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`, 
+`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`,
 `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
 `unnest` `without`, `xprod`, `zip`, `zipWith`.
 
@@ -359,7 +388,7 @@ Returns a list of given length that contains the value of the given function cal
 **Example**
 
 ```js
-const twoFirsOdds = times((i) => i * 2 + 1, 2);
+const twoFirsOdds = times(i => i * 2 + 1, 2);
 const dots = times(() => {
   const x = Math.random() * width;
   const y = Math.random() * height;
