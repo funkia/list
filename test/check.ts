@@ -77,7 +77,7 @@ export function installCheck(library: any): any {
       newLibrary[name] = (...args: any[]) => {
         const result = fn(...args);
         if ("root" in result && "suffix" in result) {
-          // This is a list apply checks
+          // This is a list, apply checks
           checkList(result);
         }
         return result;

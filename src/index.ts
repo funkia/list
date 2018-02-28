@@ -1544,6 +1544,45 @@ export function adjust<A>(f: (a: A) => A, index: number, l: List<A>): List<A> {
 
 let newAffix: any[];
 
+// function getBitsForDepth(n: number, depth: number): number {
+//   return n & ~(~0 << (depth * branchBits));
+// }
+
+function sliceNode(
+  node: Node,
+  // index: number,
+  depth: number,
+  pathLeft: number,
+  pathRight: number,
+  childLeft: Node | undefined,
+  childRight: Node | undefined
+): Node {
+  let array = node.array.slice(pathLeft, pathRight + 1);
+  if (childLeft !== undefined) {
+    array[0] = childLeft;
+  }
+  if (childRight !== undefined) {
+    array[array.length - 1] = childRight;
+  }
+  let sizes = node.sizes;
+  if (sizes !== undefined) {
+    sizes = sizes.slice(pathLeft, pathRight + 1);
+    let slicedOff: number;
+    if (childLeft === undefined) {
+      slicedOff = node.sizes![pathLeft - 1];
+    } else {
+      slicedOff =
+        sizeOfSubtree(node.array[pathLeft], depth - 1) -
+        sizeOfSubtree(childLeft, depth - 1);
+      // slicedOff = (getBitsForDepth(index, depth) | mask) + 1;
+    }
+    for (let i = 0; i < sizes.length; ++i) {
+      sizes[i] -= slicedOff;
+    }
+  }
+  return new Node(sizes, array);
+}
+
 function sliceLeft(
   tree: Node,
   depth: number,
@@ -1554,11 +1593,11 @@ function sliceLeft(
   let path = ((index >> (depth * branchBits)) & mask) - curOffset;
   if (depth === 0) {
     newAffix = tree.array.slice(path).reverse();
-    // this leaf node is moved up as a suffix so there is nothing here
+    // This leaf node is moved up as a suffix so there is nothing here
     // after slicing
     return undefined;
   } else {
-    // slice the child
+    // Slice the child
     const child = sliceLeft(
       tree.array[path],
       depth - 1,
@@ -1566,17 +1605,21 @@ function sliceLeft(
       path === 0 ? offset : 0
     );
     if (child === undefined) {
-      // there is nothing in the child after slicing so we don't include it
+      // There is nothing in the child after slicing so we don't include it
       ++path;
       if (path === tree.array.length) {
         return undefined;
       }
     }
-    let array = tree.array.slice(path);
-    if (child !== undefined) {
-      array[0] = child;
-    }
-    return new Node(tree.sizes, array); // FIXME: handle the size table
+    return sliceNode(
+      tree,
+      // index,
+      depth,
+      path,
+      tree.array.length - 1,
+      child,
+      undefined
+    );
   }
 }
 
@@ -1684,17 +1727,18 @@ function sliceTreeList<A>(
           childRight !== undefined
             ? childRight
             : childLeft !== undefined ? childLeft : tree.array[pathLeft];
-        l.root = new Node(newRoot.sizes, newRoot.array);
+        l.root = new Node(newRoot.sizes, newRoot.array); // Is this size handling good enough?
       }
     } else {
-      let array = tree.array.slice(pathLeft, pathRight + 1);
-      if (childLeft !== undefined) {
-        array[0] = childLeft;
-      }
-      if (childRight !== undefined) {
-        array[array.length - 1] = childRight;
-      }
-      l.root = new Node(tree.sizes, array);
+      l.root = sliceNode(
+        tree,
+        // from,
+        depth,
+        pathLeft,
+        pathRight,
+        childLeft,
+        childRight
+      );
     }
     return l;
   }

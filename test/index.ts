@@ -1,5 +1,10 @@
 import { assert } from "chai";
 
+import { installCheck } from "./check";
+import * as Loriginal from "../src";
+
+const L: typeof Loriginal = installCheck(Loriginal);
+
 import {
   length,
   range,
@@ -871,17 +876,17 @@ describe("List", () => {
     it("returns same list when nothing is sliced off", () => {
       [[100, 0, 100], [100, -120, 120]].forEach(([n, from, to]) => {
         const l = appendList(0, n);
-        const sliced = slice(from, to, l);
+        const sliced = L.slice(from, to, l);
         assert.strictEqual(l, sliced);
       });
     });
     it("returns empty list when end is before start", () => {
       const l = appendList(0, 100);
-      assert.strictEqual(length(slice(50, 50, l)), 0);
-      assert.strictEqual(length(slice(55, 34, l)), 0);
+      assert.strictEqual(length(L.slice(50, 50, l)), 0);
+      assert.strictEqual(length(L.slice(55, 34, l)), 0);
     });
     it("can slice to infinity", () => {
-      const sliced = slice(2, Infinity, list(0, 1, 2, 3, 4, 5));
+      const sliced = L.slice(2, Infinity, list(0, 1, 2, 3, 4, 5));
       assert.equal(sliced.length, 4);
       assertIndicesFromTo(sliced, 2, 5);
     });
@@ -995,7 +1000,7 @@ describe("List", () => {
     ].forEach(({ n, from, to, prepend, msg }) => {
       it(msg, () => {
         const l = prepend ? prependList(0, n) : appendList(0, n);
-        const sliced = slice(from, to, l);
+        const sliced = L.slice(from, to, l);
         const end = to < 0 ? n + to : Math.min(to, n);
         assert.strictEqual(sliced.length, end - from);
         if (sliced.length <= 64) {
@@ -1011,7 +1016,7 @@ describe("List", () => {
       // get the correct height from `slice`. This incorrect height
       // makes the following concat fail.
       const l = range(0, 128);
-      const left = slice(0, 50, l);
+      const left = L.slice(0, 50, l);
       const l2 = concat(left, range(50, 100));
       assert.strictEqual(l2.length, 100);
       assertIndicesFromTo(l2, 0, 100);
@@ -1023,7 +1028,7 @@ describe("List", () => {
       const l = range(0, size);
       const left = 15808;
       const right = left + 2 * 32 + 16;
-      const l2 = slice(left, right, l);
+      const l2 = L.slice(left, right, l);
       // Tree should have one layer so we should find number in array
       assert.isNumber(l2.root!.array[0]);
       assert.strictEqual(nth(40, l2), left + 40);
@@ -1038,10 +1043,28 @@ describe("List", () => {
       // then be reduced.
       const size = 32 ** 3;
       const l = range(0, size);
-      const l2 = slice(1027, 1090, l);
+      const l2 = L.slice(1027, 1090, l);
       // Tree should have one layer so we should find number in array
       assert.isNumber(l2.root!.array[0].array[0]);
       assertIndicesFromTo(l2, 1027, 1090);
+    });
+    it("slice handles size tables from concat when slicing from left", () => {
+      const size = 32 ** 2;
+      const l = concat(appendList(0, size), appendList(size, 2 * size));
+      cheapAssertIndicesFromTo(l, 0, 2 * size);
+      const left = 100;
+      const right = 2 * size;
+      const sliced = L.slice(left, right, l);
+      cheapAssertIndicesFromTo(sliced, left, right);
+    });
+    it("slice handles size tables from concat both ends", () => {
+      const size = 32 ** 2;
+      const l = concat(appendList(0, size), appendList(size, 2 * size));
+      cheapAssertIndicesFromTo(l, 0, 2 * size);
+      const left = 100;
+      const right = 2 * size - 100;
+      const sliced = L.slice(left, right, l);
+      cheapAssertIndicesFromTo(sliced, left, right);
     });
   });
   describe("drop", () => {
