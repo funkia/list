@@ -15,7 +15,7 @@ benchmark(
   {
     name: "slice",
     description: "Slice 25% off of both ends of a sequence.",
-    input: [10, 100, 500, 1000, 10000]
+    input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {
     List: {

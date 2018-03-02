@@ -46,10 +46,10 @@ export function checkList<A>(l: List<A>): void {
   // If a list has a tree (i.e. root is not undefined) then both the suffix and
   // the prefix must contain elements.
   if (l.root !== undefined) {
-    assert.notEqual(getSuffixSize(l), 0);
-    assert.notEqual(getPrefixSize(l), 0);
-    assert.exists(l.prefix);
-    assert.exists(l.suffix);
+    assert.notEqual(getSuffixSize(l), 0, "tree exists but suffix is empty");
+    assert.notEqual(getPrefixSize(l), 0, "tree exists but prefix is empty");
+    assert.exists(l.prefix, "tree exists but suffix is empty");
+    assert.exists(l.suffix, "tree exists but prefix is empty");
   }
 
   // Depth should be 0 if `l.root` is undefined.

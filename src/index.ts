@@ -92,6 +92,29 @@ function arrayLast<A>(array: A[]): A {
   return array[array.length - 1];
 }
 
+const pathResult = { path: 0, index: 0 };
+type PathResult = typeof pathResult;
+
+function getPath(
+  index: number,
+  offset: number,
+  depth: number,
+  sizes: Sizes
+): PathResult {
+  const curOffset = (offset >> (depth * branchBits)) & mask;
+  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
+  if (sizes !== undefined) {
+    while (sizes[path] <= index) {
+      path++;
+    }
+    const traversed = path === 0 ? 0 : sizes[path - 1];
+    index -= traversed;
+  }
+  pathResult.path = path;
+  pathResult.index = index;
+  return pathResult;
+}
+
 function updateNode(
   node: Node,
   depth: number,
@@ -99,15 +122,7 @@ function updateNode(
   offset: number,
   value: any
 ): Node {
-  const curOffset = (offset >> (depth * branchBits)) & mask;
-  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
-  if (node.sizes !== undefined) {
-    while (node.sizes[path] <= index) {
-      path++;
-    }
-    const traversed = path === 0 ? 0 : node.sizes[path - 1];
-    index -= traversed;
-  }
+  const { path, index: newIndex } = getPath(index, offset, depth, node.sizes);
   let array;
   if (path < 0) {
     // TOOD: Once `prepend` no longer uses `update` this should be removed
@@ -120,7 +135,7 @@ function updateNode(
       array[path] = updateNode(
         array[path],
         depth - 1,
-        index,
+        newIndex,
         path === 0 ? offset : 0,
         value
       );
@@ -1589,8 +1604,7 @@ function sliceLeft(
   index: number,
   offset: number
 ): Node | undefined {
-  const curOffset = (offset >> (depth * branchBits)) & mask;
-  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
+  let { path, index: newIndex } = getPath(index, offset, depth, tree.sizes);
   if (depth === 0) {
     newAffix = tree.array.slice(path).reverse();
     // This leaf node is moved up as a suffix so there is nothing here
@@ -1601,7 +1615,7 @@ function sliceLeft(
     const child = sliceLeft(
       tree.array[path],
       depth - 1,
-      index,
+      newIndex,
       path === 0 ? offset : 0
     );
     if (child === undefined) {
@@ -1629,8 +1643,7 @@ function sliceRight(
   index: number,
   offset: number
 ): Node | undefined {
-  const curOffset = (offset >> (depth * branchBits)) & mask;
-  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
+  let { path, index: newIndex } = getPath(index, offset, depth, tree.sizes);
   if (depth === 0) {
     newAffix = tree.array.slice(0, path + 1);
     // this leaf node is moved up as a suffix so there is nothing here
@@ -1643,7 +1656,7 @@ function sliceRight(
     const child = sliceRight(
       tree.array[path],
       depth - 1,
-      index,
+      newIndex,
       path === 0 ? offset : 0
     );
     if (child === undefined) {
@@ -1672,9 +1685,9 @@ function sliceTreeList<A>(
   offset: number,
   l: List<A>
 ): List<A> {
-  const curOffset = (offset >> (depth * branchBits)) & mask;
-  let pathLeft = ((from >> (depth * branchBits)) & mask) - curOffset;
-  let pathRight = ((to >> (depth * branchBits)) & mask) - curOffset;
+  const sizes = tree.sizes;
+  let { path: pathLeft, index: newFrom } = getPath(from, offset, depth, sizes);
+  let { path: pathRight, index: newTo } = getPath(to, offset, depth, sizes);
   if (depth === 0) {
     // we are slicing a piece off a leaf node
     l.prefix = emptyAffix;
@@ -1687,8 +1700,8 @@ function sliceTreeList<A>(
     // can reduce the height
     l.bits = decrementDepth(l.bits);
     return sliceTreeList(
-      from,
-      to,
+      newFrom,
+      newTo,
       tree.array[pathLeft],
       depth - 1,
       pathLeft === 0 ? offset : 0,
@@ -1698,13 +1711,13 @@ function sliceTreeList<A>(
     const childLeft = sliceLeft(
       tree.array[pathLeft],
       depth - 1,
-      from,
+      newFrom,
       pathLeft === 0 ? offset : 0
     );
     l.bits = setPrefix(newAffix.length, l.bits);
     l.prefix = newAffix;
 
-    const childRight = sliceRight(tree.array[pathRight], depth - 1, to, 0);
+    const childRight = sliceRight(tree.array[pathRight], depth - 1, newTo, 0);
     l.bits = setSuffix(newAffix.length, l.bits);
     l.suffix = newAffix;
     if (childLeft === undefined) {

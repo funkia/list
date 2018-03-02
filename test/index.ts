@@ -1060,9 +1060,18 @@ describe("List", () => {
     it("slice handles size tables from concat both ends", () => {
       const size = 32 ** 2;
       const l = concat(appendList(0, size), appendList(size, 2 * size));
-      cheapAssertIndicesFromTo(l, 0, 2 * size);
       const left = 100;
       const right = 2 * size - 100;
+      const sliced = L.slice(left, right, l);
+      cheapAssertIndicesFromTo(sliced, left, right);
+    });
+    it("handles size tables when indexing", () => {
+      // In this test `slice` must select the right path based on the
+      // size tables that results from the concatenation.
+      const sum = 52 + 65;
+      const l = concat(appendList(0, 52), appendList(52, sum));
+      const left = 62;
+      const right = 106;
       const sliced = L.slice(left, right, l);
       cheapAssertIndicesFromTo(sliced, left, right);
     });
