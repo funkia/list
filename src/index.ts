@@ -220,7 +220,7 @@ function suffixToNode<A>(suffix: A[]): Node {
 
 function prefixToNode<A>(prefix: A[]): Node {
   // FIXME: should take size and copy
-  return new Node(undefined, prefix.reverse());
+  return new Node(undefined, reverseArray(prefix));
 }
 
 function setSizes(node: Node, height: number): Node {

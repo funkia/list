@@ -335,83 +335,12 @@ describe("List", () => {
     });
   });
   describe("concat", () => {
-    it("is associative", () => {
-      const xyz = [
-        [0],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ]
-      ];
-      const [xs, ys, zs] = xyz.map(s => list(...s));
+    it("is associative on concrete examples", () => {
+      const xs = list(0);
+      const ys = append(0, append(0, append(1, repeat(0, 30))));
+      const zs = repeat(0, 31);
       const lhs = concat(xs, concat(ys, zs));
       const rhs = concat(concat(xs, ys), zs);
-      console.log(toArray(lhs).join(""));
-      console.log(toArray(rhs).join(""));
       assert.isTrue(equals(lhs, rhs));
     });
     it("concats empty sides", () => {
