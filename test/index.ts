@@ -335,6 +335,85 @@ describe("List", () => {
     });
   });
   describe("concat", () => {
+    it("is associative", () => {
+      const xyz = [
+        [0],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ];
+      const [xs, ys, zs] = xyz.map(s => list(...s));
+      const lhs = concat(xs, concat(ys, zs));
+      const rhs = concat(concat(xs, ys), zs);
+      console.log(toArray(lhs).join(""));
+      console.log(toArray(rhs).join(""));
+      assert.isTrue(equals(lhs, rhs));
+    });
     it("concats empty sides", () => {
       const l = appendList(0, 4);
       assert.strictEqual(concat(l, empty()), l);
@@ -1164,6 +1243,53 @@ describe("List", () => {
       const l2 = dropWhile(n => n < 6, l);
       assert.strictEqual(l2.length, 4);
       assertIndicesFromTo(l2, 6, 10);
+    });
+  });
+  describe("splitAt and concat", () => {
+    it("are inverses", () => {
+      const xs = [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ];
+      const i = 1;
+
+      const li = list(...xs);
+      const [left, right] = splitAt(i, li);
+      console.log(toArray(li).join(""));
+      console.log(toArray(concat(left, right)).join(""));
+      assert.isTrue(equals(concat(left, right), li));
     });
   });
   describe("splitAt", () => {
