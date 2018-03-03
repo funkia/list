@@ -1466,7 +1466,7 @@ function concatAffixes<A>(left: List<A>, right: List<A>): number {
   }
   length = getPrefixSize(right);
   for (i = 0; i < length; ++i) {
-    concatBuffer[nr][arrIdx] = right.prefix[right.prefix.length - 1 - i];
+    concatBuffer[nr][arrIdx] = right.prefix[length - 1 - i];
     if (++arrIdx === 32) {
       arrIdx = 0;
       ++nr;

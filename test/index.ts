@@ -1175,8 +1175,8 @@ describe("List", () => {
     });
   });
   describe("splitAt and concat", () => {
-    it("are inverses", () => {
-      const xs = [
+    it("are inverses in concrete example", () => {
+      const li = list(
         0,
         0,
         0,
@@ -1211,13 +1211,9 @@ describe("List", () => {
         0,
         1,
         1
-      ];
+      );
       const i = 1;
-
-      const li = list(...xs);
       const [left, right] = splitAt(i, li);
-      console.log(toArray(li).join(""));
-      console.log(toArray(concat(left, right)).join(""));
       assert.isTrue(equals(concat(left, right), li));
     });
   });
