@@ -185,7 +185,10 @@ function nodeNth(node: Node, depth: number, index: number): any {
   return nodeNthDense(current, depth, index);
 }
 
-export function nth<A>(index: number, l: List<A>): A {
+export function nth<A>(index: number, l: List<A>): A | undefined {
+  if (index < 0 || l.length <= index) {
+    return undefined;
+  }
   const prefixSize = getPrefixSize(l);
   const suffixSize = getSuffixSize(l);
   const { offset } = l;
@@ -1542,6 +1545,9 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
 }
 
 export function update<A>(index: number, a: A, l: List<A>): List<A> {
+  if (index < 0 || l.length <= index) {
+    return l;
+  }
   const prefixSize = getPrefixSize(l);
   const suffixSize = getSuffixSize(l);
   const newList = cloneList(l);
@@ -1566,7 +1572,10 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
 }
 
 export function adjust<A>(f: (a: A) => A, index: number, l: List<A>): List<A> {
-  return update(index, f(nth(index, l)), l);
+  if (index < 0 || l.length <= index) {
+    return l;
+  }
+  return update(index, f(nth(index, l)!), l);
 }
 
 // slice and slice based functions

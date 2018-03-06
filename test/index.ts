@@ -293,6 +293,11 @@ describe("List", () => {
       assertIndicesFromTo(l, 0, n + m + nm);
     });
   });
+  describe("nth", () => {
+    it("returns undefined on -1 and empyt list", () => {
+      assert.strictEqual(L.nth(-1, L.empty()), undefined);
+    });
+  });
   describe("list", () => {
     it("creates a list with the given elements", () => {
       const l = list(0, 1, 2, 3);
@@ -854,8 +859,8 @@ describe("List", () => {
     });
     it("changes last element in tree", () => {
       const l = prependList(0, 32 ** 3);
-      const l2 = update(32 ** 4 - 32, -1, l);
-      assert.strictEqual(nth(32 ** 4 - 32, l2), -1);
+      const l2 = update(32 ** 3 - 32, -1, l);
+      assert.strictEqual(nth(32 ** 3 - 32, l2), -1);
     });
     it("sets entire list", () => {
       const length = 32 ** 3;
@@ -881,12 +886,22 @@ describe("List", () => {
       const list3 = update(40, 0, catenated);
       assert.strictEqual(nth(40, list3), 0);
     });
+    it("returns list unchanged if out of bounds", () => {
+      const l = list(0, 1, 2, 3, 4);
+      assert.strictEqual(update(-1, 3, l), l);
+      assert.strictEqual(update(5, 3, l), l);
+    });
   });
   describe("adjust", () => {
     it("it applies function to index", () => {
       const l = list(0, 1, 2, 3, 4, 5);
       const l2 = adjust(square, 2, l);
       assert.strictEqual(nth(2, l2), 4);
+    });
+    it("returns list unchanged if out of bounds", () => {
+      const l = list(0, 1, 2, 3, 4);
+      assert.strictEqual(adjust(square, -1, l), l);
+      assert.strictEqual(adjust(square, 5, l), l);
     });
   });
   describe("slice", () => {
