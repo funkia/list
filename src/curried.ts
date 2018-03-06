@@ -22,7 +22,7 @@ export {
   fromIterable
 } from "./index";
 
-interface Curried2<A, B, R> {
+export interface Curried2<A, B, R> {
   (t1: A): (t2: B) => R;
   (t1: A, t2: B): R;
 }
