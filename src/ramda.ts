@@ -8,7 +8,7 @@ export { Node, List, list } from "./index";
 L.setEquals(R.equals);
 
 export const prepend = curry(L.prepend);
-export const isList = curry(L.prepend);
+export const isList = curry(L.isList);
 export const append = curry(L.append);
 export const of = curry(L.of);
 export const pair = curry(L.pair);
@@ -66,3 +66,5 @@ export const fromArray = curry(L.fromArray);
 export const fromIterable = curry(L.fromIterable);
 export const insert = curry(L.insert);
 export const insertAll = curry(L.insertAll);
+export const zip = curry(L.zip);
+export const zipWith = curry(L.zipWith);

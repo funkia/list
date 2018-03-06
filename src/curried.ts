@@ -160,6 +160,9 @@ export const splitAt: typeof L.splitAt &
   L.splitAt
 );
 
+export const zip: typeof L.zip &
+  (<A>(as: List<A>) => <B>(bs: List<B>) => List<[A, B]>) = curry2(L.zip);
+
 // Arity 3
 
 export const foldl: typeof L.foldl & {
@@ -202,3 +205,8 @@ export const insertAll: typeof L.insertAll & {
   <A>(index: number): ((elements: List<A>, l: List<A>) => List<A>) &
     ((elements: List<A>) => (l: List<A>) => List<A>);
 } = curry3(L.insertAll);
+
+export const zipWith: typeof L.zipWith & {
+  <A, B, C>(f: (a: A, b: B) => C, as: List<A>): (bs: List<B>) => List<C>;
+  <A, B, C>(f: (a: A, b: B) => C): Curried2<List<A>, List<B>, List<C>>;
+} = curry3(L.zipWith);

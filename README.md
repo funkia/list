@@ -238,7 +238,7 @@ and behavior as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 43
+are missing and of how many that are already implemented. Currently 45
 out of 75 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
@@ -247,7 +247,8 @@ Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `insertAll`, `last`, `length`, `join`, `map`, `none`, `nth`, `pair`,
 `partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
 `reject`, `remove`, `reverse`, `repeat`, `slice`, `splitAt`, `take`,
-`takeWhile`, `tail`, `takeLast`, `times`, `update`.
+`takeWhile`, `tail`, `takeLast`, `times`, `update`,
+`zip`, `zipWith`.
 
 Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`,
 `dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
@@ -255,7 +256,7 @@ Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`,
 `mapAccumRight`, `reduceWhile`, `scan`, `sequence`, `sort`,
 `splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`,
 `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
-`unnest` `without`, `xprod`, `zip`, `zipWith`.
+`unnest` `without`, `xprod`.
 
 ## Fantasy Land & Static Land
 
@@ -751,6 +752,39 @@ Inserts the given list of elements at the given index in the list.
 
 ```js
 insertAll(2, list("c", "d"), list("a", "b", "e", "f")); //=> list("a", "b", "c", "d", "e", "f")
+```
+
+### `zipWith`
+
+This is like mapping over two lists at the same time. The two lists are
+iterated over in parallel and each pair of elements is passed to the function.
+The returned values are assembled into a new list.
+
+The shortest list determine the size of the result.
+
+**Complexity**: `O(log(n))` where `n` is the length of the smallest list.
+
+**Example**
+
+```js
+const names = list("Turing", "Curry");
+const years = list(1912, 1900);
+zipWith((name, year) => ({ name, year }), names, years);
+//=> list({ name: "Turing", year: 1912 }, { name: "Curry", year: 1900 });
+```
+
+### `zip`
+
+Iterate over two lists in parallel and collect the pairs.
+
+**Complexity**: `O(log(n))` where `n` is the length of the smallest list.
+
+**Example**
+
+```js
+const names = list("a", "b", "c", "d", "e");
+const years = list(0, 1, 2, 3, 4, 5, 6);
+//=> list(["a", 0], ["b", 1], ["c", 2], ["d", 3], ["e", 4]);
 ```
 
 ### Folds

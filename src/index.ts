@@ -672,8 +672,8 @@ export function repeat<A>(value: A, times: number): List<A> {
 }
 
 /**
- * Generates a new list by calling a function with the current index n times.
- *
+ * Generates a new list by calling a function with the current index
+ * `n` times.
  * @param func Function used to generate list values.
  * @param times Number of values to generate.
  */
@@ -685,6 +685,14 @@ export function times<A>(func: (index: number) => A, times: number): List<A> {
   return l;
 }
 
+/**
+ * Gets the length of a list.
+ *
+ * @example
+ * length(list(0, 1, 2, 3)); //=> 4
+ *
+ * @param l The list to get the length of.
+ */
 export function length(l: List<any>): number {
   return l.length;
 }
@@ -801,6 +809,12 @@ function foldlNode<A, B>(
   return acc;
 }
 
+/**
+ * Folds a function over a list. Left-associative.
+ *
+ * @example
+ * foldl((n, m) => n - m, 1, list(2, 3, 4, 5)); //=> -13
+ */
 export function foldl<A, B>(
   f: (acc: B, value: A) => B,
   initial: B,
@@ -1987,10 +2001,36 @@ export function insertAll<A>(
   );
 }
 
+/**
+ * Reverses a list.
+ * @category Updater
+ * @param l The list to reverse.
+ * @returns A reversed list.
+ */
 export function reverse<A>(l: List<A>): List<A> {
   return foldl((newL, element) => prepend(element, newL), empty(), l);
 }
 
 export function isList<A>(l: any): l is List<A> {
   return typeof l === "object" && Array.isArray(l.suffix);
+}
+
+export function zipWith<A, B, C>(
+  f: (a: A, b: B) => C,
+  as: List<A>,
+  bs: List<B>
+): List<C> {
+  const swapped = bs.length < as.length;
+  const iterator = (swapped ? as : bs)[Symbol.iterator]();
+  return map(
+    (a: any) => {
+      const b: any = iterator.next().value;
+      return swapped ? f(b, a) : f(a, b);
+    },
+    (swapped ? bs : as) as any
+  );
+}
+
+export function zip<A, B>(as: List<A>, bs: List<B>): List<[A, B]> {
+  return zipWith((a, b) => [a, b] as [A, B], as, bs);
 }

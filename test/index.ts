@@ -112,9 +112,18 @@ function cheapAssertIndicesFromTo(
   }
 }
 
+function assertListEqual<A>(l1: List<A>, l2: List<A>): void {
+  assert.equal(l1.length, l2.length, "same length");
+  for (let i = 0; i < l1.length; ++i) {
+    assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
+  }
+}
+
 const isEven = (n: number) => n % 2 === 0;
 
 const square = (n: number) => n * n;
+
+const sum = (a: number, b: number) => a + b;
 
 describe("List", () => {
   describe("repeat", () => {
@@ -1333,6 +1342,25 @@ describe("List", () => {
       assert.isFalse(L.isList({ foo: 0, bar: 1 }));
       assert.isFalse(L.isList(7));
       assert.isFalse(L.isList("hello"));
+    });
+  });
+  describe("zip", () => {
+    it("can zipWith", () => {
+      const l1 = list(0, 1, 2, 3, 4, 5);
+      const l2 = list(3, 1, 4, 5, 3, 8);
+      const r = L.zipWith(sum, l1, l2);
+      assert.isTrue(equals(r, list(3, 2, 6, 8, 7, 13)));
+    });
+    it("zipWith caps to shortest length", () => {
+      const short = list(0, 1, 2);
+      const long = list(2, 4, 9, 1, 2, 8);
+      assertListEqual(L.zipWith(sum, short, long), list(2, 5, 11));
+      assertListEqual(L.zipWith(sum, long, short), list(2, 5, 11));
+    });
+    it("zip zips too pairs", () => {
+      const as = list("a", "b", "c");
+      const bs = list(0, 1, 2);
+      assertListEqual(L.zip(as, bs), list(["a", 0], ["b", 1], ["c", 2]));
     });
   });
 });
