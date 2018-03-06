@@ -1,6 +1,6 @@
 {
   "name": "list",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Fast purely functional immutable lists.",
   "main": "dist/index.js",
   "module": "dist/es/index.js",
