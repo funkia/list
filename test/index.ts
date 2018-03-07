@@ -112,11 +112,32 @@ function cheapAssertIndicesFromTo(
   }
 }
 
+function assertIndexEqual<A>(i: number, l1: List<A>, l2: List<A>): void {
+  assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
+}
+
 function assertListEqual<A>(l1: List<A>, l2: List<A>): void {
   assert.equal(l1.length, l2.length, "same length");
+  const length = l1.length;
+  if (length > 500) {
+    // If the list is long we cheap out
+    for (let i = 0; i < 100; ++i) {
+      assertIndexEqual(i, l1, l2);
+    }
+    const first = (length * 0.25) | 0;
+    const middle = (length * 0.5) | 0;
+    const third = (length * 0.75) | 0;
+    assertIndexEqual(first, l1, l2);
+    assertIndexEqual(middle, l1, l2);
+    assertIndexEqual(third, l1, l2);
+    for (let i = l1.length - 100; i < l1.length; ++i) {
+      assertIndexEqual(i, l1, l2);
+    }
+  } else {
   for (let i = 0; i < l1.length; ++i) {
-    assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
+      assertIndexEqual(i, l1, l2);
   }
+}
 }
 
 const isEven = (n: number) => n % 2 === 0;
@@ -1200,6 +1221,13 @@ describe("List", () => {
   });
   describe("splitAt and concat", () => {
     it("are inverses in concrete example", () => {
+      const i = 1;
+      const li = append(65, range(0, 65));
+      const [left, right] = splitAt(i, li);
+      const l2 = concat(left, right);
+      assertListEqual(l2, li);
+    });
+    it("are inverses in another concrete example", () => {
       const li = list(
         0,
         0,

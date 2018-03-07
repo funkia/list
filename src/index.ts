@@ -637,9 +637,8 @@ export function append<A>(value: A, l: List<A>): List<A> {
     );
   }
   const newSuffix = [value];
-  const suffixNode = suffixToNode(l.suffix);
   const newList = cloneList(l);
-  appendNodeToTree(newList, suffixNode);
+  appendNodeToTree(newList, l.suffix);
   newList.suffix = newSuffix;
   newList.length++;
   newList.bits = setSuffix(1, newList.bits);
@@ -1328,20 +1327,20 @@ function getHeight(node: Node): number {
 }
 
 /**
- * Takes a RRB-tree and a node tail. It then appends the node to the
+ * Takes a RRB-tree and an affix. It then appends the node to the
  * tree.
  * @param l The subject for appending. `l` will be mutated. Nodes in
  * the tree will _not_ be mutated.
- * @param node The node that should be appended to the tree.
+ * @param array The affix that should be appended to the tree.
  */
-function appendNodeToTree<A>(l: List<A>, node: Node): List<A> {
+function appendNodeToTree<A>(l: List<A>, array: A[]): List<A> {
   if (l.root === undefined) {
     // The old list has no content in tree, all content is in affixes
     if (getPrefixSize(l) === 0) {
-      l.bits = setPrefix(node.array.length, l.bits);
-      l.prefix = reverseArray(node.array);
+      l.bits = setPrefix(array.length, l.bits);
+      l.prefix = reverseArray(array);
     } else {
-      l.root = node;
+      l.root = new Node(undefined, array);
     }
     return l;
   }
@@ -1389,6 +1388,7 @@ function appendNodeToTree<A>(l: List<A>, node: Node): List<A> {
     }
   }
 
+  const node = new Node(undefined, array);
   if (nodesToCopy === 0) {
     // there was no room in the found node
     const newPath = nodesVisited === 0 ? node : createPath(nodesVisited, node);
@@ -1396,7 +1396,7 @@ function appendNodeToTree<A>(l: List<A>, node: Node): List<A> {
     l.root = newRoot;
     l.bits = incrementDepth(l.bits);
   } else {
-    const copiedNode = copyFirstK(l, l, nodesToCopy, node.array.length);
+    const copiedNode = copyFirstK(l, l, nodesToCopy, array.length);
     const leaf = appendEmpty(copiedNode, depth - nodesToCopy);
     leaf.array.push(node);
   }
@@ -1515,7 +1515,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     // right is nothing but a prefix and a suffix
     const nrOfAffixes = concatAffixes(left, right);
     for (var i = 0; i < nrOfAffixes; ++i) {
-      newList = appendNodeToTree(newList, new Node(undefined, concatBuffer[i]));
+      newList = appendNodeToTree(newList, concatBuffer[i]);
       newList.length += concatBuffer[i].length;
       // wipe pointer, otherwise it might end up keeping the array alive
       concatBuffer[i] = undefined;
@@ -1526,9 +1526,15 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     concatBuffer[nrOfAffixes] = undefined;
     return newList;
   } else {
-    newList = appendNodeToTree(newList, suffixToNode(left.suffix));
-    newList.length += getSuffixSize(left);
-    newList = appendNodeToTree(newList, prefixToNode(right.prefix));
+    const leftSuffixSize = getSuffixSize(left);
+    if (leftSuffixSize > 0) {
+      newList = appendNodeToTree(newList, left.suffix.slice(0, leftSuffixSize));
+      newList.length += leftSuffixSize;
+    }
+    newList = appendNodeToTree(
+      newList,
+      right.prefix.slice(0, getPrefixSize(right)).reverse()
+    );
     const newNode = concatSubTree(
       newList.root!,
       getDepth(newList),
