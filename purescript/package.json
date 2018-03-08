@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@funkia/list": "^0.1.0"
+    "list": "^2.0.x"
   },
   "private": true
 }

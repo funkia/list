@@ -1,0 +1,61 @@
+"use strict";
+
+var L = require("list");
+
+exports._eq = function _eq(f, xs, ys) {
+  if (L.length(xs) !== L.length(ys)) return false;
+  for (var i = 0; i < L.length(xs); i++) {
+    if (!f(L.nth(i, xs))(L.nth(i, ys))) return false;
+  }
+  return true;
+};
+
+exports._append = L.concat;
+exports._mempty = L.empty();
+exports._map = L.map;
+exports._apply = L.ap;
+exports._pure = L.of;
+exports._foldl = L.foldl;
+exports._foldr = L.foldr;
+exports._bind = L.chain;
+exports._traverse = function () {
+  function Cont(fn) {
+    this.fn = fn;
+  }
+
+  function cons(x) {
+    return function (xs) {
+      return L.prepend(x, xs);
+    };
+  }
+
+  return function (apply, map, pure, f) {
+    var buildFrom = function (x, ys) {
+      return apply(map(cons)(f(x)))(ys);
+    };
+
+    var go = function (acc, currentLen, xs) {
+      if (currentLen === 0) {
+        return acc;
+      } else {
+        var last = L.nth(currentLen - 1, xs);
+        return new Cont(function () {
+          return go(buildFrom(last, acc), currentLen - 1, xs);
+        });
+      }
+    };
+
+    return function _traverse(l) {
+      var result = go(pure(L.empty()), l.length, l);
+      while (result instanceof Cont) {
+        result = result.fn();
+      }
+
+      return result;
+    };
+  };
+}();
+
+exports._show = function (f, xs) {
+  return "<" + L.join(",", L.map(f, xs)) + ">";
+};
