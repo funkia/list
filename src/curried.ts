@@ -186,8 +186,11 @@ export const update: typeof L.update & {
 } = curry3(L.update);
 
 export const adjust: typeof L.adjust & {
-  <A>(f: (value: A) => A, index: number): (l: List<A>) => List<A>;
-  <A>(f: (value: A) => A): Curried2<number, List<A>, List<A>>;
+  <A>(index: number, f: (value: A) => A): (l: List<A>) => List<A>;
+  (index: number): (<A>(
+    f: (value: A) => A,
+    l: List<A>
+  ) => List<A> & (<A>(f: (value: A) => A) => (l: List<A>) => List<A>));
 } = curry3(L.adjust);
 
 export const slice: typeof L.slice & {

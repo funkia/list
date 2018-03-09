@@ -1577,7 +1577,7 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
   return newList;
 }
 
-export function adjust<A>(f: (a: A) => A, index: number, l: List<A>): List<A> {
+export function adjust<A>(index: number, f: (a: A) => A, l: List<A>): List<A> {
   if (index < 0 || l.length <= index) {
     return l;
   }

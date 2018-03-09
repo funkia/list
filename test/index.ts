@@ -134,10 +134,10 @@ function assertListEqual<A>(l1: List<A>, l2: List<A>): void {
       assertIndexEqual(i, l1, l2);
     }
   } else {
-  for (let i = 0; i < l1.length; ++i) {
+    for (let i = 0; i < l1.length; ++i) {
       assertIndexEqual(i, l1, l2);
+    }
   }
-}
 }
 
 const isEven = (n: number) => n % 2 === 0;
@@ -916,13 +916,13 @@ describe("List", () => {
   describe("adjust", () => {
     it("it applies function to index", () => {
       const l = list(0, 1, 2, 3, 4, 5);
-      const l2 = adjust(square, 2, l);
+      const l2 = adjust(2, square, l);
       assert.strictEqual(nth(2, l2), 4);
     });
     it("returns list unchanged if out of bounds", () => {
       const l = list(0, 1, 2, 3, 4);
-      assert.strictEqual(adjust(square, -1, l), l);
-      assert.strictEqual(adjust(square, 5, l), l);
+      assert.strictEqual(adjust(-1, square, l), l);
+      assert.strictEqual(adjust(5, square, l), l);
     });
   });
   describe("slice", () => {
