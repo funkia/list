@@ -1,5 +1,7 @@
 import { assert } from "chai";
 
+import * as QC from "ts-quickcheck";
+
 import { installCheck } from "./check";
 import * as Loriginal from "../src";
 
@@ -32,7 +34,6 @@ import {
   findIndex,
   update,
   adjust,
-  slice,
   includes,
   tail,
   pop,
@@ -62,6 +63,14 @@ import {
   forEach
 } from "../src";
 import "../src/fantasy-land";
+
+const check = QC.createProperty(it);
+
+// Generates a list with length between 0 and size
+const genList = QC.nat.map(n => range(0, n));
+
+// Generates a list with length in the full 32 integer range
+const genBigList = QC.natural.map(n => range(0, n));
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -370,6 +379,25 @@ describe("List", () => {
     });
   });
   describe("concat", () => {
+    check("has left identity", genList, l => {
+      assertListEqual(concat(empty(), l), l);
+      return true;
+    });
+    check("has right identity", genList, l => {
+      assertListEqual(concat(l, empty()), l);
+      return true;
+    });
+    check(
+      "is associative",
+      QC.three(QC.range(1_000_000).map(n => range(0, n / 3))),
+      ([xs, ys, zs]) => {
+        const lhs = concat(xs, concat(ys, zs));
+        const rhs = concat(concat(xs, ys), zs);
+        assertListEqual(lhs, rhs);
+        return true;
+      },
+      { tests: 10 }
+    );
     it("is associative on concrete examples", () => {
       const xs = list(0);
       const ys = append(0, append(0, append(1, repeat(0, 30))));
@@ -1220,54 +1248,21 @@ describe("List", () => {
     });
   });
   describe("splitAt and concat", () => {
-    it("are inverses in concrete example", () => {
-      const i = 1;
-      const li = append(65, range(0, 65));
-      const [left, right] = splitAt(i, li);
-      const l2 = concat(left, right);
-      assertListEqual(l2, li);
-    });
-    it("are inverses in another concrete example", () => {
-      const li = list(
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        1
-      );
-      const i = 1;
-      const [left, right] = splitAt(i, li);
-      assert.isTrue(equals(concat(left, right), li));
-    });
+    check(
+      "are inverses",
+      QC.range(2)
+        .big()
+        .array()
+        .chain(xs =>
+          QC.record({ xs: QC.Gen.of(xs), i: QC.range(xs.length + 1) })
+        ),
+      ({ xs, i }) => {
+        const li = list(...xs);
+        const [left, right] = splitAt(i, li);
+        assertListEqual(concat(left, right), li);
+        return true;
+      }
+    );
   });
   describe("splitAt", () => {
     it("splits at index", () => {
