@@ -216,16 +216,6 @@ function cloneNode({ sizes, array }: Node): Node {
   );
 }
 
-function suffixToNode<A>(suffix: A[]): Node {
-  // FIXME: should take size and copy
-  return new Node(undefined, suffix);
-}
-
-function prefixToNode<A>(prefix: A[]): Node {
-  // FIXME: should take size and copy
-  return new Node(undefined, reverseArray(prefix));
-}
-
 function setSizes(node: Node, height: number): Node {
   let sum = 0;
   const sizeTable = [];
