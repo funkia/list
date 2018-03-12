@@ -1406,4 +1406,110 @@ describe("List", () => {
       assertListEqual(L.zip(as, bs), list(["a", 0], ["b", 1], ["c", 2]));
     });
   });
+  describe("sorting", () => {
+    class Pair {
+      constructor(readonly fst: number, readonly snd: number) {}
+      "fantasy-land/lte"(b: Pair): boolean {
+        if (this.fst === b.fst) {
+          return this.snd <= b.snd;
+        } else {
+          return this.fst <= b.fst;
+        }
+      }
+    }
+    function compareNumber(a: number, b: number): -1 | 0 | 1 {
+      if (a === b) {
+        return 0;
+      } else if (a < b) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+    const unsorted = list(
+      { n: 2, m: 1 },
+      { n: 1, m: 1 },
+      { n: 1, m: 2 },
+      { n: 1, m: 3 },
+      { n: 0, m: 1 },
+      { n: 3, m: 1 }
+    );
+    const unsortedPairs = list(
+      new Pair(2, 1),
+      new Pair(1, 1),
+      new Pair(1, 2),
+      new Pair(1, 2),
+      new Pair(1, 3),
+      new Pair(0, 1),
+      new Pair(3, 1)
+    );
+    it("sort returns same list on empty list ", () => {
+      const l = empty();
+      assert.strictEqual(l, L.sort(l));
+    });
+    it("sort sorts primitives ", () => {
+      const l = L.list(5, 2, 9, 1, 7, 3, 9);
+      assert.deepEqual(L.toArray(L.sort(l)), L.toArray(l).sort());
+    });
+    it("sort sorts Fantasy Land Ords", () => {
+      const sorted = L.sort(unsortedPairs);
+      const sortedPairs = [
+        new Pair(0, 1),
+        new Pair(1, 1),
+        new Pair(1, 2),
+        new Pair(1, 2),
+        new Pair(1, 3),
+        new Pair(2, 1),
+        new Pair(3, 1)
+      ];
+      assert.deepEqual(L.toArray(sorted), sortedPairs);
+    });
+    it("sortBy returns same list on empty list ", () => {
+      const l = empty();
+      assert.strictEqual(
+        l,
+        L.sortBy(_ => {
+          throw new Error("Should not be called");
+        }, l)
+      );
+    });
+    it("sortBy is stable", () => {
+      const sorted = L.sortBy(e => e.n, unsorted);
+      assert.deepEqual(L.toArray(sorted), [
+        { n: 0, m: 1 },
+        { n: 1, m: 1 },
+        { n: 1, m: 2 },
+        { n: 1, m: 3 },
+        { n: 2, m: 1 },
+        { n: 3, m: 1 }
+      ]);
+    });
+    it("sortBy sort Fantasy Land Ords", () => {
+      const unsorted = L.map(
+        pair => ({ pair, sum: pair.fst + pair.snd }),
+        unsortedPairs
+      );
+      const sorted = L.sortBy(o => o.pair, unsorted);
+      assert.deepEqual(L.toArray(sorted), [
+        { pair: new Pair(0, 1), sum: 1 },
+        { pair: new Pair(1, 1), sum: 2 },
+        { pair: new Pair(1, 2), sum: 3 },
+        { pair: new Pair(1, 2), sum: 3 },
+        { pair: new Pair(1, 3), sum: 4 },
+        { pair: new Pair(2, 1), sum: 3 },
+        { pair: new Pair(3, 1), sum: 4 }
+      ]);
+    });
+    it("sortWith is stable", () => {
+      const sorted = L.sortWith((a, b) => compareNumber(a.n, b.n), unsorted);
+      assert.deepEqual(L.toArray(sorted), [
+        { n: 0, m: 1 },
+        { n: 1, m: 1 },
+        { n: 1, m: 2 },
+        { n: 1, m: 3 },
+        { n: 2, m: 1 },
+        { n: 3, m: 1 }
+      ]);
+    });
+  });
 });

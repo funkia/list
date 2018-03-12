@@ -2039,3 +2039,77 @@ export function zipWith<A, B, C>(
 export function zip<A, B>(as: List<A>, bs: List<B>): List<[A, B]> {
   return zipWith((a, b) => [a, b] as [A, B], as, bs);
 }
+
+function isPrimitive(value: any): value is number | string {
+  return typeof value === "number" || typeof value === "string";
+}
+
+export type Ordering = -1 | 0 | 1;
+
+function comparePrimitive<A extends number | string>(a: A, b: A): Ordering {
+  return a === b ? 0 : a < b ? -1 : 1;
+}
+
+export interface Ord {
+  "fantasy-land/lte"(b: any): boolean;
+}
+
+export type Comparable = number | string | Ord;
+
+const ord = "fantasy-land/lte";
+
+function compareOrd(a: Ord, b: Ord): Ordering {
+  return a[ord](b) ? (b[ord](a) ? 0 : -1) : 1;
+}
+
+export function sort<A extends Comparable>(l: List<A>): List<A> {
+  if (l.length === 0) {
+    return l;
+  } else if (isPrimitive(first(l))) {
+    return fromArray(toArray(l).sort(comparePrimitive as any));
+  } else {
+    return sortWith(compareOrd, l as any) as any;
+  }
+}
+
+export function sortWith<A>(
+  comparator: (a: A, b: A) => Ordering,
+  l: List<A>
+): List<A> {
+  const arr: { idx: number; elm: A }[] = [];
+  let i = 0;
+  forEach(elm => arr.push({ idx: i++, elm }), l);
+  arr.sort(({ elm: a, idx: i }, { elm: b, idx: j }) => {
+    const c = comparator(a, b);
+    return c !== 0 ? c : i < j ? -1 : 1;
+  });
+  let newL = empty();
+  for (let i = 0; i < arr.length; ++i) {
+    newL = append(arr[i].elm, newL);
+  }
+  return newL;
+}
+
+export function sortBy<A, B extends Comparable>(
+  f: (a: A) => B,
+  l: List<A>
+): List<A> {
+  if (l.length === 0) {
+    return l;
+  }
+  const arr: { elm: A; prop: B; idx: number }[] = [];
+  let i = 0;
+  forEach(elm => arr.push({ idx: i++, elm, prop: f(elm) }), l);
+  const comparator: any = isPrimitive(arr[0].prop)
+    ? comparePrimitive
+    : compareOrd;
+  arr.sort(({ prop: a, idx: i }, { prop: b, idx: j }) => {
+    const c = comparator(a, b);
+    return c !== 0 ? c : i < j ? -1 : 1;
+  });
+  let newL = empty();
+  for (let i = 0; i < arr.length; ++i) {
+    newL = append(arr[i].elm, newL);
+  }
+  return newL;
+}

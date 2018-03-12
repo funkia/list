@@ -89,6 +89,7 @@ async function runBenchmarks(argv: any): Promise<void> {
   (<any>require)("./update.perf");
   (<any>require)("./insert.perf");
   (<any>require)("./iterator.perf");
+  (<any>require)("./sort.perf");
   (<any>require)("./foldl-iterator.perf");
 
   const startTime = Date.now();
