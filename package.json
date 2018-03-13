@@ -33,6 +33,7 @@
     "np": "^2.19.0",
     "nyc": "11.4.1",
     "prettier": "1.11.1",
+    "proptest": "0.0.4",
     "ramda": "0.25.0",
     "source-map-support": "^0.5.3",
     "ts-node": "5.0.1",
