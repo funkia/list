@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import * as QC from "ts-quickcheck";
+import * as P from "proptest";
 
 import { installCheck } from "./check";
 import * as Loriginal from "../src";
@@ -64,13 +64,13 @@ import {
 } from "../src";
 import "../src/fantasy-land";
 
-const check = QC.createProperty(it);
+const check = P.createProperty(it);
 
 // Generates a list with length between 0 and size
-const genList = QC.nat.map(n => range(0, n));
+const genList = P.nat.map(n => range(0, n));
 
 // Generates a list with length in the full 32 integer range
-const genBigList = QC.natural.map(n => range(0, n));
+const genBigList = P.natural.map(n => range(0, n));
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -389,7 +389,7 @@ describe("List", () => {
     });
     check(
       "is associative",
-      QC.three(QC.range(1_000_000).map(n => range(0, n / 3))),
+      P.three(P.range(1_000_000).map(n => range(0, n / 3))),
       ([xs, ys, zs]) => {
         const lhs = concat(xs, concat(ys, zs));
         const rhs = concat(concat(xs, ys), zs);
@@ -1250,12 +1250,10 @@ describe("List", () => {
   describe("splitAt and concat", () => {
     check(
       "are inverses",
-      QC.range(2)
+      P.range(2)
         .big()
         .array()
-        .chain(xs =>
-          QC.record({ xs: QC.Gen.of(xs), i: QC.range(xs.length + 1) })
-        ),
+        .chain(xs => P.record({ xs: P.Gen.of(xs), i: P.range(xs.length + 1) })),
       ({ xs, i }) => {
         const li = list(...xs);
         const [left, right] = splitAt(i, li);
