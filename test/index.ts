@@ -1,5 +1,7 @@
 import { assert } from "chai";
 
+import * as P from "proptest";
+
 import { installCheck } from "./check";
 import * as Loriginal from "../src";
 
@@ -32,7 +34,6 @@ import {
   findIndex,
   update,
   adjust,
-  slice,
   includes,
   tail,
   pop,
@@ -62,6 +63,14 @@ import {
   forEach
 } from "../src";
 import "../src/fantasy-land";
+
+const check = P.createProperty(it);
+
+// Generates a list with length between 0 and size
+const genList = P.nat.map(n => range(0, n));
+
+// Generates a list with length in the full 32 integer range
+const genBigList = P.natural.map(n => range(0, n));
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -112,10 +121,31 @@ function cheapAssertIndicesFromTo(
   }
 }
 
+function assertIndexEqual<A>(i: number, l1: List<A>, l2: List<A>): void {
+  assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
+}
+
 function assertListEqual<A>(l1: List<A>, l2: List<A>): void {
   assert.equal(l1.length, l2.length, "same length");
-  for (let i = 0; i < l1.length; ++i) {
-    assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
+  const length = l1.length;
+  if (length > 500) {
+    // If the list is long we cheap out
+    for (let i = 0; i < 100; ++i) {
+      assertIndexEqual(i, l1, l2);
+    }
+    const first = (length * 0.25) | 0;
+    const middle = (length * 0.5) | 0;
+    const third = (length * 0.75) | 0;
+    assertIndexEqual(first, l1, l2);
+    assertIndexEqual(middle, l1, l2);
+    assertIndexEqual(third, l1, l2);
+    for (let i = l1.length - 100; i < l1.length; ++i) {
+      assertIndexEqual(i, l1, l2);
+    }
+  } else {
+    for (let i = 0; i < l1.length; ++i) {
+      assertIndexEqual(i, l1, l2);
+    }
   }
 }
 
@@ -293,6 +323,11 @@ describe("List", () => {
       assertIndicesFromTo(l, 0, n + m + nm);
     });
   });
+  describe("nth", () => {
+    it("returns undefined on -1 and empyt list", () => {
+      assert.strictEqual(L.nth(-1, L.empty()), undefined);
+    });
+  });
   describe("list", () => {
     it("creates a list with the given elements", () => {
       const l = list(0, 1, 2, 3);
@@ -344,6 +379,25 @@ describe("List", () => {
     });
   });
   describe("concat", () => {
+    check("has left identity", genList, l => {
+      assertListEqual(concat(empty(), l), l);
+      return true;
+    });
+    check("has right identity", genList, l => {
+      assertListEqual(concat(l, empty()), l);
+      return true;
+    });
+    check(
+      "is associative",
+      P.three(P.range(1_000_000).map(n => range(0, n / 3))),
+      ([xs, ys, zs]) => {
+        const lhs = concat(xs, concat(ys, zs));
+        const rhs = concat(concat(xs, ys), zs);
+        assertListEqual(lhs, rhs);
+        return true;
+      },
+      { tests: 10 }
+    );
     it("is associative on concrete examples", () => {
       const xs = list(0);
       const ys = append(0, append(0, append(1, repeat(0, 30))));
@@ -854,8 +908,8 @@ describe("List", () => {
     });
     it("changes last element in tree", () => {
       const l = prependList(0, 32 ** 3);
-      const l2 = update(32 ** 4 - 32, -1, l);
-      assert.strictEqual(nth(32 ** 4 - 32, l2), -1);
+      const l2 = update(32 ** 3 - 32, -1, l);
+      assert.strictEqual(nth(32 ** 3 - 32, l2), -1);
     });
     it("sets entire list", () => {
       const length = 32 ** 3;
@@ -881,12 +935,22 @@ describe("List", () => {
       const list3 = update(40, 0, catenated);
       assert.strictEqual(nth(40, list3), 0);
     });
+    it("returns list unchanged if out of bounds", () => {
+      const l = list(0, 1, 2, 3, 4);
+      assert.strictEqual(update(-1, 3, l), l);
+      assert.strictEqual(update(5, 3, l), l);
+    });
   });
   describe("adjust", () => {
     it("it applies function to index", () => {
       const l = list(0, 1, 2, 3, 4, 5);
-      const l2 = adjust(square, 2, l);
+      const l2 = adjust(2, square, l);
       assert.strictEqual(nth(2, l2), 4);
+    });
+    it("returns list unchanged if out of bounds", () => {
+      const l = list(0, 1, 2, 3, 4);
+      assert.strictEqual(adjust(-1, square, l), l);
+      assert.strictEqual(adjust(5, square, l), l);
     });
   });
   describe("slice", () => {
@@ -1184,47 +1248,19 @@ describe("List", () => {
     });
   });
   describe("splitAt and concat", () => {
-    it("are inverses in concrete example", () => {
-      const li = list(
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        1
-      );
-      const i = 1;
-      const [left, right] = splitAt(i, li);
-      assert.isTrue(equals(concat(left, right), li));
-    });
+    check(
+      "are inverses",
+      P.range(2)
+        .big()
+        .array()
+        .chain(xs => P.record({ xs: P.Gen.of(xs), i: P.range(xs.length + 1) })),
+      ({ xs, i }) => {
+        const li = list(...xs);
+        const [left, right] = splitAt(i, li);
+        assertListEqual(concat(left, right), li);
+        return true;
+      }
+    );
   });
   describe("splitAt", () => {
     it("splits at index", () => {

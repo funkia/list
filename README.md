@@ -483,6 +483,9 @@ pluck("foo", l); //=> list(0, 1, 2)
 Returns a list that has the entry specified by the index replaced with
 the given value.
 
+If the index is out of bounds the given list is
+returned unchanged.
+
 **Complexity**: `O(log(n))`
 
 **Example**
@@ -495,6 +498,9 @@ update(2, "X", list("a", "b", "c", "d", "e")); //=> list("a", "b", "X", "d", "e"
 
 Returns a list that has the entry specified by the index replaced with
 the value returned by applying the function to the value.
+
+If the index is out of bounds the given list is
+returned unchanged.
 
 **Complexity**: `O(log(n))`
 
@@ -831,7 +837,8 @@ toArray(list(0, 1, 2, 3, 4)); //=> [0, 1, 2, 3, 4]
 
 ### `nth`
 
-Gets the `n`th element of the list.
+Gets the `n`th element of the list. If `n` is out of bounds
+`undefined` is returned.
 
 **Complexity**: `O(log(n))`, practically constant
 
