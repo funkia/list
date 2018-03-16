@@ -57,5 +57,5 @@ exports._traverse = function () {
 }();
 
 exports._show = function (f, xs) {
-  return "<" + L.join(",", L.map(f, xs)) + ">";
+  return "fromFoldable [" + L.join(", ", L.map(f, xs)) + "]";
 };
