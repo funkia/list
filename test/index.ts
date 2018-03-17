@@ -62,7 +62,6 @@ import {
   reverse,
   forEach
 } from "../src";
-import "../src/fantasy-land";
 
 const check = P.createProperty(it);
 
@@ -587,14 +586,6 @@ describe("List", () => {
       });
     });
   });
-  describe("monoid", () => {
-    it("has fantasy land empty", () => {
-      list(0, 1, 2)["fantasy-land/empty"]();
-    });
-    it("has fantasy land concat", () => {
-      list(0, 1, 2)["fantasy-land/concat"](list(3, 4));
-    });
-  });
   describe("map", () => {
     it("maps function over list", () => {
       [30, 100, 32 * 4 + 1].forEach(n => {
@@ -609,14 +600,6 @@ describe("List", () => {
       const l = prependList(0, 50);
       const mapped = map(square, l);
       for (let i = 0; i < 50; ++i) {
-        assert.strictEqual(nth(i, mapped), i * i);
-      }
-    });
-    it("has Fantasy Land method", () => {
-      const n = 50;
-      const l = range(0, n);
-      const mapped = l["fantasy-land/map"](m => m * m);
-      for (let i = 0; i < n; ++i) {
         assert.strictEqual(nth(i, mapped), i * i);
       }
     });
@@ -642,12 +625,6 @@ describe("List", () => {
       );
       assert.isTrue(equals(l, list(3, 4, 5, 2, 4, 6, 1, 4, 9)));
     });
-    it("has Fantasy Land method", () => {
-      const l = list(1, 2, 3)["fantasy-land/ap"](
-        list((n: number) => n + 2, (n: number) => 2 * n, (n: number) => n * n)
-      );
-      assert.isTrue(equals(l, list(3, 4, 5, 2, 4, 6, 1, 4, 9)));
-    });
   });
   describe("monad", () => {
     it("flattens lists", () => {
@@ -664,11 +641,6 @@ describe("List", () => {
     it("has chain", () => {
       const l = list(1, 2, 3);
       const l2 = chain(n => list(n, 2 * n, n * n), l);
-      assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
-    });
-    it("has Fantasy Land chain", () => {
-      const l = list(1, 2, 3);
-      const l2 = l["fantasy-land/chain"](n => list(n, 2 * n, n * n));
       assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
     });
   });
@@ -713,14 +685,6 @@ describe("List", () => {
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });
-    it("has Fantasy Land method", () => {
-      const l = list(0, 1, 2, 3, 4, 5);
-      const result = l["fantasy-land/reduce"](
-        (arr, i) => (arr.push(i), arr),
-        <number[]>[]
-      );
-      assert.deepEqual(result, numberArray(0, 6));
-    });
   });
   describe("forEach", () => {
     it("calls function for each element", () => {
@@ -737,12 +701,6 @@ describe("List", () => {
       for (let i = 0; i < length(l2); ++i) {
         assert.isTrue(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
       }
-    });
-    it("has Fantasy Land method", () => {
-      assert.strictEqual(
-        list(0, 1, 2, 3, 4, 5)["fantasy-land/filter"](isEven).length,
-        3
-      );
     });
     it("rejects element", () => {
       const l1 = list(0, 1, 2, 3, 4, 5, 6);
@@ -853,11 +811,6 @@ describe("List", () => {
     });
     it("returns true if lists are equivalent", () => {
       assert.isTrue(equals(list(0, 1, 2, 3, 4), list(0, 1, 2, 3, 4)));
-    });
-    it("has Fantasy Land method", () => {
-      assert.isTrue(
-        list(0, 1, 2, 3, 4)["fantasy-land/equals"](list(0, 1, 2, 3, 4))
-      );
     });
   });
   describe("iteration", () => {

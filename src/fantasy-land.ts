@@ -11,6 +11,11 @@ import {
   chain
 } from "./index";
 
+export * from "./index";
+
+const flOf = "fantasy-land/of";
+const flEmpty = "fantasy-land/empty";
+
 declare module "./index" {
   interface List<A> {
     "fantasy-land/equals"(l: List<A>): boolean;
@@ -33,7 +38,8 @@ List.prototype["fantasy-land/map"] = function<A, B>(f: (a: A) => B): List<B> {
   return map(f, this);
 };
 
-List.prototype["fantasy-land/of"] = of;
+List.prototype[flOf] = of;
+(List as any)[flOf] = List.prototype[flOf];
 
 List.prototype["fantasy-land/ap"] = function<A, B>(
   listF: List<(a: A) => B>
@@ -53,9 +59,11 @@ List.prototype["fantasy-land/filter"] = function<A>(
   return filter(predicate, this);
 };
 
-List.prototype["fantasy-land/empty"] = function(): List<any> {
+List.prototype[flEmpty] = function(): List<any> {
   return empty();
 };
+
+(List as any)[flEmpty] = List.prototype[flEmpty];
 
 List.prototype["fantasy-land/concat"] = function<A>(right: List<A>): List<A> {
   return concat(this, right);
