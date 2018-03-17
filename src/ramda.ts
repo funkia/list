@@ -68,3 +68,6 @@ export const insert = curry(L.insert);
 export const insertAll = curry(L.insertAll);
 export const zip = curry(L.zip);
 export const zipWith = curry(L.zipWith);
+export const sort = curry(L.sort);
+export const sortWith = curry(L.sortWith);
+export const sortBy = curry(L.sortBy);

@@ -238,25 +238,23 @@ and behavior as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 45
+are missing and of how many that are already implemented. Currently 46
 out of 75 functions have been implemented.
 
-Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
-`contains`, `drop`, `dropLast`, `dropWhile`, `filter`, `find`,
-`findIndex`, `head`, `flatten`, `indexOf`, `init`, `insert`,
-`insertAll`, `last`, `length`, `join`, `map`, `none`, `nth`, `pair`,
-`partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
-`reject`, `remove`, `reverse`, `repeat`, `slice`, `splitAt`, `take`,
-`takeWhile`, `tail`, `takeLast`, `times`, `update`,
+Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`, `contains`,
+`drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`, `head`,
+`flatten`, `indexOf`, `init`, `insert`, `insertAll`, `last`, `length`, `join`,
+`map`, `none`, `nth`, `pair`, `partition`, `pluck`, `prepend`, `range`,
+`reduce`, `reduceRight`, `reject`, `remove`, `reverse`, `repeat`, `slice`,
+`sort`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `times`, `update`,
 `zip`, `zipWith`.
 
-Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`,
-`dropRepeatsWith`, `endsWith`, `findLast`, `findLastIndex`,
-`groupWith`, `indexBy`, `intersperse`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `reduceWhile`, `scan`, `sequence`, `sort`,
+Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`, `dropRepeatsWith`,
+`endsWith`, `findLast`, `findLastIndex`, `groupWith`, `indexBy`, `intersperse`,
+`lastIndexOf`, `mapAccum`, `mapAccumRight`, `reduceWhile`, `scan`, `sequence`,
 `splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`,
-`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`,
-`unnest` `without`, `xprod`.
+`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`,
+`xprod`.
 
 ## Fantasy Land & Static Land
 
@@ -268,7 +266,7 @@ specifications: Setoid, semigroup, monoid, foldable, functor, apply,
 applicative, chain, monad.
 
 The following specifications have not been implemented yet:
-Traversable.
+Traversable, Ord.
 
 Since methods hinder tree-shaking the Fantasy Land methods are not
 included by default. In order to get them you must import it likes
@@ -791,6 +789,72 @@ Iterate over two lists in parallel and collect the pairs.
 const names = list("a", "b", "c", "d", "e");
 const years = list(0, 1, 2, 3, 4, 5, 6);
 //=> list(["a", 0], ["b", 1], ["c", 2], ["d", 3], ["e", 4]);
+```
+
+### `sort`
+
+Sorts the given list. The list should contain values that can be compared using
+the `<` operator or values that implement the Fantasy Land
+[Ord](https://github.com/fantasyland/fantasy-land#ord) specification.
+
+Performs a stable sort.
+
+**Complexity**: `O(n * log(n))`
+
+**Example**
+
+```js
+sort(list(5, 3, 1, 8, 2)); //=> list(1, 2, 3, 5, 8)
+sort(list("e", "a", "c", "b", "d"); //=> list("a", "b", "c", "d", "e")
+```
+
+### `sortBy`
+
+Sort the given list by passing each value through the function and comparing
+the resulting value. The function should either return values comparable using
+`<` or values that implement the Fantasy Land
+[Ord](https://github.com/fantasyland/fantasy-land#ord) specification.
+
+Performs a stable sort.
+
+**Complexity**: `O(n * log(n))`
+
+**Example**
+
+```js
+sortBy(o => o.n, list({ n: 4, m: "foo" }, { n: 3, m: "bar" }, { n: 1, m: "baz" }));
+//=> list({ n: 1, m: "baz" }, { n: 3, m: "bar" }, { n: 4, m: "foo" })
+
+sortBy(s => s.length, list("foo", "bar", "ba", "aa", "list", "z"));
+//=> list("z", "ba", "aa", "foo", "bar", "list")
+```
+
+### `sortWith`
+
+Sort the given list by comparing values using the given function. The function
+receieves two values and should return `-1` if the first value is stricty
+larger than the second, `0` is they are equal and `1` if the first values is
+strictly smaller than the second.
+
+Note that the comparison function is equivalent to the one required by
+[`Array.prototype.sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
+
+Performs a stable sort.
+
+**Complexity**: `O(n * log(n))`
+
+**Example**
+
+```js
+sortWith((a, b) => {
+  if (a === b) {
+    return 0;
+  } else if (a < b) {
+    return -1;
+  } else {
+    return 1;
+  }
+}, list(5, 3, 1, 8, 2)); //=> list(1, 2, 3, 5, 8)
 ```
 
 ### Folds

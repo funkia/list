@@ -19,7 +19,8 @@ export {
   fromArray,
   toArray,
   reverse,
-  fromIterable
+  fromIterable,
+  sort
 } from "./index";
 
 export interface Curried2<A, B, R> {
@@ -159,6 +160,16 @@ export const splitAt: typeof L.splitAt &
   ((index: number) => <A>(l: List<A>) => [List<A>, List<A>]) = curry2(
   L.splitAt
 );
+
+export const sortBy: typeof L.sortBy &
+  (<A, B extends L.Comparable>(
+    f: (a: A) => B
+  ) => (l: List<A>) => List<A>) = curry2(L.sortBy);
+
+export const sortWith: typeof L.sortWith &
+  (<A>(
+    comparator: (a: A, b: A) => L.Ordering
+  ) => (l: List<A>) => List<A>) = curry2(L.sortWith);
 
 export const zip: typeof L.zip &
   (<A>(as: List<A>) => <B>(bs: List<B>) => List<[A, B]>) = curry2(L.zip);
