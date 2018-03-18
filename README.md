@@ -20,54 +20,53 @@ A fast immutable list with a functional API.
 
 List is a purely functional alternative to arrays. It is an
 implementation of a fast persistent sequence data structure. Compared
-to JavaScript's `Array` List has two major benefits.
+to JavaScript's `Array` List has three major benefits.
 
 * **Safety**. List is immutable. This makes it safer and better suited
-  for functional programming. It doesn't tempt you with an imperative
-  API and accidental mutations won't be a source of bugs.
+  for functional programming. It doesn't tempt you with an imperative API and
+  accidental mutations won't be a source of bugs.
 * **Performance**. Since List doesn't allow mutations it can be
-  heavily optimized for pure operations. This makes List much faster
-  for functional programming than arrays. [See the
+  heavily optimized for pure operations. This makes List much faster for
+  functional programming than arrays. [See the
   benchmarks](https://funkia.github.io/list/benchmarks/).
+* **API**: List has a large API of useful functions and offers both chainable
+  methods and curried functions to suit every taste.
 
 ## Features
 
 * **Familiar functional API**. List follows the naming conventions
   common in functional programming and has arguments ordered for
   currying/partial application.
-* **Extensive API**. List has all the functions you know from `Array`
-  and a lot of other functions that'll save the day once you need
-  them.
+* **Extensive API**. List has all the functions known from `Array`
+  and a lot of additional functions that'll save the day once you need them.
 * **Extremely fast**. List is a carefully optimized implementation of
-  the highly efficient data-structure _relaxed radix balanced trees_.
-  Performance has been a central focus from the beginning and we have
-  an [extensive benchmark
-  suite](https://funkia.github.io/list/benchmarks/) to ensure optimal
-  performance.
+  the highly efficient data-structure _relaxed radix balanced trees_. We have
+  an [extensive benchmark suite](https://funkia.github.io/list/benchmarks/) to
+  ensure optimal performance.
+* **Several API styles**. In addition to the base API List offers [additional
+  API styles](#api-styles). Import `list/methods` to get chainable methods or
+  alterntively import `list/curried` to get a version of the API where every
+  function is curried. Both variants are 100% TypeScript compatible.
 * **Does one thing well**. Instead of offering a wealth of data
-  structures List has a tight focus on being the best immutable list
-  possible. It doesn't do everything but is designed to work well with
-  the libraries you're already using.
+  structures List has a tight focus on being the best immutable list possible.
+  It doesn't do everything but is designed to work well with the libraries
+  you're already using.
 * **Seamless Ramda integration**. If you know Ramda you already know
-  how to use List. List includes a [Ramda
-  specific](#seamless-ramda-integration) module where functions are
-  curried using Ramda's `R.curry` and where equality comparisons are
-  done using `R.equals`.
-* **Type safe**. List is written in TypeScript and comes with accurate
-  types that cover the entire library.
+  how to use List. List was designed to integrate [seamlessly with
+  Ramda](#seamless-ramda-integration).
+* **Type safe**. List is implemented in TypeScript. It makes full use of
+  TypeScript features to provide accurate types that covers the entire library.
 * **Fully compatible with tree-shaking**. List ships with tree-shaking
-  compatible ECMAScript modules. `import * as L from "list"` in itself
-  adds zero bytes to your bundle when using Webpack. Using a function
-  adds only that function and the very small (<1KB) core of the
-  library. You only pay in size for the functions that you actually
-  use.
+  compatible ECMAScript modules. `import * as L from "list"` in itself adds
+  zero bytes to your bundle when using Webpack. Using a function adds only that
+  function and the very small (<1KB) core of the library. You only pay in size
+  for the functions that you actually use.
 * **Iterable**. Implements the JavaScript iterable protocol. This
-  means that lists can be use in `for..of` loops, works with
-  destructuring, and can be passed to any function expecting an
-  iterable. [See more](#iterable).
+  means that lists can be use in `for..of` loops, works with destructuring, and
+  can be passed to any function expecting an iterable. [See more](#iterable).
 * **Fantasy Land support**. List
-  [implements](#fantasy-land-static-land) both the Fantasy Land and
-  the Static Land specification.
+  [implements](#fantasy-land-static-land) both the Fantasy Land and the Static
+  Land specification.
 
 ## Getting started
 
@@ -124,6 +123,46 @@ L.fromArray(["foo", "bar"]); //=> L.list("foo", "bar");
 List offers a wealth of other useful and high-performing functions.
 You can see them all in the [API documentation](#api-documentation)
 
+## API styles
+
+List offers several API styles. By default the library exports "plain"
+functions. Additioanlly curried functions can be imported from `list/curried`
+and an API with chainable methods can be imported from `list/methods`. The
+differences are illustrated below.
+
+The default export offers normal plain function.
+
+```ts
+import * as L from "list";
+
+const l = take(5, sortBy(p => p.name, filter(p => p.age > 22, people)));
+```
+
+In `list/methods` all functions are available as chainable methods.
+
+```ts
+import * as L from "list/methods";
+
+const l = people
+  .filter(p => p.age > 22)
+  .sortBy(p => p.name)
+  .take(5);
+```
+
+In `list/curried` all functions are curried. In the example below the partially
+applied functions are composed together using Ramda's
+[`pipe`](http://ramdajs.com/docs/#pipe). Alternatively one could have used
+Lodash's [`flowRight`](https://lodash.com/docs/#flow).
+
+```ts
+import * as R from "ramda";
+import * as L from "list/curried";
+
+const l = R.pipe(L.filter(p => p.age > 22), L.sortBy(p => p.name), L.take(5))(
+  people
+);
+```
+
 ## Iterable
 
 List implements the JavaScript iterable protocol. This means that
@@ -169,47 +208,34 @@ The iterable protocol allows for some very convenient patterns and
 means that lists can integrate nicely with JavaScript syntax. But,
 here are two anti-patterns that you should be aware of.
 
-1. Don't overuse `for..of` loops. Functions like [`map`](#map) and
-   [`foldl`](#foldl) are often a better choice. If you want to perform
-   a side-effect for each element in a list you should probably use
-   [`forEach`](#forEach).
-2. Don't use the spread syntax in destructuring
-   ```js
-   const [a, b, ...cs] = myList; // Don't do this
-   ```
-   The syntax converts the rest of the iterable (in this case a list)
-   into an array by iterating through the entire iterable. This is
-   slow and it turns our list into an array. This alternative avoids
-   both problems.
-   ```js
-   const [[a, b], cs] = splitAt(2, myList); // Do this
-   ```
-   This uses the [`splitAt`](#splitAt) function which splits and
-   creates the list `cs` very efficiently in `O(log(n))` time.
+1.  Don't overuse `for..of` loops. Functions like [`map`](#map) and
+    [`foldl`](#foldl) are often a better choice. If you want to perform
+    a side-effect for each element in a list you should probably use
+    [`forEach`](#forEach).
+2.  Don't use the spread syntax in destructuring
+    ```js
+    const [a, b, ...cs] = myList; // Don't do this
+    ```
+    The syntax converts the rest of the iterable (in this case a list)
+    into an array by iterating through the entire iterable. This is
+    slow and it turns our list into an array. This alternative avoids
+    both problems.
+    ```js
+    const [[a, b], cs] = splitAt(2, myList); // Do this
+    ```
+    This uses the [`splitAt`](#splitAt) function which splits and
+    creates the list `cs` very efficiently in `O(log(n))` time.
 
 ## Seamless Ramda integration
 
-List is designed to work seamlessly together with Ramda. Ramda offers
-a large number of useful functions for working with arrays. List
-implements the same methods on its immutable data structure. This
-means that Ramda users can keep using the API they're familiar with.
+List is designed to work seamlessly together with Ramda. Ramda offers a large
+number of useful functions for working with arrays. List implements the same
+functions on its immutable data structure. This means that Ramda users can keep
+using the API they're familiar with. Additionally, List offers an entry point
+where all functions are curried.
 
-Additionally, List offers an entry point where all functions are
-curried using Ramda's `R.curry` and where all equality comparisons are
-done using `R.equals`.
-
-```js
-import * as L from "list/ramda";
-const indexOfFoo1 = indexOf({ foo: 1 });
-indexOfFoo1(list({ foo: 0 }, { foo: 1 }, { foo: 2 })); //=> 1
-```
-
-In the example above `indexOf` is curried and it uses `R.equals` to
-find an element equivalent to `{ foo: 1 }`.
-
-Since List implements Ramda's array API it is very easy to convert
-code from using arrays to using immutable lists. As an example,
-consider the code below.
+Since List implements Ramda's array API it is very easy to convert code from
+using arrays to using immutable lists. As an example, consider the code below.
 
 ```js
 import * as R from "ramda";
@@ -219,27 +245,27 @@ R.pipe(R.filter(n => n % 2 === 0), R.map(R.multiply(3)), R.reduce(R.add, 0))(
 );
 ```
 
-It can be converted to code using List as follows.
+The example can be converted to code using List as follows.
 
 ```js
 import * as R from "ramda";
-import * as L from "list";
+import * as L from "list/curried";
 
 R.pipe(L.filter(n => n % 2 === 0), L.map(R.multiply(3)), L.reduce(R.add, 0))(
   list
 );
 ```
 
-For each function operating on arrays, the `R` is simply changed to an
-`L`. This works because List exports functions that have the same name
-and behavior as Ramdas functions.
+For each function operating on arrays, the `R` is simply changed to an `L`.
+This works because List exports functions that have the same names and behavior
+as Ramdas functions.
 
 ### Implemented Ramda functions
 
-The goal is to implement the entirety of Ramda's array functions for
-List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 46
-out of 75 functions have been implemented.
+The goal is to implement the entirety of Ramda's array functions for List. The
+list below keeps track of how many of Ramda functions that are missing and of
+how many that are already implemented. Currently 46 out of 75 functions have
+been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`, `head`,
@@ -280,13 +306,13 @@ import "list/fantasy-land";
 
 The API is organized into three parts.
 
-1. [Creating lists](#creating-lists) — Functions that _create_ lists.
-2. [Updating lists](#updating-lists) — Functions that _transform_ lists.
-   That is, functions that take one or more lists as arguments and
-   returns a new list.
-3. [Folds](#folds) — Functions that _extracts_ values based on lists.
-   They take one or more lists as arguments and returns something that
-   is not a list.
+1.  [Creating lists](#creating-lists) — Functions that _create_ lists.
+2.  [Updating lists](#updating-lists) — Functions that _transform_ lists.
+    That is, functions that take one or more lists as arguments and
+    returns a new list.
+3.  [Folds](#folds) — Functions that _extracts_ values based on lists.
+    They take one or more lists as arguments and returns something that
+    is not a list.
 
 ### Creating lists
 
@@ -822,7 +848,10 @@ Performs a stable sort.
 **Example**
 
 ```js
-sortBy(o => o.n, list({ n: 4, m: "foo" }, { n: 3, m: "bar" }, { n: 1, m: "baz" }));
+sortBy(
+  o => o.n,
+  list({ n: 4, m: "foo" }, { n: 3, m: "bar" }, { n: 1, m: "baz" })
+);
 //=> list({ n: 1, m: "baz" }, { n: 3, m: "bar" }, { n: 4, m: "foo" })
 
 sortBy(s => s.length, list("foo", "bar", "ba", "aa", "list", "z"));
