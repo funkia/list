@@ -42,6 +42,7 @@
   "files": [
     "dist",
     "methods",
+    "curried",
     "fantasy-land",
     "ramda"
   ],
