@@ -126,7 +126,7 @@ You can see them all in the [API documentation](#api-documentation)
 ## API styles
 
 List offers several API styles. By default the library exports "plain"
-functions. Additioanlly curried functions can be imported from `list/curried`
+functions. Additionally curried functions can be imported from `list/curried`
 and an API with chainable methods can be imported from `list/methods`. The
 differences are illustrated below.
 
