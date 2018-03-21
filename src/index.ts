@@ -1828,6 +1828,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   }
 
   const newList = cloneList(l);
+  newList.length = newLength;
 
   // Both indices lie in the tree
   if (prefixSize <= from && to <= suffixStart) {
@@ -1847,12 +1848,11 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       newList.offset =
         (newList.offset + from - prefixSize + getPrefixSize(newList)) & bits;
     }
-    newList.length = to - from;
     return newList;
   }
 
-  // we need to slice something off of the left
   if (0 < from) {
+    // we need to slice something off of the left
     if (from < prefixSize) {
       // do a cheap slice by setting prefix length
       bits = setPrefix(prefixSize - from, bits);
@@ -1865,15 +1865,16 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
         from - prefixSize + l.offset,
         l.offset
       );
+      if (newList.root === undefined) {
+        bits = setDepth(0, bits);
+      }
       bits = setPrefix(newAffix.length, bits);
       newList.offset += from - prefixSize + newAffix.length;
       prefixSize = newAffix.length;
       newList.prefix = newAffix;
     }
-    newList.length -= from;
-  }
-
-  if (to < length) {
+  } else {
+    // we need to slice something off of the right
     if (length - to < suffixSize) {
       bits = setSuffix(suffixSize - (length - to), bits);
     } else {
@@ -1889,7 +1890,6 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       bits = setSuffix(newAffix.length, bits);
       newList.suffix = newAffix;
     }
-    newList.length -= length - to;
   }
   newList.bits = bits;
   return newList;
