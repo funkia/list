@@ -1464,30 +1464,30 @@ function concatAffixes<A>(left: List<A>, right: List<A>): number {
   var length = getSuffixSize(left);
   concatBuffer[nr] = [];
   for (i = 0; i < length; ++i) {
-    concatBuffer[nr][arrIdx] = left.suffix[i];
-    if (++arrIdx === 32) {
+    if (arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
+    concatBuffer[nr][arrIdx++] = left.suffix[i];
   }
   length = getPrefixSize(right);
   for (i = 0; i < length; ++i) {
-    concatBuffer[nr][arrIdx] = right.prefix[length - 1 - i];
-    if (++arrIdx === 32) {
+    if (arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
+    concatBuffer[nr][arrIdx++] = right.prefix[length - 1 - i];
   }
   length = getSuffixSize(right);
   for (i = 0; i < length; ++i) {
-    concatBuffer[nr][arrIdx] = right.suffix[i];
-    if (++arrIdx === 32) {
+    if (arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
+    concatBuffer[nr][arrIdx++] = right.suffix[i];
   }
   return nr;
 }
