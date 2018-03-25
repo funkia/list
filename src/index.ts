@@ -1656,15 +1656,16 @@ function sliceLeft(
   }
 }
 
+/** Slice elements off of a tree from the right */
 function sliceRight(
-  tree: Node,
+  node: Node,
   depth: number,
   index: number,
   offset: number
 ): Node | undefined {
-  let { path, index: newIndex } = getPath(index, offset, depth, tree.sizes);
+  let { path, index: newIndex } = getPath(index, offset, depth, node.sizes);
   if (depth === 0) {
-    newAffix = tree.array.slice(0, path + 1);
+    newAffix = node.array.slice(0, path + 1);
     // this leaf node is moved up as a suffix so there is nothing here
     // after slicing
     return undefined;
@@ -1673,7 +1674,7 @@ function sliceRight(
     // algorithm can find the last element that we want to include
     // and sliceRight will do a slice that is inclusive on the index.
     const child = sliceRight(
-      tree.array[path],
+      node.array[path],
       depth - 1,
       newIndex,
       path === 0 ? offset : 0
@@ -1688,11 +1689,21 @@ function sliceRight(
     // note that we add 1 to the path since we want the slice to be
     // inclusive on the end index. Only at the leaf level do we want
     // to do an exclusive slice.
-    let array = tree.array.slice(0, path + 1);
+    let array = node.array.slice(0, path + 1);
     if (child !== undefined) {
       array[array.length - 1] = child;
     }
-    return new Node(tree.sizes, array); // FIXME: handle the size table
+    let sizes: Sizes | undefined = node.sizes;
+    if (sizes !== undefined) {
+      sizes = sizes.slice(0, path + 1);
+      if (child !== undefined) {
+        const slicedOff =
+          sizeOfSubtree(node.array[path], depth - 1) -
+          sizeOfSubtree(child, depth - 1);
+        sizes[sizes.length - 1] -= slicedOff;
+      }
+    }
+    return new Node(sizes, array);
   }
 }
 
