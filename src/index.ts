@@ -1882,7 +1882,8 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       prefixSize = newAffix.length;
       newList.prefix = newAffix;
     }
-  } else {
+  }
+  if (to < length) {
     // we need to slice something off of the right
     if (length - to < suffixSize) {
       bits = setSuffix(suffixSize - (length - to), bits);
