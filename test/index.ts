@@ -2,7 +2,7 @@ import { assert } from "chai";
 
 import * as P from "proptest";
 
-import { installCheck } from "./check";
+import { checkList, installCheck } from "./check";
 import * as Loriginal from "../src";
 
 const L: typeof Loriginal = installCheck(Loriginal);
@@ -69,7 +69,7 @@ const check = P.createProperty(it);
 const genList = P.nat.map(n => range(0, n));
 
 // Generates a list with length in the full 32 integer range
-const genBigList = P.natural.map(n => range(0, n));
+const genBigList = P.between(0, 10000).map(n => range(0, n));
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -585,6 +585,20 @@ describe("List", () => {
         assertIndicesFromTo(l, 0, sum);
       });
     });
+    check(
+      "toArray distributes over concat",
+      P.between(0, 1000000).replicate(2),
+      ([n, m]) => {
+        const left = L.range(0, n);
+        const right = L.range(n, n + m);
+        assert.deepEqual(
+          L.toArray(left).concat(L.toArray(right)),
+          L.toArray(L.concat(left, right))
+        );
+        return true;
+      },
+      { tests: 10 }
+    );
   });
   describe("map", () => {
     it("maps function over list", () => {
@@ -1200,9 +1214,17 @@ describe("List", () => {
       assertIndicesFromTo(l2, 6, 10);
     });
   });
-  describe("splitAt and concat", () => {
+  describe("concat and slice", () => {
+    check("concat then splitAt is no-op", genBigList.replicate(2), ([l, m]) => {
+      const [l2, m2] = L.splitAt(l.length, L.concat(l, m));
+      checkList(l2);
+      checkList(m2);
+      assert.isTrue(L.equals(l, l2));
+      assert.isTrue(L.equals(m, m2));
+      return true;
+    });
     check(
-      "are inverses",
+      "splitAt then concat is no-op",
       P.range(2)
         .big()
         .array()

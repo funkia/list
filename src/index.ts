@@ -1601,11 +1601,9 @@ function sliceNode(
   let sizes = node.sizes;
   if (sizes !== undefined) {
     sizes = sizes.slice(pathLeft, pathRight + 1);
-    let slicedOff: number;
-    if (childLeft === undefined) {
-      slicedOff = node.sizes![pathLeft - 1];
-    } else {
-      slicedOff =
+    let slicedOff = pathLeft !== 0 ? node.sizes![pathLeft - 1] : 0;
+    if (childLeft !== undefined) {
+      slicedOff +=
         sizeOfSubtree(node.array[pathLeft], depth - 1) -
         sizeOfSubtree(childLeft, depth - 1);
       // slicedOff = (getBitsForDepth(index, depth) | mask) + 1;
