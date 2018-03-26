@@ -1236,6 +1236,34 @@ describe("List", () => {
         return true;
       }
     );
+    check(
+      "concat then slice",
+      P.between(0, 5000)
+        .replicate(2)
+        .chain(([n, m]) =>
+          P.range(n + m + 1).chain(to =>
+            P.record({
+              n: P.Gen.of(n),
+              m: P.Gen.of(m),
+              to: P.Gen.of(to),
+              from: P.range(to + 1)
+            })
+          )
+        ),
+      ({ n, m, from, to }) => {
+        const left = L.range(0, n);
+        const right = L.range(n, n + m);
+        const cat = L.concat(left, right);
+        const sliced = L.slice(from, to, cat);
+        assert.deepEqual(
+          L.toArray(sliced),
+          numberArray(0, n)
+            .concat(numberArray(n, n + m))
+            .slice(from, to)
+        );
+        return true;
+      }
+    );
   });
   describe("splitAt", () => {
     it("splits at index", () => {

@@ -1601,15 +1601,21 @@ function sliceNode(
   let sizes = node.sizes;
   if (sizes !== undefined) {
     sizes = sizes.slice(pathLeft, pathRight + 1);
-    let slicedOff = pathLeft !== 0 ? node.sizes![pathLeft - 1] : 0;
+    let slicedOffLeft = pathLeft !== 0 ? node.sizes![pathLeft - 1] : 0;
     if (childLeft !== undefined) {
-      slicedOff +=
+      slicedOffLeft +=
         sizeOfSubtree(node.array[pathLeft], depth - 1) -
         sizeOfSubtree(childLeft, depth - 1);
       // slicedOff = (getBitsForDepth(index, depth) | mask) + 1;
     }
     for (let i = 0; i < sizes.length; ++i) {
-      sizes[i] -= slicedOff;
+      sizes[i] -= slicedOffLeft;
+    }
+    if (childRight !== undefined) {
+      const slicedOffRight =
+        sizeOfSubtree(node.array[pathRight], depth - 1) -
+        sizeOfSubtree(childRight, depth - 1);
+      sizes[sizes.length - 1] -= slicedOffRight;
     }
   }
   return new Node(sizes, array);
