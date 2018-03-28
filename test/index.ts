@@ -1508,4 +1508,24 @@ describe("List", () => {
       ]);
     });
   });
+  describe("group", () => {
+    it("group", () => {
+      const l = L.list(1, 1, 1, 2, 2, 3, 4, 4);
+      assertListEqual(
+        L.group(l),
+        L.list(L.list(1, 1, 1), L.list(2, 2), L.list(3), L.list(4, 4))
+      );
+    });
+    it("groups empty list to empty list", () => {
+      assertListEqual(L.group(L.empty()), L.empty());
+    });
+    it("groupWith", () => {
+      const l = L.list(4.2, 4.5, 1.1, 1.4, 3.5, 3.9);
+      const l2 = L.groupWith((a, b) => Math.floor(a) === Math.floor(b), l);
+      assertListEqual(
+        l2,
+        L.list(L.list(4.2, 4.5), L.list(1.1, 1.4), L.list(3.5, 3.9))
+      );
+    });
+  });
 });

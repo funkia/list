@@ -60,6 +60,8 @@ declare module "./index" {
     sort<A extends Comparable>(this: List<A>, l: List<A>): List<A>;
     sortBy<B extends Comparable>(f: (a: A) => B): List<A>;
     sortWith(comparator: (a: A, b: A) => Ordering): List<A>;
+    group(): List<List<A>>;
+    groupWith<A>(f: (a: A, b: A) => boolean): List<List<A>>;
   }
 }
 
@@ -99,7 +101,10 @@ List.prototype.map = function<A, B>(f: (a: A) => B): List<B> {
   return L.map(f, this);
 };
 
-List.prototype.pluck = function<A, K extends keyof A>(this: List<A>, key: K): List<A[K]> {
+List.prototype.pluck = function<A, K extends keyof A>(
+  this: List<A>,
+  key: K
+): List<A[K]> {
   return L.pluck(key, this);
 } as any;
 
@@ -284,4 +289,14 @@ List.prototype.sortBy = function<A, B extends Comparable>(
   f: (a: A) => B
 ): List<A> {
   return L.sortBy(f, this);
+};
+
+List.prototype.group = function<A>(): List<List<A>> {
+  return L.group(this);
+};
+
+List.prototype.groupWith = function<A>(
+  f: (a: A, b: A) => boolean
+): List<List<A>> {
+  return L.groupWith(f, this);
 };

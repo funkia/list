@@ -1464,30 +1464,30 @@ function concatAffixes<A>(left: List<A>, right: List<A>): number {
   var length = getSuffixSize(left);
   concatBuffer[nr] = [];
   for (i = 0; i < length; ++i) {
-    if (arrIdx === 32) {
+    concatBuffer[nr][arrIdx] = left.suffix[i];
+    if (++arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
-    concatBuffer[nr][arrIdx++] = left.suffix[i];
   }
   length = getPrefixSize(right);
   for (i = 0; i < length; ++i) {
-    if (arrIdx === 32) {
+    concatBuffer[nr][arrIdx] = right.prefix[length - 1 - i];
+    if (++arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
-    concatBuffer[nr][arrIdx++] = right.prefix[length - 1 - i];
   }
   length = getSuffixSize(right);
   for (i = 0; i < length; ++i) {
-    if (arrIdx === 32) {
+    concatBuffer[nr][arrIdx] = right.suffix[i];
+    if (++arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
-    concatBuffer[nr][arrIdx++] = right.suffix[i];
   }
   return nr;
 }
@@ -1601,21 +1601,17 @@ function sliceNode(
   let sizes = node.sizes;
   if (sizes !== undefined) {
     sizes = sizes.slice(pathLeft, pathRight + 1);
-    let slicedOffLeft = pathLeft !== 0 ? node.sizes![pathLeft - 1] : 0;
-    if (childLeft !== undefined) {
-      slicedOffLeft +=
+    let slicedOff: number;
+    if (childLeft === undefined) {
+      slicedOff = node.sizes![pathLeft - 1];
+    } else {
+      slicedOff =
         sizeOfSubtree(node.array[pathLeft], depth - 1) -
         sizeOfSubtree(childLeft, depth - 1);
       // slicedOff = (getBitsForDepth(index, depth) | mask) + 1;
     }
     for (let i = 0; i < sizes.length; ++i) {
-      sizes[i] -= slicedOffLeft;
-    }
-    if (childRight !== undefined) {
-      const slicedOffRight =
-        sizeOfSubtree(node.array[pathRight], depth - 1) -
-        sizeOfSubtree(childRight, depth - 1);
-      sizes[sizes.length - 1] -= slicedOffRight;
+      sizes[i] -= slicedOff;
     }
   }
   return new Node(sizes, array);
@@ -1660,16 +1656,15 @@ function sliceLeft(
   }
 }
 
-/** Slice elements off of a tree from the right */
 function sliceRight(
-  node: Node,
+  tree: Node,
   depth: number,
   index: number,
   offset: number
 ): Node | undefined {
-  let { path, index: newIndex } = getPath(index, offset, depth, node.sizes);
+  let { path, index: newIndex } = getPath(index, offset, depth, tree.sizes);
   if (depth === 0) {
-    newAffix = node.array.slice(0, path + 1);
+    newAffix = tree.array.slice(0, path + 1);
     // this leaf node is moved up as a suffix so there is nothing here
     // after slicing
     return undefined;
@@ -1678,7 +1673,7 @@ function sliceRight(
     // algorithm can find the last element that we want to include
     // and sliceRight will do a slice that is inclusive on the index.
     const child = sliceRight(
-      node.array[path],
+      tree.array[path],
       depth - 1,
       newIndex,
       path === 0 ? offset : 0
@@ -1693,21 +1688,11 @@ function sliceRight(
     // note that we add 1 to the path since we want the slice to be
     // inclusive on the end index. Only at the leaf level do we want
     // to do an exclusive slice.
-    let array = node.array.slice(0, path + 1);
+    let array = tree.array.slice(0, path + 1);
     if (child !== undefined) {
       array[array.length - 1] = child;
     }
-    let sizes: Sizes | undefined = node.sizes;
-    if (sizes !== undefined) {
-      sizes = sizes.slice(0, path + 1);
-      if (child !== undefined) {
-        const slicedOff =
-          sizeOfSubtree(node.array[path], depth - 1) -
-          sizeOfSubtree(child, depth - 1);
-        sizes[sizes.length - 1] -= slicedOff;
-      }
-    }
-    return new Node(sizes, array);
+    return new Node(tree.sizes, array); // FIXME: handle the size table
   }
 }
 
@@ -1843,7 +1828,6 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   }
 
   const newList = cloneList(l);
-  newList.length = newLength;
 
   // Both indices lie in the tree
   if (prefixSize <= from && to <= suffixStart) {
@@ -1863,11 +1847,12 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       newList.offset =
         (newList.offset + from - prefixSize + getPrefixSize(newList)) & bits;
     }
+    newList.length = to - from;
     return newList;
   }
 
+  // we need to slice something off of the left
   if (0 < from) {
-    // we need to slice something off of the left
     if (from < prefixSize) {
       // do a cheap slice by setting prefix length
       bits = setPrefix(prefixSize - from, bits);
@@ -1880,17 +1865,15 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
         from - prefixSize + l.offset,
         l.offset
       );
-      if (newList.root === undefined) {
-        bits = setDepth(0, bits);
-      }
       bits = setPrefix(newAffix.length, bits);
       newList.offset += from - prefixSize + newAffix.length;
       prefixSize = newAffix.length;
       newList.prefix = newAffix;
     }
+    newList.length -= from;
   }
+
   if (to < length) {
-    // we need to slice something off of the right
     if (length - to < suffixSize) {
       bits = setSuffix(suffixSize - (length - to), bits);
     } else {
@@ -1906,6 +1889,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       bits = setSuffix(newAffix.length, bits);
       newList.suffix = newAffix;
     }
+    newList.length -= length - to;
   }
   newList.bits = bits;
   return newList;
@@ -2022,16 +2006,6 @@ export function insertAll<A>(
   );
 }
 
-/**
- * Reverses a list.
- * @category Updater
- * @param l The list to reverse.
- * @returns A reversed list.
- */
-export function reverse<A>(l: List<A>): List<A> {
-  return foldl((newL, element) => prepend(element, newL), empty(), l);
-}
-
 export function isList<A>(l: any): l is List<A> {
   return typeof l === "object" && Array.isArray(l.suffix);
 }
@@ -2128,25 +2102,4 @@ export function sortBy<A, B extends Comparable>(
     newL = append(arr[i].elm, newL);
   }
   return newL;
-}
-
-export function group<A>(l: List<A>): List<List<A>> {
-  return groupWith(elementEquals, l);
-}
-
-export function groupWith<A>(
-  f: (a: A, b: A) => boolean,
-  l: List<A>
-): List<List<A>> {
-  let result = empty();
-  let buffer = empty();
-  forEach(a => {
-    if (buffer.length === 0 || f(last(buffer), a)) {
-      buffer = append(a, buffer);
-    } else {
-      result = append(buffer, result);
-      buffer = of(a);
-    }
-  }, l);
-  return buffer.length === 0 ? result : append(buffer, result);
 }
