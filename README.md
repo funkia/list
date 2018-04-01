@@ -74,7 +74,7 @@ This section explains how to get started using List. First you'll have
 to install the library.
 
 ```
-npm install list
+npm i list
 ```
 
 Then you can import it.
