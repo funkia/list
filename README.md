@@ -367,7 +367,7 @@ pair("foo", "bar"); //=> list("foo", "bar")
 
 ### `fromArray`
 
-Converts an array into a list.
+Converts an array or anything that is array-like into a list.
 
 **Complexity**: `O(n)`
 
@@ -375,6 +375,18 @@ Converts an array into a list.
 
 ```js
 fromArray([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
+```
+
+### `fromIterable`
+
+Converts any iterable into a list.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+fromIterable(new Set([0, 1, 2, 3]); //=> list(0, 1, 2, 3)
 ```
 
 ### `range`
