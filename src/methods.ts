@@ -37,6 +37,7 @@ declare module "./index" {
     findIndex(predicate: (a: A) => boolean): number;
     includes(element: A): boolean;
     equals(secondList: List<any>): boolean;
+    equalsWith(f: (a: A, b: A) => boolean, secondList: List<any>): boolean;
     concat(right: List<A>): List<A>;
     update(index: number, a: A): List<A>;
     adjust(index: number, f: (a: A) => A): List<A>;
@@ -192,6 +193,13 @@ List.prototype.includes = function<A>(element: A): boolean {
 
 List.prototype.equals = function<A>(secondList: List<A>): boolean {
   return L.equals(this, secondList);
+};
+
+List.prototype.equalsWith = function<A>(
+  f: (a: A, b: A) => boolean,
+  secondList: List<A>
+): boolean {
+  return L.equalsWith(f, this, secondList);
 };
 
 List.prototype.concat = function<A>(right: List<A>): List<A> {

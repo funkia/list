@@ -826,6 +826,15 @@ describe("List", () => {
     it("returns true if lists are equivalent", () => {
       assert.isTrue(equals(list(0, 1, 2, 3, 4), list(0, 1, 2, 3, 4)));
     });
+    it("compares elements with function", () => {
+      assert.isTrue(
+        L.equalsWith(
+          (n, m) => Math.floor(n) === Math.floor(m),
+          L.list(2.1, 2.4, 3.8, 1.3),
+          L.list(2.7, 2.4, 3.2, 1.9)
+        )
+      );
+    });
   });
   describe("iteration", () => {
     it("iterates over leftwise dense list", () => {

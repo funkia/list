@@ -1101,30 +1101,33 @@ export function includes<A>(element: A, l: List<A>): boolean {
 
 export const contains = includes;
 
-type EqualsState = {
-  iterator: Iterator<any>;
+type EqualsState<A> = {
+  iterator: Iterator<A>;
+  f: (a: A, b: A) => boolean;
   equals: boolean;
 };
 
-const equalsState: EqualsState = {
-  iterator: undefined as any,
-  equals: true
-};
-
-function equalsCb(value2: any, state: EqualsState): boolean {
+function equalsCb<A>(value2: A, state: EqualsState<A>): boolean {
   const { value } = state.iterator.next();
-  return (state.equals = elementEquals(value, value2));
+  return (state.equals = state.f(value, value2));
 }
 
-export function equals<A>(firstList: List<A>, secondList: List<A>): boolean {
-  if (firstList === secondList) {
+export function equals<A>(l1: List<A>, l2: List<A>): boolean {
+  return equalsWith(elementEquals, l1, l2);
+}
+
+export function equalsWith<A>(
+  f: (a: A, b: A) => boolean,
+  l1: List<A>,
+  l2: List<A>
+): boolean {
+  if (l1 === l2) {
     return true;
-  } else if (firstList.length !== secondList.length) {
+  } else if (l1.length !== l2.length) {
     return false;
   } else {
-    equalsState.iterator = secondList[Symbol.iterator]();
-    equalsState.equals = true;
-    return foldlCb<A, EqualsState>(equalsCb, equalsState, firstList).equals;
+    const s = { iterator: l2[Symbol.iterator](), equals: true, f };
+    return foldlCb<A, EqualsState<A>>(equalsCb, s, l1).equals;
   }
 }
 

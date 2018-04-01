@@ -916,6 +916,23 @@ equals(list(0, 1, 2, 3), list(0, 1, 2, 3)); //=> true
 equals(list("a", "b", "c"), list("a", "z", "c")); //=> false
 ```
 
+### `equalsWith`
+
+Returns `true` if the two lists are equivalent when comparing each
+pair of elements with the given comparison function.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+equalsWith(
+  (n, m) => n.length === m.length,
+  list("foo", "hello", "one"),
+  list("bar", "world", "two")
+); //=> true
+```
+
 ### `toArray`
 
 Converts a list into an array.

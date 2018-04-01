@@ -194,6 +194,11 @@ export const foldr: typeof L.foldl & {
   <A, B>(f: (value: A, acc: B) => B, initial: B): (l: List<A>) => B;
 } = curry3(L.foldr);
 
+export const equalsWith: typeof L.equalsWith & {
+  <A>(f: (a: A, b: A) => boolean): Curried2<List<A>, List<A>, boolean>;
+  <A>(f: (a: A, b: A) => boolean, l1: List<A>): (l2: List<A>) => boolean;
+} = curry3(L.equalsWith);
+
 export const reduceRight: typeof foldr = foldr;
 
 export const update: typeof L.update & {
