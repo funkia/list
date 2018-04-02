@@ -16,6 +16,7 @@ const fileProxy = file => `{
   "private": true,
   "main": "../dist/${file}",
   "module": "../dist/es/${file}"
+  "types": "../dist/${removeExt("js", file)}.d.ts",
 }
 `;
 
