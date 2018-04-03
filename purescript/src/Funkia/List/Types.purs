@@ -1,7 +1,7 @@
 module Funkia.List.Types (List) where
 
 import Data.Foldable (class Foldable, foldMapDefaultR)
-import Data.Function.Uncurried (Fn2, Fn3, Fn4, mkFn2, runFn2, runFn3, runFn4)
+import Data.Function.Uncurried (Fn0, Fn2, Fn3, Fn4, Fn6, mkFn2, runFn0, runFn2, runFn3, runFn4, runFn6)
 import Data.Monoid (class Monoid)
 import Data.Traversable (class Traversable, traverse)
 import Prelude (class Applicative, class Apply, class Bind, class Eq, class Functor, class Monad, class Semigroup, class Show, apply, eq, id, map, pure, show, (<<<))
@@ -29,9 +29,9 @@ foreign import _append :: forall a. Fn2 (List a) (List a) (List a)
 
 
 instance monoidList :: Monoid (List a) where
-  mempty = _mempty
+  mempty = runFn0 _mempty
 
-foreign import _mempty :: forall a. List a
+foreign import _mempty :: forall a. Fn0 (List a)
 
 
 instance functorList :: Functor List where

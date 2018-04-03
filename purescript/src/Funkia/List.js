@@ -2,10 +2,7 @@
 
 var L = require("list");
 
-exports.length = function length(l) {
-  return l.length;
-};
-
+exports.length = L.length;
 exports._filter = L.filter;
 
 exports.unsafeHead = L.first;

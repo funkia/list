@@ -11,7 +11,7 @@ exports._eq = function _eq(f, xs, ys) {
 };
 
 exports._append = L.concat;
-exports._mempty = L.empty();
+exports._mempty = L.empty;
 exports._map = L.map;
 exports._apply = L.ap;
 exports._pure = L.of;
