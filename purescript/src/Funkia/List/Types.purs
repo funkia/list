@@ -2,8 +2,12 @@ module Funkia.List.Types (List) where
 
 import Data.Foldable (class Foldable, foldMapDefaultR)
 import Data.Function.Uncurried (Fn0, Fn2, Fn3, Fn4, Fn6, mkFn2, runFn0, runFn2, runFn3, runFn4, runFn6)
+import Data.Maybe (Maybe, fromJust, isNothing)
 import Data.Monoid (class Monoid)
 import Data.Traversable (class Traversable, traverse)
+import Data.Tuple (Tuple, fst, snd)
+import Data.Unfoldable (class Unfoldable)
+import Partial.Unsafe (unsafePartial)
 import Prelude (class Applicative, class Apply, class Bind, class Eq, class Functor, class Monad, class Semigroup, class Show, apply, eq, id, map, pure, show, (<<<))
 
 
@@ -68,6 +72,20 @@ instance foldableList :: Foldable List where
 
 foreign import _foldl :: forall a b. Fn3 (Fn2 b a b) b (List a) b
 foreign import _foldr :: forall a b. Fn3 (Fn2 a b b) b (List a) b
+
+
+instance unfoldableList :: Unfoldable List where
+  unfoldr = runFn6 _unfoldr isNothing (unsafePartial fromJust) fst snd
+
+foreign import _unfoldr
+  :: forall a b
+   . Fn6 (forall x. Maybe x -> Boolean)
+         (forall x. Maybe x -> x)
+         (forall x y. Tuple x y -> x)
+         (forall x y. Tuple x y -> y)
+         (b -> Maybe (Tuple a b))
+         b
+         (List a)
 
 
 instance traversableList :: Traversable List where

@@ -59,3 +59,15 @@ exports._traverse = function () {
 exports._show = function (f, xs) {
   return "fromFoldable [" + L.join(", ", L.map(f, xs)) + "]";
 };
+
+exports._unfoldr = function (isNothing, fromJust, fst, snd, f, b) {
+  var result = L.empty();
+  var value = b;
+  while (true) { // eslint-disable-line no-constant-condition
+    var maybe = f(value);
+    if (isNothing(maybe)) return result;
+    var tuple = fromJust(maybe);
+    result.push(fst(tuple));
+    value = snd(tuple);
+  }
+};
