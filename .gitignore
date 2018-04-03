@@ -8,6 +8,7 @@ dist
 *~
 .vscode
 .nyc_output
+tags
 coverage
 bower_components
 purescript/output
@@ -16,4 +17,5 @@ purescript/output
 fantasy-land
 list
 methods
+curried
 ramda

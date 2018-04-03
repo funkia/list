@@ -1101,30 +1101,33 @@ export function includes<A>(element: A, l: List<A>): boolean {
 
 export const contains = includes;
 
-type EqualsState = {
-  iterator: Iterator<any>;
+type EqualsState<A> = {
+  iterator: Iterator<A>;
+  f: (a: A, b: A) => boolean;
   equals: boolean;
 };
 
-const equalsState: EqualsState = {
-  iterator: undefined as any,
-  equals: true
-};
-
-function equalsCb(value2: any, state: EqualsState): boolean {
+function equalsCb<A>(value2: A, state: EqualsState<A>): boolean {
   const { value } = state.iterator.next();
-  return (state.equals = elementEquals(value, value2));
+  return (state.equals = state.f(value, value2));
 }
 
-export function equals<A>(firstList: List<A>, secondList: List<A>): boolean {
-  if (firstList === secondList) {
+export function equals<A>(l1: List<A>, l2: List<A>): boolean {
+  return equalsWith(elementEquals, l1, l2);
+}
+
+export function equalsWith<A>(
+  f: (a: A, b: A) => boolean,
+  l1: List<A>,
+  l2: List<A>
+): boolean {
+  if (l1 === l2) {
     return true;
-  } else if (firstList.length !== secondList.length) {
+  } else if (l1.length !== l2.length) {
     return false;
   } else {
-    equalsState.iterator = secondList[Symbol.iterator]();
-    equalsState.equals = true;
-    return foldlCb<A, EqualsState>(equalsCb, equalsState, firstList).equals;
+    const s = { iterator: l2[Symbol.iterator](), equals: true, f };
+    return foldlCb<A, EqualsState<A>>(equalsCb, s, l1).equals;
   }
 }
 
@@ -1464,30 +1467,30 @@ function concatAffixes<A>(left: List<A>, right: List<A>): number {
   var length = getSuffixSize(left);
   concatBuffer[nr] = [];
   for (i = 0; i < length; ++i) {
-    concatBuffer[nr][arrIdx] = left.suffix[i];
-    if (++arrIdx === 32) {
+    if (arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
+    concatBuffer[nr][arrIdx++] = left.suffix[i];
   }
   length = getPrefixSize(right);
   for (i = 0; i < length; ++i) {
-    concatBuffer[nr][arrIdx] = right.prefix[length - 1 - i];
-    if (++arrIdx === 32) {
+    if (arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
+    concatBuffer[nr][arrIdx++] = right.prefix[length - 1 - i];
   }
   length = getSuffixSize(right);
   for (i = 0; i < length; ++i) {
-    concatBuffer[nr][arrIdx] = right.suffix[i];
-    if (++arrIdx === 32) {
+    if (arrIdx === 32) {
       arrIdx = 0;
       ++nr;
       concatBuffer[nr] = [];
     }
+    concatBuffer[nr][arrIdx++] = right.suffix[i];
   }
   return nr;
 }
@@ -1601,17 +1604,21 @@ function sliceNode(
   let sizes = node.sizes;
   if (sizes !== undefined) {
     sizes = sizes.slice(pathLeft, pathRight + 1);
-    let slicedOff: number;
-    if (childLeft === undefined) {
-      slicedOff = node.sizes![pathLeft - 1];
-    } else {
-      slicedOff =
+    let slicedOffLeft = pathLeft !== 0 ? node.sizes![pathLeft - 1] : 0;
+    if (childLeft !== undefined) {
+      slicedOffLeft +=
         sizeOfSubtree(node.array[pathLeft], depth - 1) -
         sizeOfSubtree(childLeft, depth - 1);
       // slicedOff = (getBitsForDepth(index, depth) | mask) + 1;
     }
     for (let i = 0; i < sizes.length; ++i) {
-      sizes[i] -= slicedOff;
+      sizes[i] -= slicedOffLeft;
+    }
+    if (childRight !== undefined) {
+      const slicedOffRight =
+        sizeOfSubtree(node.array[pathRight], depth - 1) -
+        sizeOfSubtree(childRight, depth - 1);
+      sizes[sizes.length - 1] -= slicedOffRight;
     }
   }
   return new Node(sizes, array);
@@ -1656,15 +1663,16 @@ function sliceLeft(
   }
 }
 
+/** Slice elements off of a tree from the right */
 function sliceRight(
-  tree: Node,
+  node: Node,
   depth: number,
   index: number,
   offset: number
 ): Node | undefined {
-  let { path, index: newIndex } = getPath(index, offset, depth, tree.sizes);
+  let { path, index: newIndex } = getPath(index, offset, depth, node.sizes);
   if (depth === 0) {
-    newAffix = tree.array.slice(0, path + 1);
+    newAffix = node.array.slice(0, path + 1);
     // this leaf node is moved up as a suffix so there is nothing here
     // after slicing
     return undefined;
@@ -1673,7 +1681,7 @@ function sliceRight(
     // algorithm can find the last element that we want to include
     // and sliceRight will do a slice that is inclusive on the index.
     const child = sliceRight(
-      tree.array[path],
+      node.array[path],
       depth - 1,
       newIndex,
       path === 0 ? offset : 0
@@ -1688,11 +1696,21 @@ function sliceRight(
     // note that we add 1 to the path since we want the slice to be
     // inclusive on the end index. Only at the leaf level do we want
     // to do an exclusive slice.
-    let array = tree.array.slice(0, path + 1);
+    let array = node.array.slice(0, path + 1);
     if (child !== undefined) {
       array[array.length - 1] = child;
     }
-    return new Node(tree.sizes, array); // FIXME: handle the size table
+    let sizes: Sizes | undefined = node.sizes;
+    if (sizes !== undefined) {
+      sizes = sizes.slice(0, path + 1);
+      if (child !== undefined) {
+        const slicedOff =
+          sizeOfSubtree(node.array[path], depth - 1) -
+          sizeOfSubtree(child, depth - 1);
+        sizes[sizes.length - 1] -= slicedOff;
+      }
+    }
+    return new Node(sizes, array);
   }
 }
 
@@ -1828,6 +1846,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   }
 
   const newList = cloneList(l);
+  newList.length = newLength;
 
   // Both indices lie in the tree
   if (prefixSize <= from && to <= suffixStart) {
@@ -1847,12 +1866,11 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       newList.offset =
         (newList.offset + from - prefixSize + getPrefixSize(newList)) & bits;
     }
-    newList.length = to - from;
     return newList;
   }
 
-  // we need to slice something off of the left
   if (0 < from) {
+    // we need to slice something off of the left
     if (from < prefixSize) {
       // do a cheap slice by setting prefix length
       bits = setPrefix(prefixSize - from, bits);
@@ -1865,15 +1883,17 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
         from - prefixSize + l.offset,
         l.offset
       );
+      if (newList.root === undefined) {
+        bits = setDepth(0, bits);
+      }
       bits = setPrefix(newAffix.length, bits);
       newList.offset += from - prefixSize + newAffix.length;
       prefixSize = newAffix.length;
       newList.prefix = newAffix;
     }
-    newList.length -= from;
   }
-
   if (to < length) {
+    // we need to slice something off of the right
     if (length - to < suffixSize) {
       bits = setSuffix(suffixSize - (length - to), bits);
     } else {
@@ -1889,7 +1909,6 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       bits = setSuffix(newAffix.length, bits);
       newList.suffix = newAffix;
     }
-    newList.length -= length - to;
   }
   newList.bits = bits;
   return newList;
@@ -2038,4 +2057,99 @@ export function zipWith<A, B, C>(
 
 export function zip<A, B>(as: List<A>, bs: List<B>): List<[A, B]> {
   return zipWith((a, b) => [a, b] as [A, B], as, bs);
+}
+
+function isPrimitive(value: any): value is number | string {
+  return typeof value === "number" || typeof value === "string";
+}
+
+export type Ordering = -1 | 0 | 1;
+
+function comparePrimitive<A extends number | string>(a: A, b: A): Ordering {
+  return a === b ? 0 : a < b ? -1 : 1;
+}
+
+export interface Ord {
+  "fantasy-land/lte"(b: any): boolean;
+}
+
+export type Comparable = number | string | Ord;
+
+const ord = "fantasy-land/lte";
+
+function compareOrd(a: Ord, b: Ord): Ordering {
+  return a[ord](b) ? (b[ord](a) ? 0 : -1) : 1;
+}
+
+export function sort<A extends Comparable>(l: List<A>): List<A> {
+  if (l.length === 0) {
+    return l;
+  } else if (isPrimitive(first(l))) {
+    return fromArray(toArray(l).sort(comparePrimitive as any));
+  } else {
+    return sortWith(compareOrd, l as any) as any;
+  }
+}
+
+export function sortWith<A>(
+  comparator: (a: A, b: A) => Ordering,
+  l: List<A>
+): List<A> {
+  const arr: { idx: number; elm: A }[] = [];
+  let i = 0;
+  forEach(elm => arr.push({ idx: i++, elm }), l);
+  arr.sort(({ elm: a, idx: i }, { elm: b, idx: j }) => {
+    const c = comparator(a, b);
+    return c !== 0 ? c : i < j ? -1 : 1;
+  });
+  let newL = empty();
+  for (let i = 0; i < arr.length; ++i) {
+    newL = append(arr[i].elm, newL);
+  }
+  return newL;
+}
+
+export function sortBy<A, B extends Comparable>(
+  f: (a: A) => B,
+  l: List<A>
+): List<A> {
+  if (l.length === 0) {
+    return l;
+  }
+  const arr: { elm: A; prop: B; idx: number }[] = [];
+  let i = 0;
+  forEach(elm => arr.push({ idx: i++, elm, prop: f(elm) }), l);
+  const comparator: any = isPrimitive(arr[0].prop)
+    ? comparePrimitive
+    : compareOrd;
+  arr.sort(({ prop: a, idx: i }, { prop: b, idx: j }) => {
+    const c = comparator(a, b);
+    return c !== 0 ? c : i < j ? -1 : 1;
+  });
+  let newL = empty();
+  for (let i = 0; i < arr.length; ++i) {
+    newL = append(arr[i].elm, newL);
+  }
+  return newL;
+}
+
+export function group<A>(l: List<A>): List<List<A>> {
+  return groupWith(elementEquals, l);
+}
+
+export function groupWith<A>(
+  f: (a: A, b: A) => boolean,
+  l: List<A>
+): List<List<A>> {
+  let result = empty();
+  let buffer = empty();
+  forEach(a => {
+    if (buffer.length === 0 || f(last(buffer), a)) {
+      buffer = append(a, buffer);
+    } else {
+      result = append(buffer, result);
+      buffer = of(a);
+    }
+  }, l);
+  return buffer.length === 0 ? result : append(buffer, result);
 }

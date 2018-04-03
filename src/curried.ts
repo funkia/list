@@ -19,7 +19,9 @@ export {
   fromArray,
   toArray,
   reverse,
-  fromIterable
+  fromIterable,
+  sort,
+  group
 } from "./index";
 
 export interface Curried2<A, B, R> {
@@ -160,6 +162,21 @@ export const splitAt: typeof L.splitAt &
   L.splitAt
 );
 
+export const sortBy: typeof L.sortBy &
+  (<A, B extends L.Comparable>(
+    f: (a: A) => B
+  ) => (l: List<A>) => List<A>) = curry2(L.sortBy);
+
+export const sortWith: typeof L.sortWith &
+  (<A>(
+    comparator: (a: A, b: A) => L.Ordering
+  ) => (l: List<A>) => List<A>) = curry2(L.sortWith);
+
+export const groupWith: typeof L.groupWith &
+  (<A>(f: (a: A, b: A) => boolean) => (l: List<A>) => List<List<A>>) = curry2(
+  L.groupWith
+);
+
 export const zip: typeof L.zip &
   (<A>(as: List<A>) => <B>(bs: List<B>) => List<[A, B]>) = curry2(L.zip);
 
@@ -176,6 +193,11 @@ export const foldr: typeof L.foldl & {
   <A, B>(f: (value: A, acc: B) => B): Curried2<B, List<A>, B>;
   <A, B>(f: (value: A, acc: B) => B, initial: B): (l: List<A>) => B;
 } = curry3(L.foldr);
+
+export const equalsWith: typeof L.equalsWith & {
+  <A>(f: (a: A, b: A) => boolean): Curried2<List<A>, List<A>, boolean>;
+  <A>(f: (a: A, b: A) => boolean, l1: List<A>): (l2: List<A>) => boolean;
+} = curry3(L.equalsWith);
 
 export const reduceRight: typeof foldr = foldr;
 

@@ -7,6 +7,8 @@ import * as Lr from "../src/ramda";
 const exceptions = ["setEquals"];
 
 describe("Ramda", () => {
+  // These tests are commented out since the Ramda module is deprecated
+  /* 
   it("has all functions", () => {
     for (const key of Object.keys(L)) {
       const elm = (L as any)[key];
@@ -29,6 +31,7 @@ describe("Ramda", () => {
     const idx = Lr.indexOf({ foo: 3, bar: 4 }, l);
     assert.strictEqual(idx, 1);
   });
+  */
   it("list works with reduceBy", () => {
     type Student = { name: string; score: number };
     const result = R.reduceBy(

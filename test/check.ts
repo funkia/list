@@ -42,30 +42,42 @@ function computeDepth(node: any, direction: number): number {
  */
 export function checkList<A>(l: List<A>): void {
   const depth = getDepth(l);
-
-  // If a list has a tree (i.e. root is not undefined) then both the suffix and
-  // the prefix must contain elements.
-  if (l.root !== undefined) {
-    assert.notEqual(getSuffixSize(l), 0, "tree exists but suffix is empty");
-    assert.notEqual(getPrefixSize(l), 0, "tree exists but prefix is empty");
-    assert.exists(l.prefix, "tree exists but suffix is empty");
-    assert.exists(l.suffix, "tree exists but prefix is empty");
-  }
+  const prefixSize = getPrefixSize(l);
+  const suffixSize = getSuffixSize(l);
 
   // Depth should be 0 if `l.root` is undefined.
   if (l.root === undefined) {
     assert.equal(depth, 0, "root was undefined but depth was not 0");
-  }
+  } else {
+    // If a list has a tree (i.e. root is not undefined) then both the suffix and
+    // the prefix must contain elements.
+    assert.notEqual(suffixSize, 0, "tree exists but suffix is empty");
+    assert.notEqual(prefixSize, 0, "tree exists but prefix is empty");
+    assert.exists(l.prefix, "tree exists but suffix is empty");
+    assert.exists(l.suffix, "tree exists but prefix is empty");
 
-  // Check that the declared depth is equal to the depth found by manually
-  // traversing the tree.
-  if (l.root !== undefined) {
+    // Check that the declared depth is equal to the depth found by manually
+    // traversing the tree.
     const msg = "depth is incorrect";
     assert.equal(depth, computeDepth(l.root, 0), msg); // Check the left-most path
     assert.equal(depth, computeDepth(l.root, 0.25), msg);
     assert.equal(depth, computeDepth(l.root, 0.5), msg); // Check the middle path
     assert.equal(depth, computeDepth(l.root, 0.75), msg);
     assert.equal(depth, computeDepth(l.root, 1), msg); // Check the right-most path
+
+    // If the root node has size tables the size tables should be consistent with
+    // the length of the list.
+    if (l.root.sizes !== undefined) {
+      const sizes = l.root.sizes[l.root.sizes.length - 1];
+      const calculated = prefixSize + suffixSize + sizes;
+      assert.equal(
+        l.length,
+        calculated,
+        `list has length ${
+          l.length
+        } but prefixSize(${prefixSize}) + suffixSize(${suffixSize}) + size from size table(${sizes}) is ${calculated}`
+      );
+    }
   }
 }
 

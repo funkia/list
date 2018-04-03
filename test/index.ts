@@ -2,7 +2,7 @@ import { assert } from "chai";
 
 import * as P from "proptest";
 
-import { installCheck } from "./check";
+import { checkList, installCheck } from "./check";
 import * as Loriginal from "../src";
 
 const L: typeof Loriginal = installCheck(Loriginal);
@@ -62,7 +62,6 @@ import {
   reverse,
   forEach
 } from "../src";
-import "../src/fantasy-land";
 
 const check = P.createProperty(it);
 
@@ -70,7 +69,7 @@ const check = P.createProperty(it);
 const genList = P.nat.map(n => range(0, n));
 
 // Generates a list with length in the full 32 integer range
-const genBigList = P.natural.map(n => range(0, n));
+const genBigList = P.between(0, 10000).map(n => range(0, n));
 
 function numberArray(start: number, end: number): number[] {
   let array = [];
@@ -586,14 +585,20 @@ describe("List", () => {
         assertIndicesFromTo(l, 0, sum);
       });
     });
-  });
-  describe("monoid", () => {
-    it("has fantasy land empty", () => {
-      list(0, 1, 2)["fantasy-land/empty"]();
-    });
-    it("has fantasy land concat", () => {
-      list(0, 1, 2)["fantasy-land/concat"](list(3, 4));
-    });
+    check(
+      "toArray distributes over concat",
+      P.between(0, 1000000).replicate(2),
+      ([n, m]) => {
+        const left = L.range(0, n);
+        const right = L.range(n, n + m);
+        assert.deepEqual(
+          L.toArray(left).concat(L.toArray(right)),
+          L.toArray(L.concat(left, right))
+        );
+        return true;
+      },
+      { tests: 10 }
+    );
   });
   describe("map", () => {
     it("maps function over list", () => {
@@ -609,14 +614,6 @@ describe("List", () => {
       const l = prependList(0, 50);
       const mapped = map(square, l);
       for (let i = 0; i < 50; ++i) {
-        assert.strictEqual(nth(i, mapped), i * i);
-      }
-    });
-    it("has Fantasy Land method", () => {
-      const n = 50;
-      const l = range(0, n);
-      const mapped = l["fantasy-land/map"](m => m * m);
-      for (let i = 0; i < n; ++i) {
         assert.strictEqual(nth(i, mapped), i * i);
       }
     });
@@ -642,12 +639,6 @@ describe("List", () => {
       );
       assert.isTrue(equals(l, list(3, 4, 5, 2, 4, 6, 1, 4, 9)));
     });
-    it("has Fantasy Land method", () => {
-      const l = list(1, 2, 3)["fantasy-land/ap"](
-        list((n: number) => n + 2, (n: number) => 2 * n, (n: number) => n * n)
-      );
-      assert.isTrue(equals(l, list(3, 4, 5, 2, 4, 6, 1, 4, 9)));
-    });
   });
   describe("monad", () => {
     it("flattens lists", () => {
@@ -664,11 +655,6 @@ describe("List", () => {
     it("has chain", () => {
       const l = list(1, 2, 3);
       const l2 = chain(n => list(n, 2 * n, n * n), l);
-      assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
-    });
-    it("has Fantasy Land chain", () => {
-      const l = list(1, 2, 3);
-      const l2 = l["fantasy-land/chain"](n => list(n, 2 * n, n * n));
       assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
     });
   });
@@ -713,14 +699,6 @@ describe("List", () => {
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
     });
-    it("has Fantasy Land method", () => {
-      const l = list(0, 1, 2, 3, 4, 5);
-      const result = l["fantasy-land/reduce"](
-        (arr, i) => (arr.push(i), arr),
-        <number[]>[]
-      );
-      assert.deepEqual(result, numberArray(0, 6));
-    });
   });
   describe("forEach", () => {
     it("calls function for each element", () => {
@@ -737,12 +715,6 @@ describe("List", () => {
       for (let i = 0; i < length(l2); ++i) {
         assert.isTrue(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
       }
-    });
-    it("has Fantasy Land method", () => {
-      assert.strictEqual(
-        list(0, 1, 2, 3, 4, 5)["fantasy-land/filter"](isEven).length,
-        3
-      );
     });
     it("rejects element", () => {
       const l1 = list(0, 1, 2, 3, 4, 5, 6);
@@ -854,9 +826,13 @@ describe("List", () => {
     it("returns true if lists are equivalent", () => {
       assert.isTrue(equals(list(0, 1, 2, 3, 4), list(0, 1, 2, 3, 4)));
     });
-    it("has Fantasy Land method", () => {
+    it("compares elements with function", () => {
       assert.isTrue(
-        list(0, 1, 2, 3, 4)["fantasy-land/equals"](list(0, 1, 2, 3, 4))
+        L.equalsWith(
+          (n, m) => Math.floor(n) === Math.floor(m),
+          L.list(2.1, 2.4, 3.8, 1.3),
+          L.list(2.7, 2.4, 3.2, 1.9)
+        )
       );
     });
   });
@@ -1247,9 +1223,17 @@ describe("List", () => {
       assertIndicesFromTo(l2, 6, 10);
     });
   });
-  describe("splitAt and concat", () => {
+  describe("concat and slice", () => {
+    check("concat then splitAt is no-op", genBigList.replicate(2), ([l, m]) => {
+      const [l2, m2] = L.splitAt(l.length, L.concat(l, m));
+      checkList(l2);
+      checkList(m2);
+      assert.isTrue(L.equals(l, l2));
+      assert.isTrue(L.equals(m, m2));
+      return true;
+    });
     check(
-      "are inverses",
+      "splitAt then concat is no-op",
       P.range(2)
         .big()
         .array()
@@ -1258,6 +1242,34 @@ describe("List", () => {
         const li = list(...xs);
         const [left, right] = splitAt(i, li);
         assertListEqual(concat(left, right), li);
+        return true;
+      }
+    );
+    check(
+      "concat then slice",
+      P.between(0, 5000)
+        .replicate(2)
+        .chain(([n, m]) =>
+          P.range(n + m + 1).chain(to =>
+            P.record({
+              n: P.Gen.of(n),
+              m: P.Gen.of(m),
+              to: P.Gen.of(to),
+              from: P.range(to + 1)
+            })
+          )
+        ),
+      ({ n, m, from, to }) => {
+        const left = L.range(0, n);
+        const right = L.range(n, n + m);
+        const cat = L.concat(left, right);
+        const sliced = L.slice(from, to, cat);
+        assert.deepEqual(
+          L.toArray(sliced),
+          numberArray(0, n)
+            .concat(numberArray(n, n + m))
+            .slice(from, to)
+        );
         return true;
       }
     );
@@ -1397,6 +1409,132 @@ describe("List", () => {
       const as = list("a", "b", "c");
       const bs = list(0, 1, 2);
       assertListEqual(L.zip(as, bs), list(["a", 0], ["b", 1], ["c", 2]));
+    });
+  });
+  describe("sorting", () => {
+    class Pair {
+      constructor(readonly fst: number, readonly snd: number) {}
+      "fantasy-land/lte"(b: Pair): boolean {
+        if (this.fst === b.fst) {
+          return this.snd <= b.snd;
+        } else {
+          return this.fst <= b.fst;
+        }
+      }
+    }
+    function compareNumber(a: number, b: number): -1 | 0 | 1 {
+      if (a === b) {
+        return 0;
+      } else if (a < b) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+    const unsorted = list(
+      { n: 2, m: 1 },
+      { n: 1, m: 1 },
+      { n: 1, m: 2 },
+      { n: 1, m: 3 },
+      { n: 0, m: 1 },
+      { n: 3, m: 1 }
+    );
+    const unsortedPairs = list(
+      new Pair(2, 1),
+      new Pair(1, 1),
+      new Pair(1, 2),
+      new Pair(1, 2),
+      new Pair(1, 3),
+      new Pair(0, 1),
+      new Pair(3, 1)
+    );
+    it("sort returns same list on empty list ", () => {
+      const l = empty();
+      assert.strictEqual(l, L.sort(l));
+    });
+    it("sort sorts primitives ", () => {
+      const l = L.list(5, 2, 9, 1, 7, 3, 9);
+      assert.deepEqual(L.toArray(L.sort(l)), L.toArray(l).sort());
+    });
+    it("sort sorts Fantasy Land Ords", () => {
+      const sorted = L.sort(unsortedPairs);
+      const sortedPairs = [
+        new Pair(0, 1),
+        new Pair(1, 1),
+        new Pair(1, 2),
+        new Pair(1, 2),
+        new Pair(1, 3),
+        new Pair(2, 1),
+        new Pair(3, 1)
+      ];
+      assert.deepEqual(L.toArray(sorted), sortedPairs);
+    });
+    it("sortBy returns same list on empty list ", () => {
+      const l = empty();
+      assert.strictEqual(
+        l,
+        L.sortBy(_ => {
+          throw new Error("Should not be called");
+        }, l)
+      );
+    });
+    it("sortBy is stable", () => {
+      const sorted = L.sortBy(e => e.n, unsorted);
+      assert.deepEqual(L.toArray(sorted), [
+        { n: 0, m: 1 },
+        { n: 1, m: 1 },
+        { n: 1, m: 2 },
+        { n: 1, m: 3 },
+        { n: 2, m: 1 },
+        { n: 3, m: 1 }
+      ]);
+    });
+    it("sortBy sort Fantasy Land Ords", () => {
+      const unsorted = L.map(
+        pair => ({ pair, sum: pair.fst + pair.snd }),
+        unsortedPairs
+      );
+      const sorted = L.sortBy(o => o.pair, unsorted);
+      assert.deepEqual(L.toArray(sorted), [
+        { pair: new Pair(0, 1), sum: 1 },
+        { pair: new Pair(1, 1), sum: 2 },
+        { pair: new Pair(1, 2), sum: 3 },
+        { pair: new Pair(1, 2), sum: 3 },
+        { pair: new Pair(1, 3), sum: 4 },
+        { pair: new Pair(2, 1), sum: 3 },
+        { pair: new Pair(3, 1), sum: 4 }
+      ]);
+    });
+    it("sortWith is stable", () => {
+      const sorted = L.sortWith((a, b) => compareNumber(a.n, b.n), unsorted);
+      assert.deepEqual(L.toArray(sorted), [
+        { n: 0, m: 1 },
+        { n: 1, m: 1 },
+        { n: 1, m: 2 },
+        { n: 1, m: 3 },
+        { n: 2, m: 1 },
+        { n: 3, m: 1 }
+      ]);
+    });
+  });
+  describe("group", () => {
+    it("group", () => {
+      const l = L.list(1, 1, 1, 2, 2, 3, 4, 4);
+      assertListEqual(
+        L.group(l),
+        L.list(L.list(1, 1, 1), L.list(2, 2), L.list(3), L.list(4, 4))
+      );
+    });
+    it("groups empty list to empty list", () => {
+      assertListEqual(L.group(L.empty()), L.empty());
+    });
+    it("groupWith", () => {
+      const l = L.list(4.2, 4.5, 1.1, 1.4, 3.5, 3.9);
+      const l2 = L.groupWith((a, b) => Math.floor(a) === Math.floor(b), l);
+      assertListEqual(
+        l2,
+        L.list(L.list(4.2, 4.5), L.list(1.1, 1.4), L.list(3.5, 3.9))
+      );
     });
   });
 });
