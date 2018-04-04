@@ -57,9 +57,9 @@ module Funkia.List
   , dropEnd
   , dropWhile
   , span
-  -- , group
-  -- , group'
-  -- , groupBy
+  , group
+  , group'
+  , groupBy
 
   , nub
   , nubBy
@@ -93,9 +93,10 @@ import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
-import Data.Function.Uncurried (Fn1, Fn2, Fn3, mkFn2, runFn2, runFn3)
+import Data.Function.Uncurried (Fn2, Fn3, mkFn2, runFn2, runFn3)
 import Data.Maybe (Maybe(..), fromJust, isJust, maybe)
 import Data.Monoid (mempty)
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(Tuple), fst, snd)
@@ -517,26 +518,21 @@ span p xs = unsafePartial
 foreign import splitAt :: forall a. Fn2 Int (List a) (Array (List a))
 
 -- | Group equal, consecutive elements of a list into lists.
--- group :: forall a. Eq a => Array a -> Array (NonEmpty Array a)
--- group xs = groupBy eq xs
+group :: forall a. Eq a => List a -> List (NonEmpty List a)
+group = groupBy eq
 
 -- | Sort and then group the elements of a list into lists.
--- group' :: forall a. Ord a => Array a -> Array (NonEmpty Array a)
--- group' = group <<< sort
+group' :: forall a. Ord a => List a -> List (NonEmpty List a)
+group' = group <<< sort
 
 -- | Group equal, consecutive elements of a list into lists, using the
 -- | specified equivalence relation to detemine equality.
--- groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
--- groupBy op xs =
---   pureST do
---     result <- emptySTArray
---     iter <- iterator (xs !! _)
---     iterate iter \x -> void do
---       sub <- emptySTArray
---       pushWhile (op x) iter sub
---       sub_ <- unsafeFreeze sub
---       pushSTArray result (x :| sub_)
---     unsafeFreeze result
+groupBy :: forall a. (a -> a -> Boolean) -> List a -> List (NonEmpty List a)
+groupBy op xs = toNonEmpty <$> (runFn2 _groupBy (mkFn2 op) xs)
+  where
+    toNonEmpty xs = unsafeHead xs :| unsafeTail xs
+
+foreign import _groupBy :: forall a. Fn2 (Fn2 a a Boolean) (List a) (List (List a))
 
 -- | Remove the duplicates from a list, creating a new list.
 nub :: forall a. Eq a => List a -> List a
