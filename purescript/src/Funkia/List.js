@@ -41,3 +41,8 @@ exports._modifyAt = L.adjust;
 exports._updateAt = L.update;
 exports._slice = L.slice;
 exports._partition = L.partition;
+exports._sort = L.sort;
+
+// The names of these two functions are flipped in purescript-arrays and funkia/list
+exports._sortBy = L.sortWith;
+exports._sortWith = L.sortBy;

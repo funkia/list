@@ -46,9 +46,9 @@ module Funkia.List
   , catMaybes
   , mapWithIndex
 
-  -- , sort
-  -- , sortBy
-  -- , sortWith
+  , sort
+  , sortBy
+  , sortWith
   , slice
   , take
   , takeEnd
@@ -93,7 +93,7 @@ import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
-import Data.Function.Uncurried (Fn2, Fn3, mkFn2, runFn2, runFn3)
+import Data.Function.Uncurried (Fn1, Fn2, Fn3, mkFn2, runFn2, runFn3)
 import Data.Maybe (Maybe(..), fromJust, isJust, maybe)
 import Data.Monoid (mempty)
 import Data.Traversable (scanl, scanr) as Exports
@@ -424,25 +424,27 @@ mapWithIndex f xs =
 --------------------------------------------------------------------------------
 
 -- | Sort the elements of a list in increasing order, creating a new list.
--- sort :: forall a. Ord a => Array a -> Array a
--- sort xs = sortBy compare xs
+sort :: forall a. Ord a => List a -> List a
+sort xs = sortBy compare xs
 
 -- | Sort the elements of a list in increasing order, where elements are
 -- | compared using the specified partial ordering, creating a new list.
--- sortBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
--- sortBy comp xs = sortImpl comp' xs
---   where
---   comp' x y = case comp x y of
---     GT -> 1
---     EQ -> 0
---     LT -> -1
+sortBy :: forall a. (a -> a -> Ordering) -> List a -> List a
+sortBy comp xs = runFn2 _sortBy comp' xs
+  where
+  comp' = mkFn2 $ \x y -> case comp x y of
+    GT -> 1
+    EQ -> 0
+    LT -> -1
+
+foreign import _sortBy :: forall a. Fn2 (Fn2 a a Int) (List a) (List a)
 
 -- | Sort the elements of a list in increasing order, where elements are
 -- | sorted based on a projection
--- sortWith :: forall a b. Ord b => (a -> b) -> Array a -> Array a
--- sortWith f = sortBy (comparing f)
+sortWith :: forall a b. Ord b => (a -> b) -> List a -> List a
+sortWith = runFn2 _sortWith
 
--- foreign import sortImpl :: forall a. (a -> a -> Int) -> Array a -> Array a
+foreign import _sortWith :: forall a b. Fn2 (a -> b) (List a) (List a)
 
 --------------------------------------------------------------------------------
 -- Sublists --------------------------------------------------------------------
