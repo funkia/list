@@ -2,14 +2,7 @@
 
 var L = require("list");
 
-exports._eq = function _eq(f, xs, ys) {
-  if (L.length(xs) !== L.length(ys)) return false;
-  for (var i = 0; i < L.length(xs); i++) {
-    if (!f(L.nth(i, xs))(L.nth(i, ys))) return false;
-  }
-  return true;
-};
-
+exports._eq = L.equalsWith;
 exports._append = L.concat;
 exports._mempty = L.empty;
 exports._map = L.map;
