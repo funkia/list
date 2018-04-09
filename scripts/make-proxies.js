@@ -15,8 +15,8 @@ const fileProxy = file => `{
   "name": "${pkg.name}/${removeExt("js", file)}",
   "private": true,
   "main": "../dist/${file}",
-  "module": "../dist/es/${file}"
-  "types": "../dist/${removeExt("js", file)}.d.ts",
+  "module": "../dist/es/${file}",
+  "types": "../dist/${removeExt("js", file)}.d.ts"
 }
 `;
 
