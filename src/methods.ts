@@ -23,6 +23,7 @@ declare module "./index" {
     reduceRight<B>(f: (value: A, acc: B) => B, initial: B): B;
     forEach(callback: (a: A) => void): void;
     filter(predicate: (a: A) => boolean): List<A>;
+    filter<B extends A>(predicate: (a: A) => a is B): List<B>;
     reject(predicate: (a: A) => boolean): List<A>;
     partition(predicate: (a: A) => boolean): List<List<A>>;
     join(separator: string): string;

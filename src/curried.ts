@@ -87,6 +87,7 @@ export const range: typeof L.range &
   ((start: number) => (end: number) => List<number>) = curry2(L.range);
 
 export const filter: typeof L.filter &
+  (<A, B extends A>(predicate: (a: A) => a is B) => (l: List<A>) => List<B>) &
   (<A>(predicate: (a: A) => boolean) => (l: List<A>) => List<A>) = curry2(
   L.filter
 );

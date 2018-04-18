@@ -132,7 +132,7 @@ function assertIndexEqual<A>(i: number, l1: List<A>, l2: List<A>): void {
   assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
 }
 
-function assertListEqual<A>(l1: List<A>, l2: List<A>): void {
+export function assertListEqual<A>(l1: List<A>, l2: List<A>): void {
   assert.equal(l1.length, l2.length, "same length");
   const length = l1.length;
   if (length > 500) {
@@ -723,6 +723,15 @@ describe("List", () => {
       for (let i = 0; i < length(l2); ++i) {
         assert.isTrue(isEven(nth(i, l2)!), `${i} is ${nth(i, l2)}`);
       }
+    });
+    it("works with user-defined type guards", () => {
+      function pred(a: any): a is string {
+        return typeof a === "string";
+      }
+      const l = L.list<number | string>(0, "one", 2, "three", 4, "five");
+      const l2 = L.filter(pred, l);
+      const l3 = L.map(s => s[0], l2);
+      assertListEqual(l3, L.list("o", "t", "f"));
     });
     it("rejects element", () => {
       const l1 = list(0, 1, 2, 3, 4, 5, 6);
