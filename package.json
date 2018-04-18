@@ -41,6 +41,7 @@
     "typescript": "^2.7.1"
   },
   "files": [
+    "src",
     "dist",
     "methods",
     "curried",
