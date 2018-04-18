@@ -2,13 +2,13 @@ import { assert } from "chai";
 import * as R from "ramda";
 
 import * as L from "../src/index";
-import * as Lr from "../src/ramda";
+// import * as Lr from "../src/ramda";
 
-const exceptions = ["setEquals"];
+// const exceptions = ["setEquals"];
 
 describe("Ramda", () => {
   // These tests are commented out since the Ramda module is deprecated
-  /* 
+  /*
   it("has all functions", () => {
     for (const key of Object.keys(L)) {
       const elm = (L as any)[key];

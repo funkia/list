@@ -1,5 +1,4 @@
 import { assert } from "chai";
-import * as R from "ramda";
 
 import * as L from "../src/index";
 import * as Lf from "../src/fantasy-land";
@@ -20,19 +19,6 @@ describe("Fantasy Land", () => {
       }
     }
   });
-  // it("has Fantasy Land methods", () => {
-  //   const methods = [
-  //     "equals",
-  //     "map",
-  //     "of",
-  //     "ap",
-  //     "chain",
-  //     "filter",
-  //     "empty",
-  //     "concat",
-  //     "reduce"
-  //   ];
-  // });
   describe("setoid", () => {
     it("has Fantasy Land method", () => {
       assert.isTrue(

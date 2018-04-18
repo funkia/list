@@ -79,14 +79,22 @@ function numberArray(start: number, end: number): number[] {
   return array;
 }
 
-function appendList(start: number, end: number, l = empty()): List<number> {
+function appendList(
+  start: number,
+  end: number,
+  l: List<number> = empty()
+): List<number> {
   for (let i = start; i < end; ++i) {
     l = append(i, l);
   }
   return l;
 }
 
-function prependList(start: number, end: number, l = empty()): List<number> {
+function prependList(
+  start: number,
+  end: number,
+  l: List<number> = empty()
+): List<number> {
   for (let i = end - 1; i >= start; --i) {
     l = prepend(i, l);
   }
@@ -713,7 +721,7 @@ describe("List", () => {
       const l2 = filter(isEven, l1);
       assert.strictEqual(length(l2), 4);
       for (let i = 0; i < length(l2); ++i) {
-        assert.isTrue(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
+        assert.isTrue(isEven(nth(i, l2)!), `${i} is ${nth(i, l2)}`);
       }
     });
     it("rejects element", () => {
@@ -721,13 +729,13 @@ describe("List", () => {
       const l2 = reject(isEven, l1);
       assert.strictEqual(length(l2), 3);
       for (let i = 0; i < length(l2); ++i) {
-        assert.isFalse(isEven(nth(i, l2)), `${i} is ${nth(i, l2)}`);
+        assert.isFalse(isEven(nth(i, l2)!), `${i} is ${nth(i, l2)}`);
       }
     });
     it("partitions elements in two lists", () => {
       const l = partition(isEven, list(0, 1, 2, 3, 4, 5));
-      assert.isTrue(equals(nth(0, l), list(0, 2, 4)));
-      assert.isTrue(equals(nth(1, l), list(1, 3, 5)));
+      assert.isTrue(equals(nth(0, l)!, list(0, 2, 4)));
+      assert.isTrue(equals(nth(1, l)!, list(1, 3, 5)));
     });
   });
   describe("foldl based functions", () => {
@@ -1344,7 +1352,7 @@ describe("List", () => {
     });
   });
   describe("fromIterable", () => {
-    function* iterable(n: number) {
+    function* iterable(n: number): IterableIterator<number> {
       for (let i = 0; i < n; ++i) {
         yield i;
       }
