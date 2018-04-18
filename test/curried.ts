@@ -2,6 +2,7 @@ import { assert } from "chai";
 
 import * as L from "../src/index";
 import * as Lc from "../src/curried";
+import { assertListEqual } from ".";
 
 const exceptions = ["setEquals"];
 
@@ -37,6 +38,16 @@ describe("curried", () => {
     assert.isTrue(Lc.equals(l, Lc.list(0, 1, 2)));
     // Should not give type error since `l` is list of `number`
     assert.equal(Lc.foldl((a: number, b: number) => a + b, 0, l), 3);
+  });
+  it("curried filter works with user-defined type guards", () => {
+    function pred(a: any): a is string {
+      return typeof a === "string";
+    }
+    const filterPred = Lc.filter(pred);
+    const l = L.list<number | string>(0, "one", 2, "three", 4, "five");
+    const l2 = filterPred(l);
+    const l3 = L.map(s => s[0], l2);
+    assertListEqual(l3, L.list("o", "t", "f"));
   });
   it("can call foldl in all combinations", () => {
     const f = (sum: number, s: string) => sum + s.length;

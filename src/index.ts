@@ -827,6 +827,11 @@ export function forEach<A>(callback: (a: A) => void, l: List<A>): void {
   foldl((_, element) => callback(element), undefined as void, l);
 }
 
+export function filter<A, B extends A>(
+  predicate: (a: A) => a is B,
+  l: List<A>
+): List<B>;
+export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A>;
 export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
   return foldl((acc, a) => (predicate(a) ? append(a, acc) : acc), empty(), l);
 }
@@ -1776,7 +1781,9 @@ function sliceTreeList<A>(
         const newRoot =
           childRight !== undefined
             ? childRight
-            : childLeft !== undefined ? childLeft : tree.array[pathLeft];
+            : childLeft !== undefined
+              ? childLeft
+              : tree.array[pathLeft];
         l.root = new Node(newRoot.sizes, newRoot.array); // Is this size handling good enough?
       }
     } else {
