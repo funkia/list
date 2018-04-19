@@ -322,11 +322,11 @@ function createBits(
  * Invariants that any list `l` should satisfy
  *
  * 1. If `l.root !== undefined` then `getSuffixSize(l) !== 0` and
- *   `getPrefixSize(l) !== 0`. The invariant ensures that `first` and
- *   `last` never have to look in the root and that they therefore
- *   take O(1) time.
+ *    `getPrefixSize(l) !== 0`. The invariant ensures that `first` and
+ *    `last` never have to look in the root and that they therefore
+ *    take O(1) time.
  * 2. If a tree or sub-tree does not have a size-table then all leaf
-      nodes in the tree are of size 32.
+ *    nodes in the tree are of size 32.
  */
 export class List<A> {
   constructor(
@@ -466,7 +466,7 @@ function prependSizes(n: number, sizes: Sizes): Sizes {
  * Prepends a node to a tree. Either by shifting the nodes in the root
  * left or by increasing the height
  */
-function prependTopTree<A>(l: List<A>, depth: number, node: Node) {
+function prependTopTree<A>(l: List<A>, depth: number, node: Node): number {
   let newOffset;
   if (l.root!.array.length < branchingFactor) {
     // There is space in the root
@@ -1781,9 +1781,7 @@ function sliceTreeList<A>(
         const newRoot =
           childRight !== undefined
             ? childRight
-            : childLeft !== undefined
-              ? childLeft
-              : tree.array[pathLeft];
+            : childLeft !== undefined ? childLeft : tree.array[pathLeft];
         l.root = new Node(newRoot.sizes, newRoot.array); // Is this size handling good enough?
       }
     } else {
@@ -1871,7 +1869,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       // bits we can make the offset fit the new height of the tree.
       const bits = ~(~0 << (getDepth(newList) * branchBits));
       newList.offset =
-        (newList.offset + from - prefixSize + getPrefixSize(newList)) & bits;
+        (l.offset + from - prefixSize + getPrefixSize(newList)) & bits;
     }
     return newList;
   }
