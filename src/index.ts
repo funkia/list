@@ -1629,11 +1629,14 @@ function sliceNode(
   return new Node(sizes, array);
 }
 
+let newOffset = 0;
+
 function sliceLeft(
   tree: Node,
   depth: number,
   index: number,
-  offset: number
+  offset: number,
+  top: boolean
 ): Node | undefined {
   let { path, index: newIndex } = getPath(index, offset, depth, tree.sizes);
   if (depth === 0) {
@@ -1642,12 +1645,12 @@ function sliceLeft(
     // after slicing
     return undefined;
   } else {
-    // Slice the child
     const child = sliceLeft(
       tree.array[path],
       depth - 1,
       newIndex,
-      path === 0 ? offset : 0
+      path === 0 ? offset : 0,
+      false
     );
     if (child === undefined) {
       // There is nothing in the child after slicing so we don't include it
@@ -1655,6 +1658,10 @@ function sliceLeft(
       if (path === tree.array.length) {
         return undefined;
       }
+    }
+    // If we've sliced something away and it's not a the root, update offset
+    if (tree.sizes === undefined && top === false) {
+      newOffset |= (32 - (tree.array.length - path)) << (depth * branchBits);
     }
     return sliceNode(
       tree,
@@ -1750,23 +1757,27 @@ function sliceTreeList<A>(
       l
     );
   } else {
+    const childRight = sliceRight(tree.array[pathRight], depth - 1, newTo, 0);
+    l.bits = setSuffix(newAffix.length, l.bits);
+    l.suffix = newAffix;
+    if (childRight === undefined) {
+      --pathRight;
+    }
+    newOffset = 0;
+
     const childLeft = sliceLeft(
       tree.array[pathLeft],
       depth - 1,
       newFrom,
-      pathLeft === 0 ? offset : 0
+      pathLeft === 0 ? offset : 0,
+      pathLeft === pathRight
     );
+    l.offset = newOffset;
     l.bits = setPrefix(newAffix.length, l.bits);
     l.prefix = newAffix;
 
-    const childRight = sliceRight(tree.array[pathRight], depth - 1, newTo, 0);
-    l.bits = setSuffix(newAffix.length, l.bits);
-    l.suffix = newAffix;
     if (childLeft === undefined) {
       ++pathLeft;
-    }
-    if (childRight === undefined) {
-      --pathRight;
     }
     if (pathLeft >= pathRight) {
       if (pathLeft > pathRight) {
@@ -1781,7 +1792,9 @@ function sliceTreeList<A>(
         const newRoot =
           childRight !== undefined
             ? childRight
-            : childLeft !== undefined ? childLeft : tree.array[pathLeft];
+            : childLeft !== undefined
+              ? childLeft
+              : tree.array[pathLeft];
         l.root = new Node(newRoot.sizes, newRoot.array); // Is this size handling good enough?
       }
     } else {
@@ -1863,14 +1876,6 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       l.offset,
       newList
     );
-    if (newList.root !== undefined) {
-      // The height of the tree might have been reduced. The offset
-      // will be for a deeper tree. By clearing some of the left-most
-      // bits we can make the offset fit the new height of the tree.
-      const bits = ~(~0 << (getDepth(newList) * branchBits));
-      newList.offset =
-        (l.offset + from - prefixSize + getPrefixSize(newList)) & bits;
-    }
     return newList;
   }
 
@@ -1882,17 +1887,19 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
     } else {
       // if we're here `to` can't lie in the tree, so we can set the
       // root
+      newOffset = 0;
       newList.root = sliceLeft(
         newList.root!,
         getDepth(l),
         from - prefixSize + l.offset,
-        l.offset
+        l.offset,
+        true
       );
+      newList.offset = newOffset;
       if (newList.root === undefined) {
         bits = setDepth(0, bits);
       }
       bits = setPrefix(newAffix.length, bits);
-      newList.offset += from - prefixSize + newAffix.length;
       prefixSize = newAffix.length;
       newList.prefix = newAffix;
     }
