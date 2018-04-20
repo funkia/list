@@ -13,7 +13,6 @@ A fast immutable list with a functional API.
   <a href="https://badge.fury.io/js/list"><img src="https://badge.fury.io/js/list.svg" alt="npm version" height="20"></a>
   <a href="https://david-dm.org/funkia/list"><img src="https://david-dm.org/funkia/list/status.svg" alt="npm version" height="20"></a>
   <a href="https://david-dm.org/funkia/list?type=dev"><img src="https://david-dm.org/funkia/list/dev-status.svg" alt="npm version" height="20"></a>
-  <a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/funkia/list.svg" alt="Greenkeeper badge"></a>
 </p>
 
 # List
