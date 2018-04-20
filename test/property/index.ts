@@ -143,4 +143,31 @@ describe("properties", () => {
       }
     });
   });
+  it("concat and slice", () => {
+    times(10000, _n => {
+      const nrOfListsToConcat = 2; // randomInInterval(3, 14);
+
+      let offset = 0;
+      let concatenated = empty();
+      times(nrOfListsToConcat, () => {
+        const size = randomInInterval(100, 10000);
+        const list = prependList(offset, offset + size);
+        // side-effects
+        concatenated = concat(concatenated, list);
+        offset += size;
+      });
+      const a = randomInInterval(0, concatenated.length);
+      const b = randomInInterval(0, concatenated.length);
+      const from = Math.min(a, b);
+      const to = Math.max(a, b);
+      const final = slice(from, to, concatenated);
+      try {
+        cheapAssertIndicesFromTo(final, from, to);
+      } catch (err) {
+        console.log(_n);
+        console.log(from);
+        throw err;
+      }
+    });
+  });
 });

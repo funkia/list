@@ -108,7 +108,13 @@ function assertIndicesFromTo(
   offset: number = 0
 ): void {
   for (let i = 0; i < to - from; ++i) {
-    assert.strictEqual(nth(i + offset, list), from + i);
+    let elm: number;
+    try {
+      elm = nth(i + offset, list)!;
+    } catch (err) {
+      throw new Error(`Error while indexing ${i + offset}\n${err}`);
+    }
+    assert.strictEqual(elm, from + i);
   }
 }
 
@@ -224,7 +230,7 @@ describe("List", () => {
       ].forEach(n => {
         let l = empty();
         for (let i = n - 1; i >= 0; --i) {
-          l = prepend(i, l);
+          l = L.prepend(i, l);
         }
         assertIndicesFromTo(l, 0, n);
       });
@@ -236,7 +242,7 @@ describe("List", () => {
       ].forEach(n => {
         let l = empty();
         for (let i = n - 1; i >= 0; --i) {
-          l = prepend(i, l);
+          l = L.prepend(i, l);
         }
         assertIndicesFromTo(l, 0, n);
       });
@@ -1287,6 +1293,25 @@ describe("List", () => {
             .concat(numberArray(n, n + m))
             .slice(from, to)
         );
+        return true;
+      }
+    );
+    check(
+      "slices elements off concatenated list",
+      P.between(0, 10000).chain(n =>
+        P.between(0, n)
+          .three()
+          .map(ns => [n, ...ns])
+      ),
+      ([n, a, b, c]) => {
+        // console.log(n, a, b, c);
+        const fst = L.range(0, a);
+        const snd = L.range(a, n);
+        const catenated = L.concat(fst, snd);
+        const from = Math.min(b, c);
+        const to = Math.max(b, c);
+        const sliced = L.slice(from, to, catenated);
+        cheapAssertIndicesFromTo(sliced, from, to);
         return true;
       }
     );
