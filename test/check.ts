@@ -1,7 +1,7 @@
 import { assert } from "chai";
 
 import * as L from "../src/index";
-import { List } from "../src/index";
+import { List, Node } from "../src/index";
 
 // These three getter functions are identical to the unexported functions in
 // `src/index.ts` with the same names.
@@ -29,6 +29,36 @@ function computeDepth(node: any, direction: number): number {
   } else {
     return -1;
   }
+}
+
+function doComputeOffset(
+  node: Node,
+  depth: number,
+  offset: number,
+  leftSpine: boolean
+): number {
+  if (depth === 0) {
+    return offset;
+  } else {
+    let newOffset = offset;
+    if (node.sizes === undefined && leftSpine) {
+      // Nodes with size-tables does not affect `offset`. In this case
+      // the size tables store the information about how many elements
+      // are to be found.
+      const offsetHere = 32 - node.array.length;
+      newOffset = offset | (offsetHere << (depth * 5));
+    }
+    return doComputeOffset(
+      node.array[0],
+      depth - 1,
+      newOffset,
+      leftSpine || node.array.length !== 1
+    );
+  }
+}
+
+function computeOffset(l: List<any>): number {
+  return doComputeOffset(l.root!, getDepth(l), 0, false);
 }
 
 /**
@@ -79,6 +109,14 @@ export function checkList<A>(l: List<A>): void {
       );
     }
   }
+
+  // The offset should be identical to the offset that we manually compute
+  const computedOffset = computeOffset(l);
+  assert.equal(
+    l.offset,
+    computedOffset,
+    `expected offset to be ${computedOffset} but it was ${l.offset}`
+  );
 }
 
 export function installCheck(library: any): any {
