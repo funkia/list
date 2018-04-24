@@ -281,6 +281,19 @@ Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`, `dropRepeatsWith`,
 `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`,
 `xprod`.
 
+### Differences compared to Ramda
+
+While List tries to stay as close to Ramda's API as possible there are a few
+deviations to be aware of.
+
+* List's curried functions do not support the `R.__` placeholder. Instead of
+  `R.reduce(R.__, 0, l)` one alternative is to use an arrow function `_ =>
+  L.reduce(_, 0, l)` instead.
+* [`sort`](#sort) and [`sortWith`](#sortwith) are different compared to what
+  they do in Ramda. `L.sortWith` is equivalent to `R.sort` and `L.sort` sorts a
+  list without taking a comparison function. This makes the common case of
+  sorting a list of numbers or strings easier
+
 ## Fantasy Land & Static Land
 
 <img align="right" width="82" height="82" alt="Fantasy Land" src="https://raw.github.com/fantasyland/fantasy-land/master/logo.png">
