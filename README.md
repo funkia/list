@@ -263,20 +263,20 @@ as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for List. The
 list below keeps track of how many of Ramda functions that are missing and of
-how many that are already implemented. Currently 46 out of 75 functions have
+how many that are already implemented. Currently 47 out of 75 functions have
 been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`, `contains`,
 `drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`, `head`,
 `flatten`, `indexOf`, `init`, `insert`, `insertAll`, `last`, `length`, `join`,
 `map`, `none`, `nth`, `pair`, `partition`, `pluck`, `prepend`, `range`,
-`reduce`, `reduceRight`, `reject`, `remove`, `reverse`, `repeat`, `slice`,
-`sort`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `times`, `update`,
-`zip`, `zipWith`.
+`reduce`, `reduceRight`, `reject`, `remove`, `reverse`, `repeat`, `scan`,
+`slice`, `sort`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `times`,
+`update`, `zip`, `zipWith`.
 
 Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`, `dropRepeatsWith`,
 `endsWith`, `findLast`, `findLastIndex`, `groupWith`, `indexBy`, `intersperse`,
-`lastIndexOf`, `mapAccum`, `mapAccumRight`, `reduceWhile`, `scan`, `sequence`,
+`lastIndexOf`, `mapAccum`, `mapAccumRight`, `reduceWhile`, `sequence`,
 `splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`,
 `traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`,
 `xprod`.
@@ -1054,6 +1054,21 @@ Folds a function over a list. Right-associative.
 ```js
 foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
 1 - (2 - (3 - (4 - 5))); //=> 3
+```
+
+### `scan`
+
+Folds a function over a list from left to right while collecting all the
+intermediate steps in a resulting list.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const l = list(1, 3, 5, 4, 2);
+L.scan((n, m) => n + m, 0, l); //=> list(0, 1, 4, 9, 13, 15));
+L.scan((s, m) => s + m.toString(), "", l); //=> list("", "1", "13", "135", "1354", "13542")
 ```
 
 ### `forEach`

@@ -19,6 +19,7 @@ declare module "./index" {
     pluck<K extends keyof A>(key: K): List<A[K]>;
     foldl<B>(f: (acc: B, value: A) => B, initial: B): B;
     reduce<B>(f: (acc: B, value: A) => B, initial: B): B;
+    scan<B>(f: (acc: B, value: A) => B, initial: B): List<B>;
     foldr<B>(f: (value: A, acc: B) => B, initial: B): B;
     reduceRight<B>(f: (value: A, acc: B) => B, initial: B): B;
     forEach(callback: (a: A) => void): void;
@@ -118,6 +119,13 @@ List.prototype.foldl = function foldl<A, B>(
 };
 
 List.prototype.reduce = List.prototype.foldl;
+
+List.prototype.scan = function scan<A, B>(
+  f: (acc: B, value: A) => B,
+  initial: B
+): List<B> {
+  return L.scan(f, initial, this);
+};
 
 List.prototype.foldr = function<A, B>(
   f: (value: A, acc: B) => B,

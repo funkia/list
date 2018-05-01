@@ -714,6 +714,18 @@ describe("List", () => {
       });
     });
   });
+  describe("scan", () => {
+    it("accumulates results", () => {
+      const l = list(1, 3, 5, 4, 2);
+      const l2 = L.scan((n, m) => n + m, 0, l);
+      assertListEqual(l2, list(0, 1, 4, 9, 13, 15));
+    });
+    it("can change type", () => {
+      const l = list(1, 3, 5, 4, 2);
+      const l2 = L.scan((s, m) => s + m.toString(), "", l);
+      assertListEqual(l2, list("", "1", "13", "135", "1354", "13542"));
+    });
+  });
   describe("forEach", () => {
     it("calls function for each element", () => {
       const arr: number[] = [];

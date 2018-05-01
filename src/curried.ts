@@ -190,6 +190,11 @@ export const foldl: typeof L.foldl & {
 
 export const reduce: typeof foldl = foldl;
 
+export const scan: typeof L.scan & {
+  <A, B>(f: (acc: B, value: A) => B): Curried2<B, List<A>, List<B>>;
+  <A, B>(f: (acc: B, value: A) => B, initial: B): (l: List<A>) => List<B>;
+} = curry3(L.scan);
+
 export const foldr: typeof L.foldl & {
   <A, B>(f: (value: A, acc: B) => B): Curried2<B, List<A>, B>;
   <A, B>(f: (value: A, acc: B) => B, initial: B): (l: List<A>) => B;

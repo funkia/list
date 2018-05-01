@@ -823,6 +823,14 @@ export function foldl<A, B>(
 
 export const reduce = foldl;
 
+export function scan<A, B>(
+  f: (acc: B, value: A) => B,
+  initial: B,
+  l: List<A>
+): List<B> {
+  return foldl((l2, a) => append(f(last(l2)!, a), l2), of(initial), l);
+}
+
 export function forEach<A>(callback: (a: A) => void, l: List<A>): void {
   foldl((_, element) => callback(element), undefined as void, l);
 }
