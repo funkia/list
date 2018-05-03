@@ -51,6 +51,8 @@ declare module "./index" {
     remove(from: number, amount: number): List<A>;
     drop(n: number): List<A>;
     dropWhile(predicate: (a: A) => boolean): List<A>;
+    dropRepeats(): List<A>;
+    dropRepeatsWith(predicate: (a: A, b: A) => boolean): List<A>;
     dropLast(n: number): List<A>;
     pop(): List<A>;
     tail(): List<A>;
@@ -250,6 +252,16 @@ List.prototype.drop = function<A>(n: number): List<A> {
 
 List.prototype.dropWhile = function<A>(predicate: (a: A) => boolean): List<A> {
   return L.dropWhile(predicate, this);
+};
+
+List.prototype.dropRepeats = function<A>(): List<A> {
+  return L.dropRepeats(this);
+};
+
+List.prototype.dropRepeatsWith = function<A>(
+  predicate: (a: A, b: A) => boolean
+): List<A> {
+  return L.dropRepeatsWith(predicate, this);
 };
 
 List.prototype.dropLast = function<A>(n: number): List<A> {

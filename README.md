@@ -261,25 +261,25 @@ as Ramdas functions.
 
 ### Implemented Ramda functions
 
-The goal is to implement the entirety of Ramda's array functions for List. The
-list below keeps track of how many of Ramda functions that are missing and of
-how many that are already implemented. Currently 47 out of 75 functions have
-been implemented.
+The goal is to implement the entirety of Ramda's array functions for
+List. The list below keeps track of how many of Ramda functions that
+are missing and of how many that are already implemented. Currently 49
+out of 75 functions have been implemented.
 
-Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`, `contains`,
-`drop`, `dropLast`, `dropWhile`, `filter`, `find`, `findIndex`, `head`,
-`flatten`, `indexOf`, `init`, `insert`, `insertAll`, `last`, `length`, `join`,
-`map`, `none`, `nth`, `pair`, `partition`, `pluck`, `prepend`, `range`,
-`reduce`, `reduceRight`, `reject`, `remove`, `reverse`, `repeat`, `scan`,
-`slice`, `sort`, `splitAt`, `take`, `takeWhile`, `tail`, `takeLast`, `times`,
-`update`, `zip`, `zipWith`.
+Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
+`contains`, `drop`, `dropLast`, `dropRepeats`, `dropRepeatsWith`,
+`dropWhile`, `filter`, `find`, `findIndex`, `head`, `flatten`,
+`indexOf`, `init`, `insert`, `insertAll`, `last`, `length`, `join`,
+`map`, `none`, `nth`, `pair`, `partition`, `pluck`, `prepend`,
+`range`, `reduce`, `reduceRight`, `reject`, `remove`, `reverse`,
+`repeat`, `scan`, `slice`, `sort`, `splitAt`, `take`, `takeWhile`,
+`tail`, `takeLast`, `times`, `update`, `zip`, `zipWith`.
 
-Not implemented: `aperture`, `dropLastWhile`, `dropRepeats`, `dropRepeatsWith`,
-`endsWith`, `findLast`, `findLastIndex`, `groupWith`, `indexBy`, `intersperse`,
-`lastIndexOf`, `mapAccum`, `mapAccumRight`, `reduceWhile`, `sequence`,
-`splitEvery`, `splitWhen`, `startsWith`, `takeLastWhile`, `transpose`,
-`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`,
-`xprod`.
+Not implemented: `aperture`, `dropLastWhile`, `endsWith`, `findLast`,
+`findLastIndex`, `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`,
+`mapAccum`, `mapAccumRight`, `reduceWhile`, `sequence`, `splitEvery`,
+`splitWhen`, `startsWith`, `takeLastWhile`, `transpose`, `traverse`,
+`unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`.
 
 ### Differences compared to Ramda
 
@@ -681,6 +681,34 @@ Returns a new list without the last `n` elements.
 
 ```js
 dropLast(2, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2, 3)
+```
+
+### `dropRepeats`
+
+Returns a new list without repeated elements.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+dropRepeats(L.list(0, 0, 1, 1, 1, 2, 3, 3, 4, 4)); //=> list(0, 1, 2, 3, 4)
+```
+
+### `dropRepeats`
+
+Returns a new list without repeated elements by using the given
+function to determine when elements are equal.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+ropRepeatsWith(
+  (n, m) => Math.floor(n) === Math.floor(m),
+  list(0, 0.4, 1.2, 1.1, 1.8, 2.2, 3.8, 3.4, 4.7, 4.2)
+); //=> list(0, 1, 2, 3, 4)
 ```
 
 ### `tail`

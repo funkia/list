@@ -1,67 +1,64 @@
 import { assert } from "chai";
-
 import * as P from "proptest";
-
-import { checkList, installCheck } from "./check";
 import * as Loriginal from "../src";
-
-const L: typeof Loriginal = installCheck(Loriginal);
-
 import {
-  length,
-  range,
-  concat,
-  empty,
   List,
-  list,
-  map,
-  nth,
-  foldl,
-  foldr,
-  last,
-  pair,
-  prepend,
-  append,
-  first,
-  repeat,
-  times,
-  take,
-  every,
-  some,
-  splitAt,
-  none,
-  find,
-  findIndex,
-  update,
   adjust,
-  includes,
-  tail,
-  pop,
+  ap,
+  append,
+  chain,
+  concat,
   drop,
   dropLast,
-  takeLast,
-  filter,
-  reject,
-  join,
-  takeWhile,
-  toArray,
-  fromArray,
   dropWhile,
-  flatten,
-  pluck,
-  indexOf,
+  empty,
   equals,
-  remove,
+  every,
+  filter,
+  find,
+  findIndex,
+  first,
+  flatten,
+  foldl,
+  foldr,
+  forEach,
+  fromArray,
   fromIterable,
-  partition,
+  includes,
+  indexOf,
   insert,
   insertAll,
-  chain,
+  join,
+  last,
+  length,
+  list,
+  map,
+  none,
+  nth,
   of,
-  ap,
+  pair,
+  partition,
+  pluck,
+  pop,
+  prepend,
+  range,
+  reject,
+  remove,
+  repeat,
   reverse,
-  forEach
+  some,
+  splitAt,
+  tail,
+  take,
+  takeLast,
+  takeWhile,
+  times,
+  toArray,
+  update
 } from "../src";
+import { checkList, installCheck } from "./check";
+
+const L: typeof Loriginal = installCheck(Loriginal);
 
 const check = P.createProperty(it);
 
@@ -1256,6 +1253,23 @@ describe("List", () => {
       const l2 = dropWhile(n => n < 6, l);
       assert.strictEqual(l2.length, 4);
       assertIndicesFromTo(l2, 6, 10);
+    });
+  });
+  describe("dropRepeats", () => {
+    it("dropRepeats", () => {
+      assertListEqual(
+        L.dropRepeats(L.list(0, 0, 1, 1, 1, 2, 3, 3, 4, 4)),
+        L.list(0, 1, 2, 3, 4)
+      );
+    });
+    it("dropRepeatsWith", () => {
+      assertListEqual(
+        L.dropRepeatsWith(
+          (n, m) => Math.floor(n) === Math.floor(m),
+          L.list(0, 0.4, 1.2, 1.1, 1.8, 2.2, 3.8, 3.4, 4.7, 4.2)
+        ),
+        L.list(0, 1.2, 2.2, 3.8, 4.7)
+      );
     });
   });
   describe("concat and slice", () => {

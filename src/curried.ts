@@ -21,7 +21,8 @@ export {
   reverse,
   fromIterable,
   sort,
-  group
+  group,
+  dropRepeats
 } from "./index";
 
 export interface Curried2<A, B, R> {
@@ -151,6 +152,11 @@ export const take: typeof L.take &
 export const takeLast: typeof take = curry2(L.takeLast);
 
 export const drop: typeof take = curry2(L.drop);
+
+export const dropRepeatsWith: typeof L.dropRepeatsWith &
+  (<A>(f: (a: A, b: A) => boolean) => (l: List<A>) => List<A>) = curry2(
+  L.groupWith
+);
 
 export const dropLast: typeof take = curry2(L.dropLast);
 

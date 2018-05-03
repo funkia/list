@@ -1972,6 +1972,21 @@ export function dropWhile<A>(
   return slice(index, l.length, l);
 }
 
+export function dropRepeats<A>(l: List<A>): List<A> {
+  return dropRepeatsWith(elementEquals, l);
+}
+
+export function dropRepeatsWith<A>(
+  predicate: (a: A, b: A) => Boolean,
+  l: List<A>
+): List<A> {
+  return foldl(
+    (acc, a) => (acc.length !== 0 && predicate(last(acc), a) ? acc : append(a, acc)),
+    empty(),
+    l
+  );
+}
+
 export function takeLast<A>(n: number, l: List<A>): List<A> {
   return slice(l.length - n, l.length, l);
 }
