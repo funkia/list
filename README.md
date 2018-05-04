@@ -263,23 +263,23 @@ as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 49
+are missing and of how many that are already implemented. Currently 50
 out of 75 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `contains`, `drop`, `dropLast`, `dropRepeats`, `dropRepeatsWith`,
 `dropWhile`, `filter`, `find`, `findIndex`, `head`, `flatten`,
-`indexOf`, `init`, `insert`, `insertAll`, `last`, `length`, `join`,
-`map`, `none`, `nth`, `pair`, `partition`, `pluck`, `prepend`,
-`range`, `reduce`, `reduceRight`, `reject`, `remove`, `reverse`,
-`repeat`, `scan`, `slice`, `sort`, `splitAt`, `take`, `takeWhile`,
-`tail`, `takeLast`, `times`, `update`, `zip`, `zipWith`.
+`indexOf`, `intersperse`, `init`, `insert`, `insertAll`, `last`,
+`length`, `join`, `map`, `none`, `nth`, `pair`, `partition`, `pluck`,
+`prepend`, `range`, `reduce`, `reduceRight`, `reject`, `remove`,
+`reverse`, `repeat`, `scan`, `slice`, `sort`, `splitAt`, `take`,
+`takeWhile`, `tail`, `takeLast`, `times`, `update`, `zip`, `zipWith`.
 
 Not implemented: `aperture`, `dropLastWhile`, `endsWith`, `findLast`,
-`findLastIndex`, `groupWith`, `indexBy`, `intersperse`, `lastIndexOf`,
-`mapAccum`, `mapAccumRight`, `reduceWhile`, `sequence`, `splitEvery`,
-`splitWhen`, `startsWith`, `takeLastWhile`, `transpose`, `traverse`,
-`unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`.
+`findLastIndex`, `groupWith`, `indexBy`, `lastIndexOf`, `mapAccum`,
+`mapAccumRight`, `reduceWhile`, `sequence`, `splitEvery`, `splitWhen`,
+`startsWith`, `takeLastWhile`, `transpose`, `traverse`, `unfold`,
+`uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`.
 
 ### Differences compared to Ramda
 
@@ -496,6 +496,16 @@ Appends an element to the end of a list and returns the new list.
 
 ```js
 const newList = append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
+```
+
+### `intersperse`
+
+Inserts a separator between each element in a list.
+
+**Example**
+
+```js
+intersperse("n", list("ba", "a", "a")); //=> list("ba", "n", "a", "n", "a")
 ```
 
 ### `map`

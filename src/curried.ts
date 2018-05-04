@@ -84,6 +84,8 @@ export const pluck: typeof L.pluck &
   L.pluck
 );
 
+export const intersperse: typeof prepend = curry2(L.intersperse);
+
 export const range: typeof L.range &
   ((start: number) => (end: number) => List<number>) = curry2(L.range);
 

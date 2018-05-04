@@ -13,6 +13,7 @@ declare module "./index" {
     nth(index: number): A | undefined;
     prepend(value: A): List<A>;
     append(value: A): List<A>;
+    intersperse(separator: A): List<A>;
     first(): A | undefined;
     last(): A | undefined;
     map<B>(f: (a: A) => B): List<B>;
@@ -72,6 +73,10 @@ declare module "./index" {
 
 List.prototype.append = function<A>(value: A): List<A> {
   return L.append(value, this);
+};
+
+List.prototype.intersperse = function<A>(separator: A): List<A> {
+  return L.intersperse(separator, this);
 };
 
 List.prototype.nth = function<A>(index: number): A | undefined {

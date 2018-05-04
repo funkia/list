@@ -1981,7 +1981,8 @@ export function dropRepeatsWith<A>(
   l: List<A>
 ): List<A> {
   return foldl(
-    (acc, a) => (acc.length !== 0 && predicate(last(acc), a) ? acc : append(a, acc)),
+    (acc, a) =>
+      acc.length !== 0 && predicate(last(acc), a) ? acc : append(a, acc),
     empty(),
     l
   );
@@ -2187,4 +2188,13 @@ export function groupWith<A>(
     }
   }, l);
   return buffer.length === 0 ? result : append(buffer, result);
+}
+
+/**
+ * Inserts a separator between each element in a list.
+ * @param separator The separator to insert between each element.
+ * @param l The list to insert the separator in.
+ */
+export function intersperse<A>(separator: A, l: List<A>): List<A> {
+  return pop(foldl((l2, a) => append(separator, append(a, l2)), empty(), l));
 }

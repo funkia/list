@@ -1605,4 +1605,12 @@ describe("List", () => {
       );
     });
   });
+  describe("intersperse", () => {
+    it("inserts separator", () => {
+      assertListEqual(
+        L.intersperse(0, L.list(1, 2, 3, 4, 5)),
+        L.list(1, 0, 2, 0, 3, 0, 4, 0, 5)
+      );
+    });
+  });
 });
