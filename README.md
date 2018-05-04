@@ -639,6 +639,20 @@ const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
 splitAt(4, l); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7, 8)]
 ```
 
+### `splitWhen`
+
+Splits a list at the first element in the list for which the given
+predicate returns `true`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const l = list(0, 1, 2, 3, 4, 5, 6, 7);
+splitWhen((n) => n > 3, l); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7)]
+```
+
 ### `remove`
 
 Takes an index, a number of elements to remove and a list. Returns a

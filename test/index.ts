@@ -1356,6 +1356,19 @@ describe("List", () => {
       assertIndicesFromTo(right, 7, 0);
     });
   });
+  describe("splitWhen", () => {
+    const l = list(0, 1, 2, 3, 4, 5, 6);
+    it("splits when predicate is true", () => {
+      const [left, right] = L.splitWhen(n => n > 3, l);
+      assertListEqual(left, L.list(0, 1, 2, 3));
+      assertListEqual(right, L.list(4, 5, 6));
+    });
+    it("gives empty second list if predicate is never true", () => {
+      const [left, right] = L.splitWhen(_ => false, l);
+      assertListEqual(left, l);
+      assertListEqual(right, empty());
+    });
+  });
   describe("remove", () => {
     const l = range(0, 100);
     it("removes element from the start", () => {

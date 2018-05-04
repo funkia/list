@@ -49,6 +49,7 @@ declare module "./index" {
     takeWhile(predicate: (a: A) => boolean): List<A>;
     takeLast(n: number): List<A>;
     splitAt(index: number): [List<A>, List<A>];
+    splitWhen(predicate: (a: A) => boolean): [List<A>, List<A>];
     remove(from: number, amount: number): List<A>;
     drop(n: number): List<A>;
     dropWhile(predicate: (a: A) => boolean): List<A>;
@@ -245,6 +246,12 @@ List.prototype.takeLast = function<A>(n: number): List<A> {
 
 List.prototype.splitAt = function<A>(index: number): [List<A>, List<A>] {
   return L.splitAt(index, this);
+};
+
+List.prototype.splitWhen = function<A>(
+  predicate: (a: A) => boolean
+): [List<A>, List<A>] {
+  return L.splitWhen(predicate, this);
 };
 
 List.prototype.remove = function<A>(from: number, amount: number): List<A> {

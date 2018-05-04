@@ -1996,6 +1996,14 @@ export function splitAt<A>(index: number, l: List<A>): [List<A>, List<A>] {
   return [slice(0, index, l), slice(index, l.length, l)];
 }
 
+export function splitWhen<A>(
+  predicate: (a: A) => boolean,
+  l: List<A>
+): [List<A>, List<A>] {
+  const idx = findIndex(predicate, l);
+  return idx === -1 ? [l, empty()] : splitAt(idx, l);
+}
+
 export function remove<A>(from: number, amount: number, l: List<A>): List<A> {
   return concat(slice(0, from, l), slice(from + amount, l.length, l));
 }
