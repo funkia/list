@@ -176,6 +176,11 @@ export const splitWhen: typeof L.splitWhen &
     predicate: (a: A) => boolean
   ) => (l: List<A>) => [List<A>, List<A>]) = curry2(L.splitWhen);
 
+export const splitEvery: typeof L.splitEvery &
+  (<A>(size: number) => (l: List<A>) => List<List<A>>) = curry2(
+  L.splitEvery
+);
+
 export const sortBy: typeof L.sortBy &
   (<A, B extends L.Comparable>(
     f: (a: A) => B

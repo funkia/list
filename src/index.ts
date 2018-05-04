@@ -2004,6 +2004,22 @@ export function splitWhen<A>(
   return idx === -1 ? [l, empty()] : splitAt(idx, l);
 }
 
+export function splitEvery<A>(size: number, l: List<A>): List<List<A>> {
+  const { l2, buffer } = foldl(
+    ({ l2, buffer }, elm) => {
+      const newBuffer = append(elm, buffer);
+      if (newBuffer.length === size) {
+        return { l2: append(newBuffer, l2), buffer: empty() };
+      } else {
+        return { l2, buffer: newBuffer };
+      }
+    },
+    { l2: empty(), buffer: empty() },
+    l
+  );
+  return buffer.length === 0 ? l2 : append(buffer, l2);
+}
+
 export function remove<A>(from: number, amount: number, l: List<A>): List<A> {
   return concat(slice(0, from, l), slice(from + amount, l.length, l));
 }

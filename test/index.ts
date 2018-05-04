@@ -1369,6 +1369,20 @@ describe("List", () => {
       assertListEqual(right, empty());
     });
   });
+  describe("splitEvery", () => {
+    it("splits when predicate is true", () => {
+      const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+      assertListEqual(
+        L.splitEvery(3, l),
+        L.list(L.list(0, 1, 2), L.list(3, 4, 5), L.list(6, 7, 8), L.list(9))
+      );
+      const l2 = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+      assertListEqual(
+        L.splitEvery(3, l2),
+        L.list(L.list(0, 1, 2), L.list(3, 4, 5), L.list(6, 7, 8))
+      );
+    });
+  });
   describe("remove", () => {
     const l = range(0, 100);
     it("removes element from the start", () => {
