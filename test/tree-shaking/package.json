@@ -5,16 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-prod": "npm run build-prod-0; npm run build-prod-1; npm run build-prod-2",
-    "build-prod-0": "webpack --mode production --entry ./src/index0.js --output ./dist/bundle0.js",
+    "build": "npm run build-baseline; npm run build-prod-1; npm run build-prod-2; npm run build-curried; npm run build-methods",
+    "build-baseline": "webpack --mode production --entry ./src/baseline.js --output ./dist/baseline.js",
     "build-prod-1": "webpack --mode production --entry ./src/index1.js --output ./dist/bundle1.js",
-    "build-prod-2": "webpack --mode production --entry ./src/index2.js --output ./dist/bundle2.js"
+    "build-prod-2": "webpack --mode production --entry ./src/index2.js --output ./dist/bundle2.js",
+    "build-curried": "webpack --mode production --entry ./src/curried.js --output ./dist/curried.js",
+    "build-methods": "webpack --mode production --entry ./src/methods.js --output ./dist/methods.js"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "webpack": "^4.0.0-beta.0",
-    "webpack-cli": "^2.0.4"
+    "webpack": "^4.7.0",
+    "webpack-cli": "^2.1.2"
   },
   "dependencies": {
     "list": "file:../.."
