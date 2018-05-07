@@ -64,7 +64,7 @@ to JavaScript's `Array` List has three major benefits.
   means that lists can be use in `for..of` loops, works with destructuring, and
   can be passed to any function expecting an iterable. [See more](#iterable).
 * **Fantasy Land support**. List
-  [implements](#fantasy-land-static-land) both the Fantasy Land and the Static
+  [implements](#fantasy-land--static-land) both the Fantasy Land and the Static
   Land specification.
 
 ## Getting started
