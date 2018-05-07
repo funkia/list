@@ -1370,7 +1370,7 @@ describe("List", () => {
     });
   });
   describe("splitEvery", () => {
-    it("splits when predicate is true", () => {
+    it("splits into lists of the given size", () => {
       const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
       assertListEqual(
         L.splitEvery(3, l),
