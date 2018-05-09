@@ -34,7 +34,7 @@ benchmark(
     }
   },
   {
-    "List": {
+    List: {
       before: m => {
         n = m;
         l = L.empty();

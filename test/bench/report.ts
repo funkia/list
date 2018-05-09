@@ -122,9 +122,13 @@ async function runBenchmarks(argv: any): Promise<void> {
   }
 
   await writeFile("data.json", JSON.stringify(results));
-  const endTime = Date.now();
   console.log("Generating bundle");
-  await webpackAsync(webpackConfig);
+  const stats = await webpackAsync(webpackConfig);
+  if (stats.hasErrors()) {
+    // Handle errors here
+    console.log(stats.toString({ colors: true }));
+  }
+  const endTime = Date.now();
   console.log("Done in ", prettyMs(endTime - startTime));
 }
 

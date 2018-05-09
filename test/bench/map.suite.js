@@ -27,19 +27,19 @@ function addBenchmark(n) {
   }
 
   suite
-    .add("Array#map " + n, function () {
+    .add("Array#map " + n, function() {
       return array.map(square);
     })
-    .add("Lodash " + n, function () {
+    .add("Lodash " + n, function() {
       return _.map(array, square);
     })
-    .add("Immutable.js " + n, function () {
+    .add("Immutable.js " + n, function() {
       return immut.map(square);
     })
-    .add("mapArray " + n, function () {
+    .add("mapArray " + n, function() {
       return List.mapArray(square, array);
     })
-    .add("List " + n, function () {
+    .add("List " + n, function() {
       return List.map(square, list);
     });
 }
@@ -49,6 +49,6 @@ addBenchmark(10);
 // addBenchmark(100);
 addBenchmark(1000);
 
-suite.run({ async: true })
+suite.run({ async: true });
 
 module.exports = suite;

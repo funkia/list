@@ -32,29 +32,31 @@ let mlist = mori.vector();
 let l = L.empty();
 let lOld = Lo.empty();
 
-benchmark({
-  name: "foldl",
-  description: "foldl/reduce over a sequence.",
-  input: [20, 100, 1000, 10000],
-  before: (n) => {
-    array = [];
-    tree = Finger.nil;
-    immut = Immutable.List();
-    mlist = mori.vector();
-    l = L.empty();
-    lOld = Lo.empty();
+benchmark(
+  {
+    name: "foldl",
+    description: "foldl/reduce over a sequence.",
+    input: [20, 100, 1000, 10000],
+    before: n => {
+      array = [];
+      tree = Finger.nil;
+      immut = Immutable.List();
+      mlist = mori.vector();
+      l = L.empty();
+      lOld = Lo.empty();
 
-    for (let i = 0; i < n; ++i) {
-      tree = Finger.append(i, tree);
-      immut = immut.push(i);
-      mlist = mori.conj(mlist, i);
-      array.push(i);
-      l = L.append(i, l);
-      lOld = Lo.append(i, lOld);
+      for (let i = 0; i < n; ++i) {
+        tree = Finger.append(i, tree);
+        immut = immut.push(i);
+        mlist = mori.conj(mlist, i);
+        array.push(i);
+        l = L.append(i, l);
+        lOld = Lo.append(i, lOld);
+      }
     }
-  }
-}, {
-    "List": {
+  },
+  {
+    List: {
       run: () => {
         return L.foldl(subtract, 10, l);
       }
@@ -74,7 +76,7 @@ benchmark({
         return arrayFold(subtract, 10, array);
       }
     },
-    "Lodash": {
+    Lodash: {
       run: () => {
         return _.reduce(array, subtract, 10);
       }
@@ -84,14 +86,15 @@ benchmark({
         return immut.reduce(subtract, 10);
       }
     },
-    "Mori": {
+    Mori: {
       run: () => {
         return mori.reduce(subtract, 10, mlist);
       }
     },
-    "Finger": {
+    Finger: {
       run: () => {
         return Finger.foldl(subtract, 10, tree);
       }
     }
-  });
+  }
+);

@@ -15,7 +15,8 @@ let l: any;
 benchmark(
   {
     name: "update",
-    description: "Update elements at location 0.25, 0.5, and 0.75 i a sequence.",
+    description:
+      "Update elements at location 0.25, 0.5, and 0.75 i a sequence.",
     input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {

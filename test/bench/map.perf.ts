@@ -20,26 +20,28 @@ let immut = Immutable.List();
 let l = L.empty();
 let lOld = Lo.empty();
 
-benchmark({
-  name: "map",
-  description: "maps a function over a sequence.",
-  input: [20, 100, 500, 1000, 10000],
-  before: (n) => {
-    array = [];
-    immut = Immutable.List();
-    l = L.empty();
-    lOld = Lo.empty();
+benchmark(
+  {
+    name: "map",
+    description: "maps a function over a sequence.",
+    input: [20, 100, 500, 1000, 5000, 10000],
+    before: n => {
+      array = [];
+      immut = Immutable.List();
+      l = L.empty();
+      lOld = Lo.empty();
 
-    for (let i = 0; i < n; ++i) {
-      tree = Finger.append(i, tree);
-      immut = immut.push(i);
-      array.push(i);
-      l = L.append(i, l);
-      lOld = Lo.append(i, lOld);
+      for (let i = 0; i < n; ++i) {
+        tree = Finger.append(i, tree);
+        immut = immut.push(i);
+        array.push(i);
+        l = L.append(i, l);
+        lOld = Lo.append(i, lOld);
+      }
     }
-  }
-}, {
-    "List": {
+  },
+  {
+    List: {
       run: () => {
         return L.map(square, l);
       }
@@ -54,7 +56,7 @@ benchmark({
         return array.map(square);
       }
     },
-    "Lodash": {
+    Lodash: {
       run: () => {
         return _.map(array, square);
       }
@@ -64,4 +66,5 @@ benchmark({
         return immut.map(square);
       }
     }
-  });
+  }
+);

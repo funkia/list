@@ -8,17 +8,19 @@ function subtract(n: number, m: number) {
 
 let l;
 
-benchmark({
-  name: "foldl vs iterator",
-  description: "Iterating over a list with foldl vs with an iterator.",
-  input: [100, 1000, 10000],
-  before: (n) => {
-    l = L.empty();
-    for (let i = 0; i < n; ++i) {
-      l = L.append(i, l);
+benchmark(
+  {
+    name: "foldl vs iterator",
+    description: "Iterating over a list with foldl vs with an iterator.",
+    input: [100, 1000, 10000],
+    before: n => {
+      l = L.empty();
+      for (let i = 0; i < n; ++i) {
+        l = L.append(i, l);
+      }
     }
-  }
-}, {
+  },
+  {
     "List, foldl": () => {
       return L.foldl(subtract, 10, l);
     },
@@ -38,4 +40,5 @@ benchmark({
       }
       return result;
     }
-  });
+  }
+);

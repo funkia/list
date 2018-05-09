@@ -4,7 +4,9 @@ import * as R from "ramda";
 import * as Benchmark from "benchmark";
 import * as chroma from "chroma-js";
 
+// @ts-ignore
 import * as data from "./data.json";
+// @ts-ignore
 import * as tableView from "./view.handlebars";
 
 const colormap = chroma
@@ -40,6 +42,7 @@ function createTableData(plot): TableData {
   const getMean = R.path(["stats", "mean"]);
   const lowHigh: [number, number][] = R.pipe(
     R.pluck("result"),
+    // @ts-ignore
     R.map(R.map(getMean)),
     R.transpose,
     R.map(
@@ -49,17 +52,22 @@ function createTableData(plot): TableData {
       ])
     )
   )(plot.data);
-  const tableRows = plot.data.map((entry: any) => {
-    const data = R.map(([r, [low, high]]) => {
-      const color = colormap(scale(low, high, r.stats.mean));
-      const n = (r.stats.mean / low).toFixed(2);
-      return { color, n, fastest: getMean(r) === low };
-    }, R.zip(entry.result, lowHigh));
-    return {
-      name: entry.testName,
-      data
-    };
-  });
+  const tableRows = plot.data.map(
+    (entry: { result: any; testName: string }) => {
+      const data = _.map(
+        _.zip<any, [number, number]>(entry.result, lowHigh),
+        ([r, [low, high]]) => {
+          const color = colormap(scale(low, high, r.stats.mean));
+          const n = (r.stats.mean / low).toFixed(2);
+          return { color, n, fastest: getMean(r) === low };
+        }
+      );
+      return {
+        name: entry.testName,
+        data
+      };
+    }
+  );
   return {
     name: plot.name,
     description: plot.description,

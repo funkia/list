@@ -22,25 +22,31 @@ function isEven(n: number): boolean {
   return n % 2 === 0;
 }
 
-benchmark({
-  name: "filter",
-  description: "filters a sequence.",
-  input: [20, 100, 500, 1000, 10000],
-  before: (n) => {
-    array = [];
-    immut = Immutable.List();
-    l = L.empty();
-    lOld = Lo.empty();
+// Dry run
 
-    for (let i = 0; i < n; ++i) {
-      immut = immut.push(i);
-      array.push(i);
-      l = L.append(i, l);
-      lOld = Lo.append(i, lOld);
+L.filter(n => n > 2, L.list(0, 1, 2, 3, 4));
+
+benchmark(
+  {
+    name: "filter",
+    description: "filters a sequence.",
+    input: [20, 100, 500, 1000, 5000, 10000],
+    before: n => {
+      array = [];
+      immut = Immutable.List();
+      l = L.empty();
+      lOld = Lo.empty();
+
+      for (let i = 0; i < n; ++i) {
+        immut = immut.push(i);
+        array.push(i);
+        l = L.append(i, l);
+        lOld = Lo.append(i, lOld);
+      }
     }
-  }
-}, {
-    "List": {
+  },
+  {
+    List: {
       run: () => {
         return L.filter(isEven, l);
       }
@@ -55,7 +61,7 @@ benchmark({
         return array.filter(isEven);
       }
     },
-    "Lodash": {
+    Lodash: {
       run: () => {
         return _.filter(array, isEven);
       }
@@ -65,4 +71,5 @@ benchmark({
         return immut.filter(isEven);
       }
     }
-  });
+  }
+);

@@ -11,7 +11,8 @@ let n = 0;
 benchmark(
   {
     name: "append",
-    description: "Constructs a sequence of size n by repeatedly appending to it.",
+    description:
+      "Constructs a sequence of size n by repeatedly appending to it.",
     input: [10, 50, 100, 250, 500, 1000, 5000, 10000]
   },
   {
@@ -22,7 +23,7 @@ benchmark(
       run: () => {
         let list = L.empty();
         for (let i = 0; i < n; ++i) {
-          list = list.append(i);
+          list = L.append(i, list);
         }
         return list.length === n;
       }
@@ -34,7 +35,7 @@ benchmark(
       run: () => {
         let list = Lo.empty();
         for (let i = 0; i < n; ++i) {
-          list = list.append(i);
+          list = Lo.append(i, list);
         }
         return list.length === n;
       }
@@ -51,7 +52,7 @@ benchmark(
         return imm.size === n;
       }
     },
-    "Ramda": {
+    Ramda: {
       before: nn => {
         n = nn;
       },
@@ -63,7 +64,7 @@ benchmark(
         return arr.length === n;
       }
     },
-    "Mori": {
+    Mori: {
       before: nn => {
         n = nn;
       },

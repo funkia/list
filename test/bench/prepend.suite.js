@@ -4,7 +4,7 @@ const Denque = require("denque");
 
 const L = require("../../dist/index");
 const Finger = require("@paldepind/finger-tree");
-const {Cons} = require("./list");
+const { Cons } = require("./list");
 
 const n = 10000;
 
@@ -44,7 +44,7 @@ module.exports = Suite("prepend")
     }
     return cons.value === n - 1;
   })
-  .add("List", function () {
+  .add("List", function() {
     let list = L.empty();
     for (let i = 0; i < n; ++i) {
       list = L.prepend(i, list);
@@ -58,4 +58,4 @@ module.exports = Suite("prepend")
     }
     return tree.suffix.c === n - 1;
   })
-  .run({async: true});
+  .run({ async: true });

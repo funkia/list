@@ -1,4 +1,4 @@
-const util = require('util');
+const util = require("util");
 const { nil, append, get } = require("@paldepind/finger-tree");
 const shuffle = require("knuth-shuffle").knuthShuffle;
 

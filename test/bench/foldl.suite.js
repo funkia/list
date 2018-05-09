@@ -38,25 +38,25 @@ function subtract(n, m) {
 }
 
 module.exports = Suite("foldl")
-  .add("Array", function () {
+  .add("Array", function() {
     return array.reduce(subtract, 10);
   })
-  .add("Array manual fold", function () {
+  .add("Array manual fold", function() {
     return arrayFold(subtract, 10, array);
   })
-  .add("Lodash", function () {
+  .add("Lodash", function() {
     return _.reduce(array, subtract, 10);
   })
-  .add("Immutable.js", function () {
+  .add("Immutable.js", function() {
     return immut.reduce(subtract, 10);
   })
-  .add("Mori", function () {
+  .add("Mori", function() {
     return mori.reduce(subtract, 10, mlist);
   })
-  .add("Finger", function () {
+  .add("Finger", function() {
     return Finger.foldl(subtract, 10, tree);
   })
-  .add("List", function () {
+  .add("List", function() {
     return List.foldl(subtract, 10, list);
   })
   .run({ async: true });
