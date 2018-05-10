@@ -129,6 +129,8 @@ export const find: typeof L.find &
   L.find
 );
 
+export const findLast: typeof find = curry2(L.findLast);
+
 export const indexOf: typeof L.indexOf &
   (<A>(element: A) => (l: List<A>) => number) = curry2(L.indexOf);
 
@@ -177,9 +179,7 @@ export const splitWhen: typeof L.splitWhen &
   ) => (l: List<A>) => [List<A>, List<A>]) = curry2(L.splitWhen);
 
 export const splitEvery: typeof L.splitEvery &
-  (<A>(size: number) => (l: List<A>) => List<List<A>>) = curry2(
-  L.splitEvery
-);
+  (<A>(size: number) => (l: List<A>) => List<List<A>>) = curry2(L.splitEvery);
 
 export const sortBy: typeof L.sortBy &
   (<A, B extends L.Comparable>(

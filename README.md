@@ -263,23 +263,24 @@ as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 50
+are missing and of how many that are already implemented. Currently 54
 out of 75 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `contains`, `drop`, `dropLast`, `dropRepeats`, `dropRepeatsWith`,
-`dropWhile`, `filter`, `find`, `findIndex`, `head`, `flatten`,
-`indexOf`, `intersperse`, `init`, `insert`, `insertAll`, `last`,
-`length`, `join`, `map`, `none`, `nth`, `pair`, `partition`, `pluck`,
-`prepend`, `range`, `reduce`, `reduceRight`, `reject`, `remove`,
-`reverse`, `repeat`, `scan`, `slice`, `sort`, `splitAt`, `take`,
-`takeWhile`, `tail`, `takeLast`, `times`, `update`, `zip`, `zipWith`.
+`dropWhile`, `filter`, `find`, `findIndex`, `findLast`, `head`,
+`flatten`, `indexOf`, `intersperse`, `init`, `insert`, `insertAll`,
+`last`, `length`, `join`, `map`, `none`, `nth`, `pair`, `partition`,
+`pluck`, `prepend`, `range`, `reduce`, `reduceRight`, `reject`,
+`remove`, `reverse`, `repeat`, `scan`, `slice`, `sort`, `splitAt`,
+`splitEvery`, `splitWhen`, `take`, `takeWhile`, `tail`, `takeLast`,
+`times`, `update`, `zip`, `zipWith`.
 
-Not implemented: `aperture`, `dropLastWhile`, `endsWith`, `findLast`,
+Not implemented: `aperture`, `dropLastWhile`, `endsWith`,
 `findLastIndex`, `groupWith`, `indexBy`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `reduceWhile`, `sequence`, `splitEvery`, `splitWhen`,
-`startsWith`, `takeLastWhile`, `transpose`, `traverse`, `unfold`,
-`uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`.
+`mapAccumRight`, `reduceWhile`, `sequence`, `startsWith`,
+`takeLastWhile`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
+`uniqWith`, `unnest` `without`, `xprod`.
 
 ### Differences compared to Ramda
 
@@ -1202,7 +1203,7 @@ indexOf(10, l); //=> -1
 
 ### `find`
 
-Returns the first element for which the predicate returns `true`. If
+Returns the _first_ element for which the predicate returns `true`. If
 no such element is found the function returns `undefined`.
 
 **Complexity**: `O(n)`
@@ -1212,6 +1213,20 @@ no such element is found the function returns `undefined`.
 ```js
 find(isEven, list(1, 3, 5, 6, 7, 9, 10)); //=> 6
 find(isEven, list(1, 3, 5, 7, 9)); //=> undefined
+```
+
+### `findLast`
+
+Returns the _last_ element for which the predicate returns `true`. If
+no such element is found the function returns `undefined`.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+findLast(isEven, list(1, 3, 5, 6, 7, 8, 9)); //=> 8
+findLast(isEven, list(1, 3, 5, 7, 9)); //=> undefined
 ```
 
 ### `findIndex`

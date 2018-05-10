@@ -804,7 +804,7 @@ describe("List", () => {
     it("returns undefined if no element is found", () => {
       assert.strictEqual(findIndex(isEven, list(1, 3, 5, 7)), -1);
     });
-    // The tests below ensures that all cases in the internal `foldCb`
+    // The tests below ensures that all cases in the internal `foldlCb`
     // are being tested
     const l = appendList(0, 32 * 3);
     it("finds in prefix", () => {
@@ -824,6 +824,31 @@ describe("List", () => {
       const result = find(n => n % 1500 === 0 && n !== 0 && n !== 1500, l2);
       assert.strictEqual(result, 1500 * 2);
     });
+  });
+  describe("findLast", () => {
+    it("finds the last element satisfying predicate", () => {
+      assert.strictEqual(L.findLast(isEven, list(1, 3, 4, 5, 6, 7)), 6);
+    });
+    it("finds the last element in prefix", () => {
+      const result = L.findLast(n => n <= 4, L.range(0, 60));
+      assert.strictEqual(result, 4);
+    });
+    it("finds the last element in prefix when there is tree", () => {
+      const result = L.findLast(n => n <= 4, L.range(0, 90));
+      assert.strictEqual(result, 4);
+    });
+    check(
+      "findLast is equivalent to reverse and find",
+      P.range(32 ** 3 + 32).chain(n => P.between(0, n + 1).map(m => [n, m])),
+      ([n, m]) => {
+        const l = L.range(0, n);
+        assert.equal(
+          L.findLast(x => x <= m, l),
+          L.find(x => x <= m, L.reverse(l))
+        );
+        return true;
+      }
+    );
   });
   describe("indexOf", () => {
     const l = list(12, 4, 2, 89, 6, 18, 7);
