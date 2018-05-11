@@ -943,24 +943,26 @@ export function chain<A, B>(f: (a: A) => List<B>, l: List<A>): List<B> {
 
 type FoldCb<Input, State> = (input: Input, state: State) => boolean;
 
-function foldlSuffixCb<A, B>(
+function foldlArrayCb<A, B>(
   cb: FoldCb<A, B>,
   state: B,
   array: A[],
-  length: number
+  from: number,
+  to: number
 ): boolean {
-  for (var i = 0; i < length && cb(array[i], state); ++i) {}
-  return i === length;
+  for (var i = from; i < to && cb(array[i], state); ++i) {}
+  return i === to;
 }
 
-function foldlPrefixCb<A, B>(
+function foldrArrayCb<A, B>(
   cb: FoldCb<A, B>,
   state: B,
   array: A[],
-  length: number
+  from: number,
+  to: number
 ): boolean {
-  for (var i = length - 1; 0 <= i && cb(array[i], state); --i) {}
-  return i === -1;
+  for (var i = from - 1; to <= i && cb(array[i], state); --i) {}
+  return i === to - 1;
 }
 
 function foldlNodeCb<A, B>(
@@ -971,14 +973,15 @@ function foldlNodeCb<A, B>(
 ): boolean {
   const { array } = node;
   if (depth === 0) {
-    return foldlSuffixCb(cb, state, array, array.length);
+    return foldlArrayCb(cb, state, array, 0, array.length);
   }
-  for (
-    var i = 0;
-    i < array.length && foldlNodeCb(cb, state, array[i], depth - 1);
-    ++i
-  ) {}
-  return i === array.length;
+  const to = array.length;
+  for (let i = 0; i < to; ++i) {
+    if (!foldlNodeCb(cb, state, array[i], depth - 1)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -989,39 +992,16 @@ function foldlNodeCb<A, B>(
  * continue.
  */
 function foldlCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {
-  const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
-  if (foldlPrefixCb(cb, state, l.prefix, prefixSize)) {
-    if (l.root !== undefined) {
-      if (foldlNodeCb(cb, state, l.root, getDepth(l))) {
-        foldlSuffixCb(cb, state, l.suffix, suffixSize);
-      }
-    } else {
-      foldlSuffixCb(cb, state, l.suffix, suffixSize);
-    }
+  if (
+    !foldrArrayCb(cb, state, l.prefix, prefixSize, 0) ||
+    (l.root !== undefined && !foldlNodeCb(cb, state, l.root, getDepth(l)))
+  ) {
+    return state;
   }
+  const suffixSize = getSuffixSize(l);
+  foldlArrayCb(cb, state, l.suffix, 0, suffixSize);
   return state;
-}
-
-function foldrSuffixCb<A, B>(
-  cb: FoldCb<A, B>,
-  state: B,
-  array: A[],
-  length: number
-): boolean {
-  for (var i = length - 1; 0 <= i && cb(array[i], state); --i) {}
-  return i === -1;
-}
-
-function foldrPrefixCb<A, B>(
-  cb: FoldCb<A, B>,
-  state: B,
-  array: A[],
-  length: number
-): boolean {
-  const l = array.length;
-  for (var i = l - length; i < l && cb(array[i], state); ++i) {}
-  return i === l;
 }
 
 function foldrNodeCb<A, B>(
@@ -1032,28 +1012,27 @@ function foldrNodeCb<A, B>(
 ): boolean {
   const { array } = node;
   if (depth === 0) {
-    return foldrSuffixCb(cb, state, array, array.length);
+    return foldrArrayCb(cb, state, array, array.length, 0);
   }
-  for (
-    var i = array.length - 1;
-    0 <= i && foldrNodeCb(cb, state, array[i], depth - 1);
-    --i
-  ) {}
-  return i === -1;
+  for (let i = array.length - 1; 0 <= i; --i) {
+    if (!foldrNodeCb(cb, state, array[i], depth - 1)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function foldrCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {
   const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
-  if (foldrSuffixCb(cb, state, l.suffix, suffixSize)) {
-    if (l.root !== undefined) {
-      if (foldrNodeCb(cb, state, l.root, getDepth(l))) {
-        foldrPrefixCb(cb, state, l.prefix, prefixSize);
-      }
-    } else {
-      foldrPrefixCb(cb, state, l.prefix, prefixSize);
-    }
+  if (
+    !foldrArrayCb(cb, state, l.suffix, suffixSize, 0) ||
+    (l.root !== undefined && !foldrNodeCb(cb, state, l.root, getDepth(l)))
+  ) {
+    return state;
   }
+  const prefix = l.prefix;
+  foldlArrayCb(cb, state, l.prefix, prefix.length - prefixSize, prefix.length);
   return state;
 }
 
