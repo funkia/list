@@ -51,7 +51,6 @@ import {
   tail,
   take,
   takeLast,
-  takeWhile,
   times,
   toArray,
   update
@@ -1264,20 +1263,38 @@ describe("List", () => {
       });
     });
   });
-  describe("takeWhile", () => {
+  describe("take and drop", () => {
+    const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     it("takes elements as long as predicate is true", () => {
-      const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-      const l2 = takeWhile(n => n < 6, l);
+      const l2 = L.takeWhile(n => n < 6, l);
       assert.strictEqual(l2.length, 6);
       assertIndicesFromTo(l2, 0, 6);
     });
-  });
-  describe("dropWhile", () => {
-    it("drops elements that satisfies the predicate", () => {
-      const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-      const l2 = dropWhile(n => n < 6, l);
-      assert.strictEqual(l2.length, 4);
-      assertIndicesFromTo(l2, 6, 10);
+    it("takes last elements as long as predicate is true", () => {
+      const l2 = L.takeLastWhile(n => n >= 5, l);
+      assert.strictEqual(l2.length, 5);
+      assertIndicesFromTo(l2, 5, 10);
+    });
+    it("returns empty list when predicate is always false", () => {
+      assertListEqual(L.takeLastWhile(_ => false, l), L.empty());
+      assertListEqual(L.takeWhile(_ => false, l), L.empty());
+    });
+    it("returns same list when predicate is always true", () => {
+      assert.strictEqual(L.takeLastWhile(_ => true, l), l);
+      assert.strictEqual(L.takeWhile(_ => true, l), l);
+    });
+    describe("dropWhile", () => {
+      it("drops elements that satisfies the predicate", () => {
+        const l2 = dropWhile(n => n < 6, l);
+        assert.strictEqual(l2.length, 4);
+        assertIndicesFromTo(l2, 6, 10);
+      });
+      it("returns empty list when predicate is always true", () => {
+        assertListEqual(L.dropWhile(_ => true, l), L.empty());
+      });
+      it("returns the same list when predicate is always false", () => {
+        assert.strictEqual(L.dropWhile(_ => false, l), l);
+      });
     });
   });
   describe("dropRepeats", () => {

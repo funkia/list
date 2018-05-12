@@ -1022,7 +1022,7 @@ function foldrNodeCb<A, B>(
   return true;
 }
 
-function foldrCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {
+function foldrCb<A, B>(cb: (a: A, acc: B) => boolean, state: B, l: List<A>): B {
   const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
   if (
@@ -1984,32 +1984,36 @@ type FindNotIndexState = {
   index: number;
 };
 
-function findNotIndexCb<A>(value: A, state: FindNotIndexState): boolean {
-  ++state.index;
-  return state.predicate(value);
+function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
+  if (state.predicate(value)) {
+    ++state.index;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 export function takeWhile<A>(
   predicate: (a: A) => boolean,
   l: List<A>
 ): List<A> {
-  const { index } = foldlCb<A, FindNotIndexState>(
-    findNotIndexCb,
-    { predicate, index: -1 },
-    l
-  );
+  const { index } = foldlCb(findNotIndexCb, { predicate, index: 0 }, l);
   return slice(0, index, l);
+}
+
+export function takeLastWhile<A>(
+  predicate: (a: A) => boolean,
+  l: List<A>
+): List<A> {
+  const { index } = foldrCb(findNotIndexCb, { predicate, index: 0 }, l);
+  return slice(l.length - index, l.length, l);
 }
 
 export function dropWhile<A>(
   predicate: (a: A) => boolean,
   l: List<A>
 ): List<A> {
-  const { index } = foldlCb<A, FindNotIndexState>(
-    findNotIndexCb,
-    { predicate, index: -1 },
-    l
-  );
+  const { index } = foldlCb(findNotIndexCb, { predicate, index: 0 }, l);
   return slice(index, l.length, l);
 }
 

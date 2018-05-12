@@ -263,7 +263,7 @@ as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 54
+are missing and of how many that are already implemented. Currently 55
 out of 75 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
@@ -273,14 +273,14 @@ Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `last`, `length`, `join`, `map`, `none`, `nth`, `pair`, `partition`,
 `pluck`, `prepend`, `range`, `reduce`, `reduceRight`, `reject`,
 `remove`, `reverse`, `repeat`, `scan`, `slice`, `sort`, `splitAt`,
-`splitEvery`, `splitWhen`, `take`, `takeWhile`, `tail`, `takeLast`,
-`times`, `update`, `zip`, `zipWith`.
+`splitEvery`, `splitWhen`, `take`, `takeWhile`, `tail`,
+`takeLast`,`takeLastWhile`, `times`, `update`, `zip`, `zipWith`.
 
 Not implemented: `aperture`, `dropLastWhile`, `endsWith`,
 `findLastIndex`, `groupWith`, `indexBy`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `reduceWhile`, `sequence`, `startsWith`,
-`takeLastWhile`, `transpose`, `traverse`, `unfold`, `uniq`, `uniqBy`,
-`uniqWith`, `unnest` `without`, `xprod`.
+`mapAccumRight`, `reduceWhile`, `sequence`, `startsWith`, `transpose`,
+`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest`
+`without`, `xprod`.
 
 ### Differences compared to Ramda
 
@@ -609,6 +609,7 @@ satisfying the predicate.
 
 ```js
 takeWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 1, 2, 3)
+takeWhile(_ => false, list(0, 1, 2, 3, 4, 5)); //=> list()
 ```
 
 ### `takeLast`
@@ -622,6 +623,21 @@ list.
 
 ```js
 takeLast(3, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
+```
+
+### `takeLastWhile`
+
+Takes the last elements in the list for which the predicate returns
+`true`.
+
+**Complexity**: `O(k + log(n))` where `k` is the number of elements
+satisfying the predicate.
+
+**Example**
+
+```js
+takeLastWhile(n => n > 2, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
+takeLastWhile(_ => false, list(0, 1, 2, 3, 4, 5)); //=> list()
 ```
 
 ### `splitAt`

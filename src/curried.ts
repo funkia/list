@@ -166,6 +166,8 @@ export const dropLast: typeof take = curry2(L.dropLast);
 
 export const takeWhile: typeof filter = curry2(L.takeWhile);
 
+export const takeLastWhile: typeof filter = curry2(L.takeLastWhile);
+
 export const dropWhile: typeof filter = curry2(L.dropWhile);
 
 export const splitAt: typeof L.splitAt &
