@@ -25,7 +25,6 @@ import {
   fromArray,
   fromIterable,
   includes,
-  indexOf,
   insert,
   insertAll,
   join,
@@ -850,14 +849,25 @@ describe("List", () => {
     );
   });
   describe("indexOf", () => {
-    const l = list(12, 4, 2, 89, 6, 18, 7);
-    it("finds element by strict equality", () => {
-      assert.strictEqual(indexOf(89, l), 3);
-      assert.strictEqual(indexOf(7, l), 6);
-      assert.strictEqual(indexOf(12, l), 0);
+    const l = L.list(12, 4, 2, 89, 6, 18, 7);
+    it("finds first element by strict equality", () => {
+      assert.strictEqual(L.indexOf(89, l), 3);
+      assert.strictEqual(L.indexOf(7, l), 6);
+      assert.strictEqual(L.indexOf(12, l), 0);
     });
     it("return -1 if no element is found", () => {
-      assert.strictEqual(indexOf(10, l), -1);
+      assert.strictEqual(L.indexOf(10, l), -1);
+    });
+  });
+  describe("lastIndexOf", () => {
+    const l = L.list(12, 4, 2, 18, 89, 2, 18, 7);
+    it("finds last element by strict equality", () => {
+      assert.strictEqual(L.lastIndexOf(18, l), 6);
+      assert.strictEqual(L.lastIndexOf(2, l), 5);
+      assert.strictEqual(L.lastIndexOf(12, l), 0);
+    });
+    it("return -1 if no element is found", () => {
+      assert.strictEqual(L.lastIndexOf(10, l), -1);
     });
   });
   describe("contains", () => {

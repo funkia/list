@@ -270,17 +270,16 @@ Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `contains`, `drop`, `dropLast`, `dropRepeats`, `dropRepeatsWith`,
 `dropWhile`, `filter`, `find`, `findIndex`, `findLast`, `head`,
 `flatten`, `indexOf`, `intersperse`, `init`, `insert`, `insertAll`,
-`last`, `length`, `join`, `map`, `none`, `nth`, `pair`, `partition`,
-`pluck`, `prepend`, `range`, `reduce`, `reduceRight`, `reject`,
-`remove`, `reverse`, `repeat`, `scan`, `slice`, `sort`, `splitAt`,
-`splitEvery`, `splitWhen`, `take`, `takeWhile`, `tail`,
+`last`, `lastIndexOf`, `length`, `join`, `map`, `none`, `nth`, `pair`,
+`partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
+`reject`, `remove`, `reverse`, `repeat`, `scan`, `slice`, `sort`,
+`splitAt`, `splitEvery`, `splitWhen`, `take`, `takeWhile`, `tail`,
 `takeLast`,`takeLastWhile`, `times`, `update`, `zip`, `zipWith`.
 
 Not implemented: `aperture`, `dropLastWhile`, `endsWith`,
-`findLastIndex`, `groupWith`, `indexBy`, `lastIndexOf`, `mapAccum`,
-`mapAccumRight`, `reduceWhile`, `sequence`, `startsWith`, `transpose`,
-`traverse`, `unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest`
-`without`, `xprod`.
+`findLastIndex`, `groupWith`, `indexBy`, `mapAccum`, `mapAccumRight`,
+`reduceWhile`, `sequence`, `startsWith`, `transpose`, `traverse`,
+`unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`.
 
 ### Differences compared to Ramda
 
@@ -1202,9 +1201,8 @@ some(isEven, list(1, 3, 5, 7)); //=> false
 
 ### `indexOf`
 
-Returns the index of the first element in the list that is equal to
-the given element. If no such element is found the function returns
-`-1`.
+Returns the index of the _first_ element in the list that is equal to
+the given element. If no such element is found `-1` is returned.
 
 **Complexity**: `O(n)`
 
@@ -1215,6 +1213,22 @@ const l = list(12, 4, 2, 89, 6, 18, 7);
 indexOf(12, l); //=> 0
 indexOf(89, l); //=> 3
 indexOf(10, l); //=> -1
+```
+
+### `lastIndexOf`
+
+Returns the index of the _last_ element in the list that is equal to
+the given element. If no such element is found `-1` is returned.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const l = L.list(12, 4, 2, 18, 89, 2, 18, 7);
+L.lastIndexOf(18, l); //=> 6
+L.lastIndexOf(2, l); //=> 5
+L.lastIndexOf(12, l); //=> 0
 ```
 
 ### `find`

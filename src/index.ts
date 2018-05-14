@@ -1099,18 +1099,21 @@ type IndexOfState = {
   index: number;
 };
 
-function indexOfCb<A>(value: A, state: IndexOfState): boolean {
+function indexOfCb(value: any, state: IndexOfState): boolean {
   ++state.index;
   return !(state.found = elementEquals(value, state.element));
 }
 
 export function indexOf<A>(element: A, l: List<A>): number {
-  const { found, index } = foldlCb<A, IndexOfState>(
-    indexOfCb,
-    { element, found: false, index: -1 },
-    l
-  );
-  return found ? index : -1;
+  const state = { element, found: false, index: -1 }
+  foldlCb( indexOfCb, state, l);
+  return state.found ? state.index : -1;
+}
+
+export function lastIndexOf<A>(element: A, l: List<A>): number {
+  const state = { element, found: false, index: 0 }
+  foldrCb(indexOfCb, state, l);
+  return state.found ? l.length - state.index : -1;
 }
 
 type FindIndexState = {

@@ -134,6 +134,8 @@ export const findLast: typeof find = curry2(L.findLast);
 export const indexOf: typeof L.indexOf &
   (<A>(element: A) => (l: List<A>) => number) = curry2(L.indexOf);
 
+export const lastIndexOf: typeof indexOf = curry2(L.lastIndexOf);
+
 export const findIndex: typeof L.findIndex &
   (<A>(predicate: (a: A) => boolean) => (l: List<A>) => number) = curry2(
   L.findIndex

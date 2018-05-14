@@ -36,6 +36,7 @@ declare module "./index" {
     some(predicate: (a: A) => boolean): boolean;
     none(predicate: (a: A) => boolean): boolean;
     indexOf(element: A): number;
+    lastIndexOf(element: A): number;
     find(predicate: (a: A) => boolean): A | undefined;
     findLast(predicate: (a: A) => boolean): A | undefined;
     findIndex(predicate: (a: A) => boolean): number;
@@ -195,6 +196,10 @@ List.prototype.none = function<A>(predicate: (a: A) => boolean): boolean {
 
 List.prototype.indexOf = function<A>(element: A): number {
   return L.indexOf(element, this);
+};
+
+List.prototype.lastIndexOf = function<A>(element: A): number {
+  return L.lastIndexOf(element, this);
 };
 
 List.prototype.find = function find<A>(
