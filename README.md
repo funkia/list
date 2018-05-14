@@ -736,7 +736,7 @@ Returns a new list without repeated elements.
 dropRepeats(L.list(0, 0, 1, 1, 1, 2, 3, 3, 4, 4)); //=> list(0, 1, 2, 3, 4)
 ```
 
-### `dropRepeats`
+### `dropRepeatsWith`
 
 Returns a new list without repeated elements by using the given
 function to determine when elements are equal.
@@ -746,7 +746,7 @@ function to determine when elements are equal.
 **Example**
 
 ```js
-ropRepeatsWith(
+dropRepeatsWith(
   (n, m) => Math.floor(n) === Math.floor(m),
   list(0, 0.4, 1.2, 1.1, 1.8, 2.2, 3.8, 3.4, 4.7, 4.2)
 ); //=> list(0, 1, 2, 3, 4)
