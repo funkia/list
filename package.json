@@ -16,7 +16,9 @@
     "codecov": "codecov -f coverage/coverage-final.json",
     "bench": "node bench",
     "format": "prettier --write \"{src,test,scripts}/**/*.{js,ts}\"",
-    "prepublishOnly": "npm run build; node ./scripts/make-proxies",
+    "cherry-pick": "cherry-pick --cjs-dir dist --esm-dir dist/es --types-dir dist",
+    "prepublishOnly": "npm run build; npm run cherry-pick",
+    "postpublish": "cherry-pick clean",
     "release": "np"
   },
   "author": "Simon Friis Vindum",
@@ -33,6 +35,7 @@
     "babel-core": "^6.26.3",
     "babel-plugin-annotate-pure-calls": "^0.2.2",
     "chai": "4.1.2",
+    "cherry-pick": "^0.2.1",
     "codecov": "^3.0.1",
     "mocha": "^5.1.1",
     "np": "^2.19.0",

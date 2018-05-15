@@ -15,7 +15,6 @@ purescript/output
 
 # proxy directories
 fantasy-land
-list
 methods
 curried
 ramda
