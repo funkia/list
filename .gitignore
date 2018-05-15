@@ -13,8 +13,3 @@ coverage
 bower_components
 purescript/output
 
-# proxy directories
-fantasy-land
-methods
-curried
-ramda
