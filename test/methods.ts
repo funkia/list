@@ -6,7 +6,6 @@ import * as Lm from "../src/methods";
 const K: typeof L = undefined as any;
 
 const exceptions = [
-  "setEquals",
   "Node",
   "List",
   "list",

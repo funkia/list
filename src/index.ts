@@ -2,12 +2,8 @@ const branchingFactor = 32;
 const branchBits = 5;
 const mask = 31;
 
-let elementEquals = (a: any, b: any) => {
+function elementEquals(a: any, b: any): boolean {
   return a === b;
-};
-
-export function setEquals(equals: (a: any, b: any) => boolean): void {
-  elementEquals = equals;
 }
 
 function createPath(depth: number, value: any): any {

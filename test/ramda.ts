@@ -4,8 +4,6 @@ import * as R from "ramda";
 import * as L from "../src/index";
 // import * as Lr from "../src/ramda";
 
-// const exceptions = ["setEquals"];
-
 describe("Ramda", () => {
   // These tests are commented out since the Ramda module is deprecated
   /*
