@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import { List, Comparable, Ordering } from "./fantasy-land";
 import * as L from "./fantasy-land";
 

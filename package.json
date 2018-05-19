@@ -63,6 +63,12 @@
       "ts-node/register",
       "source-map-support/register"
     ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/methods.ts"
+    ],
     "reporter": [
       "json",
       "html",
