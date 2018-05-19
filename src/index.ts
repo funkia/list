@@ -1105,13 +1105,13 @@ function indexOfCb(value: any, state: IndexOfState): boolean {
 }
 
 export function indexOf<A>(element: A, l: List<A>): number {
-  const state = { element, found: false, index: -1 }
-  foldlCb( indexOfCb, state, l);
+  const state = { element, found: false, index: -1 };
+  foldlCb(indexOfCb, state, l);
   return state.found ? state.index : -1;
 }
 
 export function lastIndexOf<A>(element: A, l: List<A>): number {
-  const state = { element, found: false, index: 0 }
+  const state = { element, found: false, index: 0 };
   foldrCb(indexOfCb, state, l);
   return state.found ? l.length - state.index : -1;
 }
@@ -1639,12 +1639,12 @@ export function adjust<A>(index: number, f: (a: A) => A, l: List<A>): List<A> {
 let newAffix: any[];
 
 // function getBitsForDepth(n: number, depth: number): number {
-//   return n & ~(~0 << (depth * branchBits));
+//   return n & ~(~0 << ((depth + 1) * branchBits));
 // }
 
 function sliceNode(
   node: Node,
-  // index: number,
+  index: number,
   depth: number,
   pathLeft: number,
   pathRight: number,
@@ -1663,10 +1663,23 @@ function sliceNode(
     sizes = sizes.slice(pathLeft, pathRight + 1);
     let slicedOffLeft = pathLeft !== 0 ? node.sizes![pathLeft - 1] : 0;
     if (childLeft !== undefined) {
-      slicedOffLeft +=
-        sizeOfSubtree(node.array[pathLeft], depth - 1) -
-        sizeOfSubtree(childLeft, depth - 1);
-      // slicedOff = (getBitsForDepth(index, depth) | mask) + 1;
+      // If the left child has been sliced into a new child we need to know
+      // how many elements have been removed from the child.
+      if (childLeft.sizes !== undefined) {
+        // If the left child has a size table we can simply look at that.
+        const oldChild: Node = node.array[pathLeft];
+        slicedOffLeft +=
+          arrayLast(oldChild.sizes!) - arrayLast(childLeft.sizes);
+      } else {
+        // If the left child does not have a size table we can
+        // calculate how many elements have been removed from it by
+        // looking at the index. Note that when we slice into a leaf
+        // the leaf is moved up as a prefix. Thus slicing, for
+        // instance, at index 20 will remove 32 elements from the
+        // child. Similarly slicing at index 50 will remove 64
+        // elements at slicing at 64 will remove 92 elements.
+        slicedOffLeft += ((index - slicedOffLeft) & ~0b011111) + 32;
+      }
     }
     for (let i = 0; i < sizes.length; ++i) {
       sizes[i] -= slicedOffLeft;
@@ -1717,7 +1730,7 @@ function sliceLeft(
     }
     return sliceNode(
       tree,
-      // index,
+      index,
       depth,
       path,
       tree.array.length - 1,
@@ -1852,7 +1865,7 @@ function sliceTreeList<A>(
     } else {
       l.root = sliceNode(
         tree,
-        // from,
+        from,
         depth,
         pathLeft,
         pathRight,
