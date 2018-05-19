@@ -169,7 +169,12 @@ function handleOffset(depth: number, offset: number, index: number): number {
   return index;
 }
 
-function nodeNth(node: Node, depth: number, index: number): any {
+function nodeNth(
+  node: Node,
+  depth: number,
+  offset: number,
+  index: number
+): any {
   let path;
   let current = node;
   while (current.sizes !== undefined) {
@@ -182,7 +187,11 @@ function nodeNth(node: Node, depth: number, index: number): any {
     depth--;
     current = current.array[path];
   }
-  return nodeNthDense(current, depth, index);
+  return nodeNthDense(
+    current,
+    depth,
+    offset === 0 ? index : handleOffset(depth, offset, index)
+  );
 }
 
 export function nth<A>(index: number, l: List<A>): A | undefined {
@@ -206,7 +215,7 @@ export function nth<A>(index: number, l: List<A>): A | undefined {
           ? index - prefixSize
           : handleOffset(depth, offset, index - prefixSize)
       )
-    : nodeNth(l.root!, depth, index - prefixSize);
+    : nodeNth(l.root!, depth, offset, index - prefixSize);
 }
 
 function cloneNode({ sizes, array }: Node): Node {
