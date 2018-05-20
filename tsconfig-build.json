@@ -4,16 +4,12 @@
     "target": "es5",
     "module": "commonjs",
     "declaration": true,
+    "sourceMap": false,
     "outDir": "./dist",
     "rootDir": "./src",
-    "lib": [
-      "es5", "dom", "es2015.symbol", "es2015.iterable"
-    ]
+    "lib": ["es5", "dom", "es2015.symbol", "es2015.iterable"],
+    "removeComments": true
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

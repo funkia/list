@@ -8,8 +8,7 @@
     "sourceMap": true,
     "noUnusedLocals": true,
     "strictPropertyInitialization": false,
-    "noUnusedParameters": true,
-    "removeComments": true
+    "noUnusedParameters": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules"]
