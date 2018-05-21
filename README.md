@@ -96,7 +96,7 @@ for constructing lists:
 ```js
 // An array literal
 const myArray = [0, 1, 2, 3];
-// A list "literal"
+// A list object
 const myList = L.list(0, 1, 2, 3);
 ```
 
