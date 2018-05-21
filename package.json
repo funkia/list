@@ -2,6 +2,20 @@
   "name": "list",
   "version": "2.0.12",
   "description": "Fast purely functional immutable lists.",
+  "author": "Simon Friis Vindum",
+  "license": "MIT",
+  "repository": "github:funkia/list",
+  "keywords": [
+    "immutable",
+    "list",
+    "functional",
+    "persistent",
+    "sequence",
+    "vector"
+  ],
+  "bugs": {
+    "url": "https://github.com/funkia/list/issues"
+  },
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "module": "dist/es/index.js",
@@ -20,8 +34,6 @@
     "postpublish": "cherry-pick clean",
     "release": "np"
   },
-  "author": "Simon Friis Vindum",
-  "license": "MIT",
   "sideEffects": [
     "**/fantasy-land.js",
     "**/methods.js"
