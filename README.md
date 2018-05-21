@@ -10,10 +10,6 @@ A fast immutable list with a functional API.
   <a href="https://gitter.im/funkia/General"><img src="https://img.shields.io/gitter/room/funkia/General.svg" alt="Gitter" height="20"></a>
   <a href="https://travis-ci.org/funkia/list"><img src="https://travis-ci.org/funkia/list.svg?branch=master" alt="Build Status" height="20"></a>
   <a href="https://codecov.io/gh/funkia/list"><img src="https://codecov.io/gh/funkia/list/branch/master/graph/badge.svg" alt="codecov" height="20"></a>
-  <a href="https://badge.fury.io/js/list"><img src="https://badge.fury.io/js/list.svg" alt="npm version" height="20"></a>
-  <a href="https://david-dm.org/funkia/list"><img src="https://david-dm.org/funkia/list/status.svg" alt="npm version" height="20"></a>
-  <a href="https://david-dm.org/funkia/list?type=dev"><img src="https://david-dm.org/funkia/list/dev-status.svg" alt="npm version" height="20"></a>
-  <a href="https://packagephobia.now.sh/result?p=list"><img src="https://packagephobia.now.sh/badge?p=list" alt="install size" height="20"></a>
 </p>
 
 # List
@@ -67,6 +63,11 @@ to JavaScript's `Array` List has three major benefits.
 * **Fantasy Land support**. List
   [implements](#fantasy-land--static-land) both the Fantasy Land and the Static
   Land specification.
+  
+| Package | Version | Downloads | Dependencies | Dev Deps | Install size | GZIP size |
+|---------|---------|-----------|--------------|----------|--------------|-----------|
+|`list`|[![npm version](https://badge.fury.io/js/list.svg)](https://www.npmjs.com/package/list)|[![Downloads](https://img.shields.io/npm/dt/list.svg)](https://www.npmjs.com/package/list)|[![Dependency Status](https://david-dm.org/funkia/list/status.svg)](https://david-dm.org/funkia/list)|[![devDependency Status](https://david-dm.org/funkia/list/dev-status.svg)](https://david-dm.org/funkia/list?type=dev)|[![install size](https://packagephobia.now.sh/badge?p=list)](https://packagephobia.now.sh/result?p=list)|[![gzip size](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/list/dist/index.js?compression=gzip)](https://cdn.jsdelivr.net/npm/list/dist/index.js)|
+
 
 ## Getting started
 
