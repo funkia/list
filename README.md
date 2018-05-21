@@ -197,7 +197,7 @@ mySet.has("third"); //=> true
 This works because the `Set` constructor accepts any iterable as
 argument.
 
-Lists also work with [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax). For instannce, you can call a function like this.
+Lists also work with [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax). For instance, you can call a function like this.
 
 ```js
 console.log(...list("hello", "there", "i'm", "logging", "elements"));
