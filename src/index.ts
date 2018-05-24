@@ -2,8 +2,22 @@ const branchingFactor = 32;
 const branchBits = 5;
 const mask = 31;
 
+interface Setoid {
+  "fantasy-land/equals"(b: any): boolean;
+}
+
+function isSetoid(a: any): a is Setoid {
+  return a && typeof a["fantasy-land/equals"] === "function";
+}
+
 function elementEquals(a: any, b: any): boolean {
-  return a === b;
+  if (a === b) {
+    return true;
+  } else if (isSetoid(a)) {
+    return a["fantasy-land/equals"](b);
+  } else {
+    return false;
+  }
 }
 
 function createPath(depth: number, value: any): any {

@@ -163,6 +163,13 @@ const square = (n: number) => n * n;
 
 const sum = (a: number, b: number) => a + b;
 
+class Identity<A> {
+  constructor(readonly value: A) {}
+  "fantasy-land/equals"(b: any): boolean {
+    return "value" in b ? this.value === b.value : false;
+  }
+}
+
 describe("List", () => {
   describe("repeat", () => {
     it("creates list of n repeated elements", () => {
@@ -880,17 +887,22 @@ describe("List", () => {
   });
   describe("equals", () => {
     it("returns false if lists are not of the same length", () => {
-      assert.isFalse(equals(list(0, 1, 2, 3), list(0, 1, 2, 3, 4)));
+      assert.isFalse(L.equals(list(0, 1, 2, 3), list(0, 1, 2, 3, 4)));
     });
     it("returns false if elements differ in content", () => {
-      assert.isFalse(equals(list(0, 1, 9, 3, 4), list(0, 1, 2, 3, 4)));
+      assert.isFalse(L.equals(list(0, 1, 9, 3, 4), list(0, 1, 2, 3, 4)));
     });
     it("returns true if lists are identical", () => {
       const l = list(0, 1, 2, 3, 4);
-      assert.isTrue(equals(l, l));
+      assert.isTrue(L.equals(l, l));
     });
     it("returns true if lists are equivalent", () => {
-      assert.isTrue(equals(list(0, 1, 2, 3, 4), list(0, 1, 2, 3, 4)));
+      assert.isTrue(L.equals(list(0, 1, 2, 3, 4), list(0, 1, 2, 3, 4)));
+    });
+    it("handles setoids", () => {
+      const l1 = L.list(new Identity(1), new Identity(2));
+      const l2 = L.list(new Identity(1), new Identity(2));
+      assert.isTrue(L.equals(l1, l2));
     });
     it("compares elements with function", () => {
       assert.isTrue(
