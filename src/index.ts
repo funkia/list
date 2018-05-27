@@ -133,24 +133,17 @@ function updateNode(
   value: any
 ): Node {
   const { path, index: newIndex } = getPath(index, offset, depth, node.sizes);
-  let array;
-  if (path < 0) {
-    // TOOD: Once `prepend` no longer uses `update` this should be removed
-    array = arrayPrepend(createPath(depth, value), node.array);
-  } else {
-    array = copyArray(node.array);
-    if (depth === 0) {
-      array[path] = value;
-    } else {
-      array[path] = updateNode(
-        array[path],
-        depth - 1,
-        newIndex,
-        path === 0 ? offset : 0,
-        value
-      );
-    }
-  }
+  const array = copyArray(node.array);
+  array[path] =
+    depth > 0
+      ? updateNode(
+          array[path],
+          depth - 1,
+          newIndex,
+          path === 0 ? offset : 0,
+          value
+        )
+      : value;
   return new Node(node.sizes, array);
 }
 
@@ -531,13 +524,7 @@ function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
     if (l.root.sizes === undefined) {
       if (l.offset !== 0) {
         newOffset = l.offset - branchingFactor;
-        l.root = prependDense(
-          l.root,
-          depth - 1,
-          (l.offset - 1) >> 5,
-          l.offset >> 5,
-          node
-        );
+        l.root = prependDense(l.root, depth, l.offset, node);
       } else {
         // in this case we can be sure that the is not room in the tree
         // for the new node
@@ -565,9 +552,8 @@ function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
         }
         copiedNode.array[0] = prependDense(
           copiedNode.array[0],
-          depth - nodesTraversed - 1,
-          (l.offset - 1) >> 5,
-          l.offset >> 5,
+          depth - nodesTraversed,
+          l.offset,
           node
         );
         l.offset = l.offset - branchingFactor;
@@ -604,33 +590,28 @@ function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
   }
 }
 
+/**
+ * Prepends a node to a dense tree. The given `offset` is never zero.
+ */
 function prependDense(
   node: Node,
   depth: number,
-  index: number,
   offset: number,
-  value: any
+  value: Node
 ): Node {
+  // We're indexing down `offset - 1`. At each step `path` is either 0 or -1.
   const curOffset = (offset >> (depth * branchBits)) & mask;
-  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
-  let array;
+  const path = (((offset - 1) >> (depth * branchBits)) & mask) - curOffset;
   if (path < 0) {
-    array = arrayPrepend(createPath(depth, value), node.array);
+    return new Node(
+      undefined,
+      arrayPrepend(createPath(depth - 1, value), node.array)
+    );
   } else {
-    array = copyArray(node.array);
-    if (depth === 0) {
-      array[path] = value;
-    } else {
-      array[path] = updateNode(
-        array[path],
-        depth - 1,
-        index,
-        path === 0 ? offset : 0,
-        value
-      );
-    }
+    const array = copyArray(node.array);
+    array[0] = prependDense(array[0], depth - 1, offset, value);
+    return new Node(undefined, array);
   }
-  return new Node(node.sizes, array);
 }
 
 export function append<A>(value: A, l: List<A>): List<A> {
