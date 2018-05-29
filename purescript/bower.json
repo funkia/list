@@ -11,7 +11,12 @@
     "purescript-console": "^3.0.0",
     "purescript-maybe": "^3.0.0",
     "purescript-monoid": "^3.3.0",
-    "purescript-foldable-traversable": "^3.7.1"
+    "purescript-foldable-traversable": "^3.7.1",
+    "purescript-partial": "^1.2.1",
+    "purescript-unfoldable": "^3.1.0",
+    "purescript-tuples": "^4.1.0",
+    "purescript-functions": "^3.0.0",
+    "purescript-tailrec": "^3.3.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0"
