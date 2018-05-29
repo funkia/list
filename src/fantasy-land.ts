@@ -8,7 +8,10 @@ import {
   foldl,
   of,
   ap,
-  chain
+  chain,
+  traverse,
+  Applicative,
+  Of
 } from "./index";
 
 export * from "./index";
@@ -27,6 +30,7 @@ declare module "./index" {
     "fantasy-land/empty"(): List<any>;
     "fantasy-land/concat"(right: List<A>): List<A>;
     "fantasy-land/reduce"<B>(f: (acc: B, value: A) => B, initial: B): B;
+    "fantasy-land/traverse"<A, B>(of: Of, f: (a: A) => Applicative<B>): any;
   }
 }
 
@@ -74,4 +78,11 @@ List.prototype["fantasy-land/reduce"] = function<A, B>(
   initial: B
 ): B {
   return foldl(f, initial, this);
+};
+
+List.prototype["fantasy-land/traverse"] = function<A, B>(
+  of: Of,
+  f: (a: A) => Applicative<B>
+): any {
+  return traverse(of, f, this);
 };

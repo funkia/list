@@ -1,4 +1,4 @@
-import { List, Comparable, Ordering } from "./fantasy-land";
+import { List, Comparable, Ordering, Applicative, Of } from "./fantasy-land";
 import * as L from "./fantasy-land";
 
 export * from "./index";
@@ -21,6 +21,8 @@ declare module "./index" {
     scan<B>(f: (acc: B, value: A) => B, initial: B): List<B>;
     foldr<B>(f: (value: A, acc: B) => B, initial: B): B;
     reduceRight<B>(f: (value: A, acc: B) => B, initial: B): B;
+    traverse<A, B>(of: Of, f: (a: A) => Applicative<B>): any;
+    sequence<A, B>(this: List<Applicative<A>>, of: Of): any;
     forEach(callback: (a: A) => void): void;
     filter(predicate: (a: A) => boolean): List<A>;
     filter<B extends A>(predicate: (a: A) => a is B): List<B>;
@@ -145,6 +147,17 @@ List.prototype.foldr = function<A, B>(
 };
 
 List.prototype.reduceRight = List.prototype.foldr;
+
+List.prototype.traverse = function<A, B>(
+  of: Of,
+  f: (a: A) => Applicative<B>
+): any {
+  return L.traverse(of, f, this);
+};
+
+List.prototype.sequence = function<A>(this: List<Applicative<A>>, of: Of): any {
+  return L.sequence(of, this);
+};
 
 List.prototype.forEach = function<A>(callback: (a: A) => void): void {
   return L.forEach(callback, this);

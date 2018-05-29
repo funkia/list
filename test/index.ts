@@ -55,6 +55,7 @@ import {
   update
 } from "../src";
 import { checkList, installCheck } from "./check";
+import { nothing, just, Maybe, isJust } from "./utils";
 
 const L: typeof Loriginal = installCheck(Loriginal);
 
@@ -714,6 +715,27 @@ describe("List", () => {
         );
         assert.deepEqual(result, numberArray(0, n).reverse());
       });
+    });
+  });
+  describe("traversable", () => {
+    it("traverse works with maybe", () => {
+      const safeDiv = (n: number) => (d: number) =>
+        d === 0 ? nothing : just(n / d);
+      const r = L.traverse(Maybe, safeDiv(10), list(2, 4, 5));
+      assert.isTrue(isJust(r) && L.equals(r.val, list(5, 2.5, 2)));
+      assert.strictEqual(
+        L.traverse(Maybe, safeDiv(10), list(2, 0, 5)),
+        nothing
+      );
+    });
+    it("sequence works with maybe", () => {
+      const l1 = list(just(0), just(1), just(2));
+      const r = L.sequence(Maybe, l1);
+      assert.isTrue(isJust(r) && L.equals(r.val, list(0, 1, 2)));
+      const l2 = list(nothing, just(1), just(2));
+      assert.strictEqual(L.sequence(Maybe, l2), nothing);
+      const l3 = list(just(0), just(1), nothing);
+      assert.strictEqual(L.sequence(Maybe, l3), nothing);
     });
   });
   describe("scan", () => {

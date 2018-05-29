@@ -265,7 +265,7 @@ as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 55
+are missing and of how many that are already implemented. Currently 58
 out of 75 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
@@ -274,14 +274,15 @@ Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `flatten`, `indexOf`, `intersperse`, `init`, `insert`, `insertAll`,
 `last`, `lastIndexOf`, `length`, `join`, `map`, `none`, `nth`, `pair`,
 `partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
-`reject`, `remove`, `reverse`, `repeat`, `scan`, `slice`, `sort`,
-`splitAt`, `splitEvery`, `splitWhen`, `take`, `takeWhile`, `tail`,
-`takeLast`,`takeLastWhile`, `times`, `update`, `zip`, `zipWith`.
+`reject`, `remove`, `reverse`, `repeat`, `scan`, `sequence`, `slice`,
+`sort`, `splitAt`, `splitEvery`, `splitWhen`, `take`, `takeWhile`,
+`tail`, `takeLast`,`takeLastWhile`, `traverse`, `times`, `update`,
+`zip`, `zipWith`.
 
 Not implemented: `aperture`, `dropLastWhile`, `endsWith`,
 `findLastIndex`, `groupWith`, `indexBy`, `mapAccum`, `mapAccumRight`,
-`reduceWhile`, `sequence`, `startsWith`, `transpose`, `traverse`,
-`unfold`, `uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`.
+`reduceWhile`, `startsWith`, `transpose`, `unfold`, `uniq`, `uniqBy`,
+`uniqWith`, `unnest` `without`, `xprod`.
 
 ### Differences compared to Ramda
 
@@ -1139,6 +1140,39 @@ intermediate steps in a resulting list.
 const l = list(1, 3, 5, 4, 2);
 L.scan((n, m) => n + m, 0, l); //=> list(0, 1, 4, 9, 13, 15));
 L.scan((s, m) => s + m.toString(), "", l); //=> list("", "1", "13", "135", "1354", "13542")
+```
+
+### `traverse`
+
+Map each element of list to an applicative, evaluate these
+applicatives from left to right, and collect the results.
+
+This works with Fantasy Land
+[applicatives](https://github.com/fantasyland/fantasy-land#applicative).
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const safeDiv = n => d => d === 0 ? nothing : just(n / d)
+
+L.traverse(Maybe, safeDiv(10), list(2, 4, 5)); //=> just(list(5, 2.5, 2))
+L.traverse(Maybe, safeDiv(10), list(2, 0, 5)); //=> nothing
+```
+
+### `sequence`
+
+Evaluate each applicative in the list from left to right, and and
+collect the results.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+L.sequence(Maybe, list(just(1), just(2), just(3))); //=> just(list(1, 2, 3))
+L.sequence(Maybe, list(just(1), just(2), nothing())); //=> nothing
 ```
 
 ### `forEach`

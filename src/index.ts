@@ -823,6 +823,34 @@ export function foldl<A, B>(
 
 export const reduce = foldl;
 
+export interface Of {
+  "fantasy-land/of"<B>(a: B): Applicative<B>;
+}
+
+export interface Applicative<A> {
+  "fantasy-land/map"<B>(f: (a: A) => B): Applicative<B>;
+  "fantasy-land/ap"<B>(fa: Applicative<(a: A) => B>): Applicative<B>;
+}
+
+export function traverse<A, B>(
+  of: Of,
+  f: (a: A) => Applicative<B>,
+  l: List<A>
+): any {
+  return foldr(
+    (a, fl) =>
+      fl["fantasy-land/ap"](
+        f(a)["fantasy-land/map"](a => (l: List<any>) => prepend(a, l))
+      ),
+    of["fantasy-land/of"](empty()),
+    l
+  );
+}
+
+export function sequence<A>(ofObj: Of, l: List<Applicative<A>>): any {
+  return traverse(ofObj, a => a, l);
+}
+
 export function scan<A, B>(
   f: (acc: B, value: A) => B,
   initial: B,

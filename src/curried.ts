@@ -203,6 +203,9 @@ export const groupWith: typeof L.groupWith &
 export const zip: typeof L.zip &
   (<A>(as: List<A>) => <B>(bs: List<B>) => List<[A, B]>) = curry2(L.zip);
 
+export const sequence: typeof L.sequence &
+  ((ofObj: L.Of) => <A>(l: List<L.Applicative<A>>) => any) = curry2(L.sequence);
+
 // Arity 3
 
 export const foldl: typeof L.foldl & {
@@ -221,6 +224,12 @@ export const foldr: typeof L.foldl & {
   <A, B>(f: (value: A, acc: B) => B): Curried2<B, List<A>, B>;
   <A, B>(f: (value: A, acc: B) => B, initial: B): (l: List<A>) => B;
 } = curry3(L.foldr);
+
+export const traverse: typeof L.traverse & {
+  (of: L.Of): (<A, B>(f: (a: A) => L.Applicative<B>) => (l: List<B>) => any) &
+    (<A, B>(f: (a: A) => L.Applicative<B>, l: List<B>) => any);
+  <A, B>(of: L.Of, f: (a: A) => L.Applicative<B>): (l: List<B>) => any;
+} = curry3(L.traverse);
 
 export const equalsWith: typeof L.equalsWith & {
   <A>(f: (a: A, b: A) => boolean): Curried2<List<A>, List<A>, boolean>;

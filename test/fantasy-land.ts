@@ -2,6 +2,7 @@ import { assert } from "chai";
 
 import * as L from "../src/index";
 import * as Lf from "../src/fantasy-land";
+import { just, nothing, isJust, Maybe } from "./utils";
 
 describe("Fantasy Land", () => {
   it("has all functions", () => {
@@ -57,6 +58,12 @@ describe("Fantasy Land", () => {
         <number[]>[]
       );
       assert.deepEqual(result, [0, 1, 2, 3, 4, 5]);
+    });
+    it("has traverse method", () => {
+      const safeDiv = (n: number) => (d: number) =>
+        d === 0 ? nothing : just(n / d);
+      const r = L.list(2, 4, 5)["fantasy-land/traverse"](Maybe, safeDiv(10));
+      assert.isTrue(isJust(r) && L.equals(r.val, L.list(5, 2.5, 2)));
     });
   });
   describe("filterable", () => {
