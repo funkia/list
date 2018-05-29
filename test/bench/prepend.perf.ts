@@ -79,7 +79,6 @@ benchmark(
   }
 );
 
-/*
 benchmark(
   {
     name: "prepend",
@@ -113,4 +112,3 @@ benchmark(
     }
   }
 );
-*/
