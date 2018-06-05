@@ -342,20 +342,34 @@ function createBits(
  */
 export class List<A> {
   constructor(
-    public bits: number,
-    public offset: number,
-    public length: number,
-    public root: Node | undefined,
-    public suffix: A[],
-    public prefix: A[]
+    readonly bits: number,
+    readonly offset: number,
+    readonly length: number,
+    readonly root: Node | undefined,
+    readonly suffix: A[],
+    readonly prefix: A[]
   ) {}
   [Symbol.iterator](): Iterator<A> {
     return new ListIterator(this);
   }
 }
 
-function cloneList<A>(l: List<A>): List<A> {
-  return new List(l.bits, l.offset, l.length, l.root, l.suffix, l.prefix);
+type MutableList<A> = { -readonly [K in keyof List<A>]: List<A>[K] } & {
+  [Symbol.iterator]: () => Iterator<A>;
+  // This property doesn't exist at run-time. It exists to prevent a
+  // MutableList from being assignable to a List.
+  "@@mutable": true;
+};
+
+function cloneList<A>(l: List<A>): MutableList<A> {
+  return new List(
+    l.bits,
+    l.offset,
+    l.length,
+    l.root,
+    l.suffix,
+    l.prefix
+  ) as any;
 }
 
 class ListIterator<A> implements Iterator<A> {
@@ -442,7 +456,7 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
  * @param leafSize The number of elements in the leaf that will be
  * inserted.
  */
-function copyLeft(l: List<any>, k: number, leafSize: number): Node {
+function copyLeft(l: MutableList<any>, k: number, leafSize: number): Node {
   let currentNode = cloneNode(l.root!); // copy root
   l.root = currentNode; // install copy of root
 
@@ -478,7 +492,11 @@ function prependSizes(n: number, sizes: Sizes): Sizes {
  * Prepends a node to a tree. Either by shifting the nodes in the root
  * left or by increasing the height
  */
-function prependTopTree<A>(l: List<A>, depth: number, node: Node): number {
+function prependTopTree<A>(
+  l: MutableList<A>,
+  depth: number,
+  node: Node
+): number {
   let newOffset;
   if (l.root!.array.length < branchingFactor) {
     // There is space in the root
@@ -507,7 +525,7 @@ function prependTopTree<A>(l: List<A>, depth: number, node: Node): number {
  * the tree will _not_ be mutated.
  * @param node The node that should be prepended to the tree.
  */
-function prependNodeToTree<A>(l: List<A>, array: A[]): List<A> {
+function prependNodeToTree<A>(l: MutableList<A>, array: A[]): List<A> {
   if (l.root === undefined) {
     if (getSuffixSize(l) === 0) {
       // ensure invariant 1
@@ -1411,7 +1429,7 @@ function getHeight(node: Node): number {
  * the tree will _not_ be mutated.
  * @param array The affix that should be appended to the tree.
  */
-function appendNodeToTree<A>(l: List<A>, array: A[]): List<A> {
+function appendNodeToTree<A>(l: MutableList<A>, array: A[]): MutableList<A> {
   if (l.root === undefined) {
     // The old list has no content in tree, all content is in affixes
     if (getPrefixSize(l) === 0) {
@@ -1490,7 +1508,7 @@ function appendNodeToTree<A>(l: List<A>, array: A[]): List<A> {
  */
 function copyFirstK(
   oldList: List<any>,
-  newList: List<any>,
+  newList: MutableList<any>,
   k: number,
   leafSize: number
 ): Node {
@@ -1825,7 +1843,7 @@ function sliceTreeList<A>(
   tree: Node,
   depth: number,
   offset: number,
-  l: List<A>
+  l: MutableList<A>
 ): List<A> {
   const sizes = tree.sizes;
   let { path: pathLeft, index: newFrom } = getPath(from, offset, depth, sizes);
