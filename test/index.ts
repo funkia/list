@@ -97,6 +97,10 @@ function prependList(
   return l;
 }
 
+function prependConcat<A>(l1: List<A>, l2: List<A>): List<A> {
+  return L.foldr((a, l) => L.prepend(a, l), l2, l1);
+}
+
 function assertIndicesFromTo(
   list: List<number>,
   from: number,
@@ -297,6 +301,16 @@ describe("List", () => {
       const final = prependList(0, prependSize, concatenated);
       assertIndicesFromTo(final, 0, prependSize + 2 * size);
     });
+    check(
+      "prepend and concat similair",
+      P.three(genBigList),
+      ([a, b, c]) => {
+        const bc = L.concat(b, c);
+        assertListEqual(L.concat(a, bc), prependConcat(a, bc));
+        return true;
+      },
+      { tests: 20 }
+    );
   });
   describe("append and prepend", () => {
     it("prepend to 32 size appended", () => {

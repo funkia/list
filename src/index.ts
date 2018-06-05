@@ -475,19 +475,6 @@ function copyLeft(l: MutableList<any>, k: number, leafSize: number): Node {
   return currentNode;
 }
 
-function prependSizes(n: number, sizes: Sizes): Sizes {
-  if (sizes === undefined) {
-    return undefined;
-  } else {
-    const newSizes = new Array(sizes.length + 1);
-    newSizes[0] = n;
-    for (let i = 0; i < sizes.length; ++i) {
-      newSizes[i + 1] = sizes[i] + n;
-    }
-    return newSizes;
-  }
-}
-
 /**
  * Prepends a node to a tree. Either by shifting the nodes in the root
  * left or by increasing the height
@@ -499,10 +486,11 @@ function prependTopTree<A>(
 ): number {
   let newOffset;
   if (l.root!.array.length < branchingFactor) {
-    // There is space in the root
+    // There is space in the root, there is never a size table in this
+    // case
     newOffset = 32 ** depth - 32;
     l.root = new Node(
-      prependSizes(32, l.root!.sizes),
+      undefined,
       arrayPrepend(createPath(depth - 1, node), l.root!.array)
     );
   } else {
