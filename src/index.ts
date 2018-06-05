@@ -1558,11 +1558,6 @@ function concatAffixes<A>(left: List<A>, right: List<A>): number {
   var length = getSuffixSize(left);
   concatBuffer[nr] = [];
   for (i = 0; i < length; ++i) {
-    if (arrIdx === 32) {
-      arrIdx = 0;
-      ++nr;
-      concatBuffer[nr] = [];
-    }
     concatBuffer[nr][arrIdx++] = left.suffix[i];
   }
   length = getPrefixSize(right);
