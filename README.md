@@ -10,6 +10,7 @@ A fast immutable list with a functional API.
   <a href="https://gitter.im/funkia/General"><img src="https://img.shields.io/gitter/room/funkia/General.svg" alt="Gitter" height="20"></a>
   <a href="https://travis-ci.org/funkia/list"><img src="https://travis-ci.org/funkia/list.svg?branch=master" alt="Build Status" height="20"></a>
   <a href="https://codecov.io/gh/funkia/list"><img src="https://codecov.io/gh/funkia/list/branch/master/graph/badge.svg" alt="codecov" height="20"></a>
+  <a href="https://packagequality.com/#?package=list"><img src="http://npm.packagequality.com/shield/list.svg" alt="package quality" height="20"></a>
 </p>
 
 # List
