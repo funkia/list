@@ -1748,4 +1748,12 @@ describe("List", () => {
       );
     });
   });
+  describe("isEmpty", () => {
+    it("returns true for empty list", () => {
+      assert.isTrue(L.isEmpty(L.list()));
+    });
+    it("returns false for non-empty list", () => {
+      assert.isFalse(L.isEmpty(L.list(0, 1, 2, 3)));
+    });
+  });
 });

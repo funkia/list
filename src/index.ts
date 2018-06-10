@@ -2312,3 +2312,10 @@ export function groupWith<A>(
 export function intersperse<A>(separator: A, l: List<A>): List<A> {
   return pop(foldl((l2, a) => append(separator, append(a, l2)), empty(), l));
 }
+
+/**
+ * Returns `true` if the given list is empty and `false` otherwise.
+ */
+export function isEmpty(l: List<any>): boolean {
+  return l.length === 0;
+}

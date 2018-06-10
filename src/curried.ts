@@ -22,7 +22,8 @@ export {
   fromIterable,
   sort,
   group,
-  dropRepeats
+  dropRepeats,
+  isEmpty
 } from "./index";
 
 export interface Curried2<A, B, R> {

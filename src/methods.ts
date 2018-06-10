@@ -73,6 +73,7 @@ declare module "./index" {
     sortWith(comparator: (a: A, b: A) => Ordering): List<A>;
     group(): List<List<A>>;
     groupWith<A>(f: (a: A, b: A) => boolean): List<List<A>>;
+    isEmpty(): boolean;
   }
 }
 
@@ -375,4 +376,8 @@ List.prototype.groupWith = function<A>(
   f: (a: A, b: A) => boolean
 ): List<List<A>> {
   return L.groupWith(f, this);
+};
+
+List.prototype.isEmpty = function(): boolean {
+  return L.isEmpty(this);
 };
