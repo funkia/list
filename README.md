@@ -64,9 +64,9 @@ to JavaScript's `Array` List has three major benefits.
   [implements](#fantasy-land--static-land) both the Fantasy Land and the Static
   Land specification.
   
-| Package | Version | Downloads | Dependencies | Dev Deps | Install size | GZIP size |
-|---------|---------|-----------|--------------|----------|--------------|-----------|
-|`list`|[![npm version](https://badge.fury.io/js/list.svg)](https://www.npmjs.com/package/list)|[![Downloads](https://img.shields.io/npm/dt/list.svg)](https://www.npmjs.com/package/list)|[![Dependency Status](https://david-dm.org/funkia/list/status.svg)](https://david-dm.org/funkia/list)|[![devDependency Status](https://david-dm.org/funkia/list/dev-status.svg)](https://david-dm.org/funkia/list?type=dev)|[![install size](https://packagephobia.now.sh/badge?p=list)](https://packagephobia.now.sh/result?p=list)|[![gzip size](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/list/dist/index.js?compression=gzip)](https://cdn.jsdelivr.net/npm/list/dist/index.js)|
+| Package | Version                                                                                 | Downloads                                                                                  | Dependencies                                                                                          | Dev Deps                                                                                                              | Install size                                                                                             | GZIP size                                                                                                                                                 |
+| ------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list`  | [![npm version](https://badge.fury.io/js/list.svg)](https://www.npmjs.com/package/list) | [![Downloads](https://img.shields.io/npm/dt/list.svg)](https://www.npmjs.com/package/list) | [![Dependency Status](https://david-dm.org/funkia/list/status.svg)](https://david-dm.org/funkia/list) | [![devDependency Status](https://david-dm.org/funkia/list/dev-status.svg)](https://david-dm.org/funkia/list?type=dev) | [![install size](https://packagephobia.now.sh/badge?p=list)](https://packagephobia.now.sh/result?p=list) | [![gzip size](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/list/dist/index.js?compression=gzip)](https://cdn.jsdelivr.net/npm/list/dist/index.js) |
 
 
 ## Getting started
@@ -91,12 +91,15 @@ Then you can begin using List instead of arrays and enjoy immutability
 the performance benefits.
 
 As a replacement for array literals List offers the function `list`
-for constructing lists:
+for constructing lists. Instead of using `[...]` to construct an array
+with the content `...` one can use `list(...)` to construct a list
+with the same content. Here is an example.
+
 
 ```js
 // An array literal
 const myArray = [0, 1, 2, 3];
-// A list object
+// The List equivalent
 const myList = L.list(0, 1, 2, 3);
 ```
 
