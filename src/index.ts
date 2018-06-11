@@ -2073,7 +2073,7 @@ export function dropRepeatsWith<A>(
 ): List<A> {
   return foldl(
     (acc, a) =>
-      acc.length !== 0 && predicate(last(acc), a) ? acc : append(a, acc),
+      acc.length !== 0 && predicate(last(acc)!, a) ? acc : append(a, acc),
     empty(),
     l
   );
@@ -2150,7 +2150,7 @@ export function fromArray<A>(array: A[]): List<A> {
   return l;
 }
 
-export function fromIterable<A>(iterable: IterableIterator<A>): List<A> {
+export function fromIterable<A>(iterable: Iterable<A>): List<A> {
   let l = empty();
   let iterator = iterable[Symbol.iterator]();
   let cur;

@@ -1557,6 +1557,9 @@ describe("List", () => {
       assert.strictEqual(l.length, 20);
       assertIndicesFromTo(l, 0, 20);
     });
+    it("converts an array into a list", () => {
+      assertListEqual(L.list(0, 1, 2, 3, 4), L.fromIterable([0, 1, 2, 3, 4]));
+    });
   });
   describe("insert and insertAll", () => {
     it("inserts element in list", () => {
