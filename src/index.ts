@@ -649,16 +649,17 @@ export function list<A>(...elements: A[]): List<A> {
   return l;
 }
 
+/** Creates an empty list. */
+export function empty<A = any>(): List<A> {
+  return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
+}
+
 export function of<A>(a: A): List<A> {
   return list(a);
 }
 
 export function pair<A>(first: A, second: A): List<A> {
   return new List(2, 0, 2, undefined, [first, second], emptyAffix);
-}
-
-export function empty(): List<any> {
-  return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
 }
 
 export function repeat<A>(value: A, times: number): List<A> {
