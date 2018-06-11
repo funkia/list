@@ -268,22 +268,22 @@ as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 58
-out of 75 functions have been implemented.
+are missing and of how many that are already implemented. Currently 60
+out of 76 functions have been implemented.
 
 Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
 `contains`, `drop`, `dropLast`, `dropRepeats`, `dropRepeatsWith`,
-`dropWhile`, `filter`, `find`, `findIndex`, `findLast`, `head`,
-`flatten`, `indexOf`, `intersperse`, `init`, `insert`, `insertAll`,
-`last`, `lastIndexOf`, `length`, `join`, `map`, `none`, `nth`, `pair`,
-`partition`, `pluck`, `prepend`, `range`, `reduce`, `reduceRight`,
-`reject`, `remove`, `reverse`, `repeat`, `scan`, `sequence`, `slice`,
-`sort`, `splitAt`, `splitEvery`, `splitWhen`, `take`, `takeWhile`,
-`tail`, `takeLast`,`takeLastWhile`, `traverse`, `times`, `update`,
-`zip`, `zipWith`.
+`dropWhile`, `filter`, `find`, `findIndex`, `findLast`, `group`,
+`groupWith`, `head`, `flatten`, `indexOf`, `intersperse`, `init`,
+`insert`, `insertAll`, `last`, `lastIndexOf`, `length`, `join`, `map`,
+`none`, `nth`, `pair`, `partition`, `pluck`, `prepend`, `range`,
+`reduce`, `reduceRight`, `reject`, `remove`, `reverse`, `repeat`,
+`scan`, `sequence`, `slice`, `sort`, `splitAt`, `splitEvery`,
+`splitWhen`, `take`, `takeWhile`, `tail`, `takeLast`,`takeLastWhile`,
+`traverse`, `times`, `update`, `zip`, `zipWith`.
 
 Not implemented: `aperture`, `dropLastWhile`, `endsWith`,
-`findLastIndex`, `groupWith`, `indexBy`, `mapAccum`, `mapAccumRight`,
+`findLastIndex`, `indexBy`, `mapAccum`, `mapAccumRight`,
 `reduceWhile`, `startsWith`, `transpose`, `unfold`, `uniq`, `uniqBy`,
 `uniqWith`, `unnest` `without`, `xprod`.
 
@@ -982,6 +982,35 @@ sortWith((a, b) => {
     return 1;
   }
 }, list(5, 3, 1, 8, 2)); //=> list(1, 2, 3, 5, 8)
+```
+
+### `group`
+
+Returns a list of lists where each sublist's elements
+are all equal.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+group(list(0, 0, 1, 2, 2, 2, 3, 3)); //=> list(list(0, 0), list(1), list(2, 2, 2), list(3, 3))
+```
+
+### `groupWith`
+
+Returns a list of lists where each sublist's elements are pairwise
+equal based on the given comparison function.
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+groupWith(
+  (a, b) => Math.round(a) === Math.round(b),
+  list(1.1, 1.3, 1.8, 2, 2.2, 3.3, 3.4)
+); //=> list(list(1.1, 1.3), list(1.8, 2, 2.2), list(3.3, 3.4))
 ```
 
 ### Folds
