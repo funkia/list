@@ -197,6 +197,15 @@ function nodeNth(
   );
 }
 
+/**
+ * Gets the nth element of the list. If `n` is out of bounds
+ * `undefined` is returned.
+ *
+ * @complexity O(log(n))
+ * @example
+ * const l = list(0, 1, 2, 3, 4);
+ * nth(2, l); //=> 2
+ */
 export function nth<A>(index: number, l: List<A>): A | undefined {
   if (index < 0 || l.length <= index) {
     return undefined;
@@ -426,6 +435,13 @@ class ListIterator<A> implements Iterator<A> {
 
 // prepend & append
 
+/**
+ * Prepends an element to the front of a list and returns the new list.
+ *
+ * @complexity O(n)
+ * @example
+ * const newList = prepend(0, list(1, 2, 3)); //=> list(0, 1, 2, 3)
+ */
 export function prepend<A>(value: A, l: List<A>): List<A> {
   const prefixSize = getPrefixSize(l);
   if (prefixSize < 32) {
@@ -620,6 +636,13 @@ function prependDense(
   }
 }
 
+/**
+ * Appends an element to the end of a list and returns the new list.
+ *
+ * @complexity O(n)
+ * @example
+ * const newList = append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
+ */
 export function append<A>(value: A, l: List<A>): List<A> {
   const suffixSize = getSuffixSize(l);
   if (suffixSize < 32) {
@@ -649,19 +672,48 @@ export function list<A>(...elements: A[]): List<A> {
   return l;
 }
 
-/** Creates an empty list. */
+/**
+ * Creates an empty list.
+ *
+ * @complexity O(1)
+ * @example
+ * const emptyList = empty(); //=> list()
+ */
 export function empty<A = any>(): List<A> {
   return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
 }
 
+/**
+ * Takes a single arguments and returns a singleton list that contains it.
+ *
+ * @complexity O(1)
+ * @example
+ * of("foo"); //=> list("foo")
+ */
 export function of<A>(a: A): List<A> {
   return list(a);
 }
 
+/**
+ * Takes two arguments and returns a list that contains them.
+ *
+ * @complexity O(1)
+ * @example
+ * pair("foo", "bar"); //=> list("foo", "bar")
+ */
 export function pair<A>(first: A, second: A): List<A> {
   return new List(2, 0, 2, undefined, [first, second], emptyAffix);
 }
 
+/**
+ * Returns a list of a given length that contains the specified value
+ * in all positions.
+ *
+ * @complexity O(n)
+ * @example
+ * repeat(1, 7); //=> list(1, 1, 1, 1, 1, 1, 1)
+ * repeat("foo", 3); //=> list("foo", "foo", "foo")
+ */
 export function repeat<A>(value: A, times: number): List<A> {
   let l = empty();
   while (--times >= 0) {
@@ -696,6 +748,15 @@ export function length(l: List<any>): number {
   return l.length;
 }
 
+/**
+ * Returns the first element of the list. If the list is empty the
+ * function returns undefined.
+ *
+ * @complexity O(1)
+ * @example
+ * first(list(0, 1, 2, 3)); //=> 0
+ * first(list()); //=> undefined
+ */
 export function first<A>(l: List<A>): A | undefined {
   if (getPrefixSize(l) !== 0) {
     return arrayLast(l.prefix);
@@ -704,6 +765,15 @@ export function first<A>(l: List<A>): A | undefined {
   }
 }
 
+/**
+ * Returns the last element of the list. If the list is empty the
+ * function returns `undefined`.
+ *
+ * @complexity O(1)
+ * @example
+ * last(list(0, 1, 2, 3)); //=> 3
+ * last(list()); //=> undefined
+ */
 export function last<A>(l: List<A>): A | undefined {
   if (getSuffixSize(l) !== 0) {
     return arrayLast(l.suffix);
@@ -743,6 +813,13 @@ function mapAffix<A, B>(f: (a: A) => B, suffix: A[], length: number): B[] {
   return newSuffix;
 }
 
+/**
+ * Applies a function to each element in the given list and returns a new list of the values that the function return.
+ *
+ * @complexity O(n)
+ * @example
+ * map(n => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 16)
+ */
 export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
   return new List(
     l.bits,
@@ -754,10 +831,29 @@ export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
   );
 }
 
+/**
+ * Extracts the specified property from each object in the list.
+ *
+ * @example
+ *
+ * const l = list(
+ *   { foo: 0, bar: "a" },
+ *   { foo: 1, bar: "b" },
+ *   { foo: 2, bar: "c" }
+ * );
+ * pluck("foo", l); //=> list(0, 1, 2)
+ * pluck("bar", l); //=> list("a", "b", "c")
+ */
 export function pluck<A, K extends keyof A>(key: K, l: List<A>): List<A[K]> {
   return map(a => a[key], l);
 }
 
+/**
+ * Returns a list of numbers between an inclusive lower bound and an exclusive upper bound.
+ *
+ * @example
+ * range(3, 8); //=> list(3, 4, 5, 6, 7)
+ */
 export function range(start: number, end: number): List<number> {
   let list = empty();
   for (let i = start; i < end; ++i) {
@@ -812,7 +908,8 @@ function foldlNode<A, B>(
  * Folds a function over a list. Left-associative.
  *
  * @example
- * foldl((n, m) => n - m, 1, list(2, 3, 4, 5)); //=> -13
+ * foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
+ * //=> (((1 - 2) - 3) - 4) - 5 === -13
  */
 export function foldl<A, B>(
   f: (acc: B, value: A) => B,
@@ -828,6 +925,7 @@ export function foldl<A, B>(
   return foldlSuffix(f, initial, l.suffix, suffixSize);
 }
 
+/** Alias for `foldl` */
 export const reduce = foldl;
 
 export interface Of {
@@ -839,6 +937,18 @@ export interface Applicative<A> {
   "fantasy-land/ap"<B>(fa: Applicative<(a: A) => B>): Applicative<B>;
 }
 
+/**
+ * Map each element of list to an applicative, evaluate these
+ * applicatives from left to right, and collect the results.
+ *
+ * This works with Fantasy Land
+ * [applicatives](https://github.com/fantasyland/fantasy-land#applicative).
+ *
+ * @example
+ * const l = list(1, 3, 5, 4, 2);
+ * L.scan((n, m) => n + m, 0, l); //=> list(0, 1, 4, 9, 13, 15));
+ * L.scan((s, m) => s + m.toString(), "", l); //=> list("", "1", "13", "135", "1354", "13542")
+ */
 export function traverse<A, B>(
   of: Of,
   f: (a: A) => Applicative<B>,
@@ -854,10 +964,28 @@ export function traverse<A, B>(
   );
 }
 
+/**
+ * Evaluate each applicative in the list from left to right, and and
+ * collect the results.
+ *
+ * @complexity O(n)
+ * @example
+ * L.sequence(Maybe, list(just(1), just(2), just(3))); //=> just(list(1, 2, 3))
+ * L.sequence(Maybe, list(just(1), just(2), nothing())); //=> nothing
+ */
 export function sequence<A>(ofObj: Of, l: List<Applicative<A>>): any {
   return traverse(ofObj, a => a, l);
 }
 
+/**
+ * Folds a function over a list from left to right while collecting
+ * all the intermediate steps in a resulting list.
+ *
+ * @example
+ * const l = list(1, 3, 5, 4, 2);
+ * L.scan((n, m) => n + m, 0, l); //=> list(0, 1, 4, 9, 13, 15));
+ * L.scan((s, m) => s + m.toString(), "", l); //=> list("", "1", "13", "135", "1354", "13542")
+ */
 export function scan<A, B>(
   f: (acc: B, value: A) => B,
   initial: B,
@@ -866,10 +994,32 @@ export function scan<A, B>(
   return foldl((l2, a) => append(f(last(l2)!, a), l2), of(initial), l);
 }
 
+/**
+ * Invokes a given callback for each element in the list from left to
+ * right. Returns `undefined`.
+ *
+ * This function is very similar to map. It should be used instead of
+ * `map` when the mapping function has side-effects. Whereas `map`
+ * constructs a new list `forEach` merely returns `undefined`. This
+ * makes `forEach` faster when the new list is unneeded.
+ *
+ * @complexity O(n)
+ * @example
+ * const l = list(0, 1, 2);
+ * forEach(element => console.log(element)); // Prints 0, then 1, and then 2
+ */
 export function forEach<A>(callback: (a: A) => void, l: List<A>): void {
   foldl((_, element) => callback(element), undefined as void, l);
 }
 
+/**
+ * Returns a new list that only contains the elements of the original
+ * list for which the predicate returns `true`.
+ *
+ * @complexity O(n)
+ * @example
+ * filter(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 2, 4, 6)
+ */
 export function filter<A, B extends A>(
   predicate: (a: A) => a is B,
   l: List<A>
@@ -879,10 +1029,27 @@ export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
   return foldl((acc, a) => (predicate(a) ? append(a, acc) : acc), empty(), l);
 }
 
+/**
+ * Returns a new list that only contains the elements of the original
+ * list for which the predicate returns `false`.
+ *
+ * @complexity O(n)
+ * @example
+ * reject(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
+ */
 export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
   return foldl((acc, a) => (predicate(a) ? acc : append(a, acc)), empty(), l);
 }
 
+/**
+ * Splits the list into two lists. One list that contains all the
+ * values for which the predicate returns `true` and one containing
+ * the values for which it returns `false`.
+ *
+ * @complexity O(n)
+ * @example
+ * partition(isEven, list(0, 1, 2, 3, 4, 5)); //=> list(list(0, 2, 4), list(1, 3, 5))
+ */
 export function partition<A>(
   predicate: (a: A) => boolean,
   l: List<A>
@@ -900,6 +1067,12 @@ export function partition<A>(
   return pair(fst, snd);
 }
 
+/**
+ * Concats the strings in the list separated by a specified separator.
+ *
+ * @example
+ * join(", ", list("one", "two", "three")); //=> "one, two, three"
+ */
 export function join(separator: string, l: List<string>): string {
   return foldl((a, b) => (a.length === 0 ? b : a + separator + b), "", l);
 }
@@ -946,6 +1119,14 @@ function foldrNode<A, B>(
   return acc;
 }
 
+/**
+ * Folds a function over a list. Right-associative.
+ *
+ * @complexity O(n)
+ * @example
+ * foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
+ * 1 - (2 - (3 - (4 - 5))); //=> 3
+ */
 export function foldr<A, B>(
   f: (value: A, acc: B) => B,
   initial: B,
@@ -960,16 +1141,40 @@ export function foldr<A, B>(
   return foldrPrefix(f, acc, l.prefix, prefixSize);
 }
 
+/** Alias for `foldr` */
 export const reduceRight = foldr;
 
+/**
+ * Applies a list of functions to a list of values.
+ *
+ * @example
+ * ap(list((n: number) => n + 2, n => 2 * n, n => n * n), list(1, 2, 3));
+ * //=> list(3, 4, 5, 2, 4, 6, 1, 4, 9)
+ */
 export function ap<A, B>(listF: List<(a: A) => B>, l: List<A>): List<B> {
   return flatten(map(f => map(f, l), listF));
 }
 
+/**
+ * Flattens a list of lists into a list. Note that this function does
+ * not flatten recursively. It removes one level of nesting only.
+ *
+ * @complexity O(n * log(m)), where n is the length of the outer list and m the length of the inner lists.
+ * @example
+ * const nested = list(list(0, 1, 2, 3), list(4), empty(), list(5, 6));
+ * flatten(nested); //=> list(0, 1, 2, 3, 4, 5, 6)
+ */
 export function flatten<A>(nested: List<List<A>>): List<A> {
   return foldl<List<A>, List<A>>(concat, empty(), nested);
 }
 
+/**
+ * Maps a function over a list and concatenates all the resulting
+ * lists together.
+ *
+ * @example
+ * chain(n => list(n, 2 * n, n * n), list(1, 2, 3)); //=> list(1, 2, 1, 2, 4, 4, 3, 6, 9)
+ */
 export function chain<A, B>(f: (a: A) => List<B>, l: List<A>): List<B> {
   return flatten(map(f, l));
 }
@@ -1082,16 +1287,40 @@ function everyCb<A>(value: A, state: any): boolean {
   return (state.result = state.predicate(value));
 }
 
+/**
+ * Returns `true` if and only if the predicate function returns `true`
+ * for all elements in the given list.
+ *
+ * @complexity O(n)
+ * @example
+ * every(isEven, empty()); //=> true
+ * every(isEven, list(2, 4, 6, 8)); //=> true
+ * every(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
+ * every(isEven, list(1, 3, 5, 7)); //=> false
+ */
 export function every<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return foldlCb<A, PredState>(everyCb, { predicate, result: true }, l).result;
 }
 
+/** Alias for `all` */
 export const all = every;
 
 function someCb<A>(value: A, state: any): boolean {
   return !(state.result = state.predicate(value));
 }
 
+/**
+ * Returns true if and only if there exists an element in the list for
+ * which the predicate returns true.
+ *
+ * @complexity O(n)
+ * @example
+ * const isEven = n => n % 2 === 0;
+ * some(isEven, empty()); //=> false
+ * some(isEven, list(2, 4, 6, 8)); //=> true
+ * some(isEven, list(2, 3, 4, 6, 7, 8)); //=> true
+ * some(isEven, list(1, 3, 5, 7)); //=> false
+ */
 export function some<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return foldlCb<A, PredState>(someCb, { predicate, result: false }, l).result;
 }
@@ -1099,6 +1328,17 @@ export function some<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
 // tslint:disable-next-line:variable-name
 export const any = some;
 
+/**
+ * Returns `true` if and only if the predicate function returns
+ * `false` for every element in the given list.
+ *
+ * @complexity O(n)
+ * @example
+ * none(isEven, empty()); //=> true
+ * none(isEven, list(2, 4, 6, 8)); //=> false
+ * none(isEven, list(2, 3, 4, 6, 7, 8)); //=> false
+ * none(isEven, list(1, 3, 5, 7)); //=> true
+ */
 export function none<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return !some(predicate, l);
 }
@@ -1112,6 +1352,15 @@ function findCb<A>(value: A, state: PredState): boolean {
   }
 }
 
+/**
+ * Returns the _first_ element for which the predicate returns `true`.
+ * If no such element is found the function returns `undefined`.
+ *
+ * @complexity O(n)
+ * @example
+ * find(isEven, list(1, 3, 5, 6, 7, 8, 9)); //=> 6
+ * find(isEven, list(1, 3, 5, 7, 9)); //=> undefined
+ */
 export function find<A>(
   predicate: (a: A) => boolean,
   l: List<A>
@@ -1120,6 +1369,15 @@ export function find<A>(
     .result;
 }
 
+/**
+ * Returns the _last_ element for which the predicate returns `true`.
+ * If no such element is found the function returns `undefined`.
+ *
+ * @complexity O(n)
+ * @example
+ * find(isEven, list(1, 3, 5, 6, 7, 8, 9)); //=> 8
+ * find(isEven, list(1, 3, 5, 7, 9)); //=> undefined
+ */
 export function findLast<A>(
   predicate: (a: A) => boolean,
   l: List<A>
@@ -1139,12 +1397,34 @@ function indexOfCb(value: any, state: IndexOfState): boolean {
   return !(state.found = elementEquals(value, state.element));
 }
 
+/**
+ * Returns the index of the _first_ element in the list that is equal
+ * to the given element. If no such element is found `-1` is returned.
+ *
+ * @complexity O(n)
+ * @example
+ * const l = list(12, 4, 2, 89, 6, 18, 7);
+ * indexOf(12, l); //=> 0
+ * indexOf(89, l); //=> 3
+ * indexOf(10, l); //=> -1
+ */
 export function indexOf<A>(element: A, l: List<A>): number {
   const state = { element, found: false, index: -1 };
   foldlCb(indexOfCb, state, l);
   return state.found ? state.index : -1;
 }
 
+/**
+ * Returns the index of the _last_ element in the list that is equal
+ * to the given element. If no such element is found `-1` is returned.
+ *
+ * @complexity O(n)
+ * @example
+ * const l = L.list(12, 4, 2, 18, 89, 2, 18, 7);
+ * L.lastIndexOf(18, l); //=> 6
+ * L.lastIndexOf(2, l); //=> 5
+ * L.lastIndexOf(12, l); //=> 0
+ */
 export function lastIndexOf<A>(element: A, l: List<A>): number {
   const state = { element, found: false, index: 0 };
   foldrCb(indexOfCb, state, l);
@@ -1162,6 +1442,16 @@ function findIndexCb<A>(value: A, state: FindIndexState): boolean {
   return !(state.found = state.predicate(value));
 }
 
+/**
+ * Returns the index of the `first` element for which the predicate
+ * returns true. If no such element is found the function returns
+ * `-1`.
+ *
+ * @complexity O(n)
+ * @example
+ * findIndex(isEven, list(1, 3, 5, 6, 7, 9, 10)); //=> 3
+ * findIndex(isEven, list(1, 3, 5, 7, 9)); //=> -1
+ */
 export function findIndex<A>(predicate: (a: A) => boolean, l: List<A>): number {
   const { found, index } = foldlCb<A, FindIndexState>(
     findIndexCb,
@@ -1185,12 +1475,22 @@ function containsCb(value: any, state: ContainsState): boolean {
   return !(state.result = value === state.element);
 }
 
+/**
+ * Returns `true` if the list contains the specified element.
+ * Otherwise it returns `false`.
+ *
+ * @complexity O(n)
+ * @example
+ * includes(3, list(0, 1, 2, 3, 4, 5)); //=> true
+ * includes(3, list(0, 1, 2, 4, 5)); //=> false
+ */
 export function includes<A>(element: A, l: List<A>): boolean {
   containsState.element = element;
   containsState.result = false;
   return foldlCb(containsCb, containsState, l).result;
 }
 
+/** Alias for [`includes`](#includes) */
 export const contains = includes;
 
 type EqualsState<A> = {
@@ -1204,10 +1504,30 @@ function equalsCb<A>(value2: A, state: EqualsState<A>): boolean {
   return (state.equals = state.f(value, value2));
 }
 
+/**
+ * Returns true if the two lists are equivalent.
+ *
+ * @complexity O(n)
+ * @example
+ * equals(list(0, 1, 2, 3), list(0, 1, 2, 3)); //=> true
+ * equals(list("a", "b", "c"), list("a", "z", "c")); //=> false
+ */
 export function equals<A>(l1: List<A>, l2: List<A>): boolean {
   return equalsWith(elementEquals, l1, l2);
 }
 
+/**
+ * Returns true if the two lists are equivalent when comparing each
+ * pair of elements with the given comparison function.
+ *
+ * @complexity O(n)
+ * @example
+ * equalsWith(
+ *   (n, m) => n.length === m.length,
+ *   list("foo", "hello", "one"),
+ *   list("bar", "world", "two")
+ * ); //=> true
+ */
 export function equalsWith<A>(
   f: (a: A, b: A) => boolean,
   l1: List<A>,
@@ -1582,6 +1902,13 @@ function concatAffixes<A>(left: List<A>, right: List<A>): number {
   return nr;
 }
 
+/**
+ * Concatenates two lists.
+ *
+ * @complexity O(log(n))
+ * @example
+ * concat(list(0, 1, 2), list(3, 4)); //=> list(0, 1, 2, 3, 4)
+ */
 export function concat<A>(left: List<A>, right: List<A>): List<A> {
   if (left.length === 0) {
     return right;
@@ -1630,6 +1957,15 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
   }
 }
 
+/**
+ * Returns a list that has the entry specified by the index replaced with the given value.
+ *
+ * If the index is out of bounds the given list is returned unchanged.
+ *
+ * @complexity O(log(n))
+ * @example
+ * update(2, "X", list("a", "b", "c", "d", "e")); //=> list("a", "b", "X", "d", "e")
+ */
 export function update<A>(index: number, a: A, l: List<A>): List<A> {
   if (index < 0 || l.length <= index) {
     return l;
