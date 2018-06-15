@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import * as P from "proptest";
+import * as fc from "fast-check";
 import * as Loriginal from "../src";
 import {
   List,
@@ -135,7 +136,12 @@ function cheapAssertIndicesFromTo(
 }
 
 function assertIndexEqual<A>(i: number, l1: List<A>, l2: List<A>): void {
-  assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
+  const fst = nth(i, l1);
+  if (L.isList(fst)) {
+    assertListEqual(fst, nth(i, l2) as any);
+  } else {
+    assert.deepEqual(nth(i, l1), nth(i, l2), `expected equality at index ${i}`);
+  }
 }
 
 export function assertListEqual<A>(l1: List<A>, l2: List<A>): void {
@@ -1545,6 +1551,17 @@ describe("List", () => {
       assert.strictEqual(l.length, array.length);
       assertIndicesFromTo(l, 0, 9);
     });
+    it("fromArray and toArray are inverses in case", () => {
+      const n = 1058;
+      const arr = numberArray(0, n);
+      assert.deepEqual(arr, L.toArray(L.fromArray(arr)));
+    });
+    it("fromArray and toArray are inverses", () => {
+      fc.assert(fc.property(fc.nat(800000), (n) => {
+        const arr = numberArray(0, n);
+        assert.deepEqual(arr, L.toArray(L.fromArray(arr)));
+      }), {numRuns: 10});
+    });
   });
   describe("fromIterable", () => {
     function* iterable(n: number): IterableIterator<number> {
@@ -1600,8 +1617,8 @@ describe("List", () => {
   });
   describe("zip", () => {
     it("can zipWith", () => {
-      const l1 = list(0, 1, 2, 3, 4, 5);
-      const l2 = list(3, 1, 4, 5, 3, 8);
+      const l1 = L.list(0, 1, 2, 3, 4, 5);
+      const l2 = L.list(3, 1, 4, 5, 3, 8);
       const r = L.zipWith(sum, l1, l2);
       assert.isTrue(equals(r, list(3, 2, 6, 8, 7, 13)));
     });

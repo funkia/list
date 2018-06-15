@@ -301,6 +301,48 @@ class ListIterator<A> implements Iterator<A> {
   }
 }
 
+function emptyPushable<A>(): MutableList<A> {
+  return new List(0, 0, 0, undefined, [], []) as any;
+}
+
+/** Appends the value to the list by _mutating_ the list and its content. */
+function push<A>(value: A, l: MutableList<A>): MutableList<A> {
+  const suffixSize = getSuffixSize(l);
+  if (l.length === 0) {
+    l.bits = setPrefix(1, l.bits);
+    l.prefix = [value];
+  } else if (suffixSize < 32) {
+    (l.bits = incrementSuffix(l.bits)), l.suffix.push(value);
+  } else if (l.root === undefined) {
+    l.root = new Node(undefined, l.suffix);
+    l.suffix = [value];
+    l.bits = setSuffix(1, l.bits);
+  } else {
+    const newNode = new Node(undefined, l.suffix);
+    const index = l.length - 1 - 32 + 1;
+    let current = l.root!;
+    let depth = getDepth(l);
+    l.suffix = [value];
+    l.bits = setSuffix(1, l.bits);
+    if (index - 1 < branchingFactor ** (depth + 1)) {
+      for (; depth >= 0; --depth) {
+        const path = (index >> (depth * branchBits)) & mask;
+        if (path < current.array.length) {
+          current = current.array[path];
+        } else {
+          current.array.push(createPath(depth - 1, newNode));
+          break;
+        }
+      }
+    } else {
+      l.bits = incrementDepth(l.bits);
+      l.root = new Node(undefined, [l.root, createPath(depth, newNode)]);
+    }
+  }
+  l.length++;
+  return l;
+}
+
 /**
  * Creates a list of the given elements.
  *
@@ -357,9 +399,9 @@ export function pair<A>(first: A, second: A): List<A> {
  * fromArray([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
  */
 export function fromArray<A>(array: A[]): List<A> {
-  let l = empty();
+  const l = emptyPushable<A>();
   for (let i = 0; i < array.length; ++i) {
-    l = append(array[i], l);
+    push(array[i], l);
   }
   return l;
 }
@@ -372,12 +414,12 @@ export function fromArray<A>(array: A[]): List<A> {
  * fromIterable(new Set([0, 1, 2, 3]); //=> list(0, 1, 2, 3)
  */
 export function fromIterable<A>(iterable: Iterable<A>): List<A> {
-  let l = empty();
+  let l = emptyPushable<A>();
   let iterator = iterable[Symbol.iterator]();
   let cur;
   // tslint:disable-next-line:no-conditional-assignment
   while ((cur = iterator.next()).done === false) {
-    l = append(cur.value, l);
+    push(cur.value, l);
   }
   return l;
 }
@@ -406,9 +448,9 @@ export function range(start: number, end: number): List<number> {
  * repeat("foo", 3); //=> list("foo", "foo", "foo")
  */
 export function repeat<A>(value: A, times: number): List<A> {
-  let l = empty();
+  let l = emptyPushable<A>();
   while (--times >= 0) {
-    l = append(value, l);
+    push(value, l);
   }
   return l;
 }
@@ -423,9 +465,9 @@ export function repeat<A>(value: A, times: number): List<A> {
  * times(() => Math.round(Math.random() * 10), 5); //=> list(9, 1, 4, 3, 4)
  */
 export function times<A>(func: (index: number) => A, times: number): List<A> {
-  let l = empty();
+  let l = emptyPushable<A>();
   for (let i = 0; i < times; i++) {
-    l = append(func(i), l);
+    push(func(i), l);
   }
   return l;
 }
@@ -1070,7 +1112,11 @@ export function filter<A, B extends A>(
 ): List<B>;
 export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A>;
 export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
-  return foldl((acc, a) => (predicate(a) ? append(a, acc) : acc), empty(), l);
+  return foldl(
+    (acc, a) => (predicate(a) ? push(a, acc) : acc),
+    emptyPushable(),
+    l
+  );
 }
 
 /**
@@ -1082,7 +1128,11 @@ export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
  * reject(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
  */
 export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
-  return foldl((acc, a) => (predicate(a) ? acc : append(a, acc)), empty(), l);
+  return foldl(
+    (acc, a) => (predicate(a) ? acc : push(a, acc)),
+    emptyPushable(),
+    l
+  );
 }
 
 /**
@@ -1099,13 +1149,8 @@ export function partition<A>(
   l: List<A>
 ): List<List<A>> {
   const { fst, snd } = foldl(
-    (obj, a) => (
-      predicate(a)
-        ? (obj.fst = append(a, obj.fst))
-        : (obj.snd = append(a, obj.snd)),
-      obj
-    ),
-    { fst: empty(), snd: empty() },
+    (obj, a) => (predicate(a) ? push(a, obj.fst) : push(a, obj.snd), obj),
+    { fst: emptyPushable<A>(), snd: emptyPushable<A>() },
     l
   );
   return pair(fst, snd);
@@ -2478,14 +2523,14 @@ export function splitWhen<A>(
 export function splitEvery<A>(size: number, l: List<A>): List<List<A>> {
   const { l2, buffer } = foldl(
     ({ l2, buffer }, elm) => {
-      const newBuffer = append(elm, buffer);
-      if (newBuffer.length === size) {
-        return { l2: append(newBuffer, l2), buffer: empty() };
+      push(elm, buffer);
+      if (buffer.length === size) {
+        return { l2: push(buffer, l2), buffer: emptyPushable<A>() };
       } else {
-        return { l2, buffer: newBuffer };
+        return { l2, buffer };
       }
     },
-    { l2: empty(), buffer: empty() },
+    { l2: emptyPushable<List<A>>(), buffer: emptyPushable<A>() },
     l
   );
   return buffer.length === 0 ? l2 : append(buffer, l2);
