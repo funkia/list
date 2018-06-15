@@ -10,6 +10,4 @@ dist
 .nyc_output
 tags
 coverage
-bower_components
-purescript/output
 
