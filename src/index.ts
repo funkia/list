@@ -72,22 +72,6 @@ function arrayPrepend<A>(value: A, array: A[]): A[] {
 }
 
 /**
- * Prepends an element to a node
- */
-function nodePrepend(value: any, size: number, node: Node): Node {
-  const array = arrayPrepend(value, node.array);
-  let sizes = undefined;
-  if (node.sizes !== undefined) {
-    sizes = new Array(node.sizes.length + 1);
-    sizes[0] = size;
-    for (let i = 0; i < node.sizes.length; ++i) {
-      sizes[i + 1] = node.sizes[i] + size;
-    }
-  }
-  return new Node(sizes, array);
-}
-
-/**
  * Create a reverse _copy_ of an array.
  */
 function reverseArray<A>(array: A[]): A[] {
@@ -149,85 +133,9 @@ function updateNode(
 
 export type Sizes = number[] | undefined;
 
+/** @private */
 export class Node {
   constructor(public sizes: Sizes, public array: any[]) {}
-}
-
-function nodeNthDense(node: Node, depth: number, index: number): any {
-  let current = node;
-  for (; depth >= 0; --depth) {
-    current = current.array[(index >> (depth * branchBits)) & mask];
-  }
-  return current;
-}
-
-function handleOffset(depth: number, offset: number, index: number): number {
-  index += offset;
-  for (; depth >= 0; --depth) {
-    index = index - (offset & (mask << (depth * branchBits)));
-    if (((index >> (depth * branchBits)) & mask) !== 0) {
-      break;
-    }
-  }
-  return index;
-}
-
-function nodeNth(
-  node: Node,
-  depth: number,
-  offset: number,
-  index: number
-): any {
-  let path;
-  let current = node;
-  while (current.sizes !== undefined) {
-    path = (index >> (depth * branchBits)) & mask;
-    while (current.sizes[path] <= index) {
-      path++;
-    }
-    const traversed = path === 0 ? 0 : current.sizes[path - 1];
-    index -= traversed;
-    depth--;
-    current = current.array[path];
-  }
-  return nodeNthDense(
-    current,
-    depth,
-    offset === 0 ? index : handleOffset(depth, offset, index)
-  );
-}
-
-/**
- * Gets the nth element of the list. If `n` is out of bounds
- * `undefined` is returned.
- *
- * @complexity O(log(n))
- * @example
- * const l = list(0, 1, 2, 3, 4);
- * nth(2, l); //=> 2
- */
-export function nth<A>(index: number, l: List<A>): A | undefined {
-  if (index < 0 || l.length <= index) {
-    return undefined;
-  }
-  const prefixSize = getPrefixSize(l);
-  const suffixSize = getSuffixSize(l);
-  const { offset } = l;
-  if (index < prefixSize) {
-    return l.prefix[prefixSize - index - 1];
-  } else if (index >= l.length - suffixSize) {
-    return l.suffix[index - (l.length - suffixSize)];
-  }
-  const depth = getDepth(l);
-  return l.root!.sizes === undefined
-    ? nodeNthDense(
-        l.root!,
-        depth,
-        offset === 0
-          ? index - prefixSize
-          : handleOffset(depth, offset, index - prefixSize)
-      )
-    : nodeNth(l.root!, depth, offset, index - prefixSize);
 }
 
 function cloneNode({ sizes, array }: Node): Node {
@@ -237,49 +145,9 @@ function cloneNode({ sizes, array }: Node): Node {
   );
 }
 
-function setSizes(node: Node, height: number): Node {
-  let sum = 0;
-  const sizeTable = [];
-  for (let i = 0; i < node.array.length; ++i) {
-    sum += sizeOfSubtree(node.array[i], height - 1);
-    sizeTable[i] = sum;
-  }
-  node.sizes = sizeTable;
-  return node;
-}
-
-/**
- * Returns the number of elements stored in the node.
- */
-function sizeOfSubtree(node: Node, height: number): number {
-  if (height !== 0) {
-    if (node.sizes !== undefined) {
-      return arrayLast(node.sizes);
-    } else {
-      // the node is leftwise dense so all all but the last child are full
-      const lastSize = sizeOfSubtree(arrayLast(node.array), height - 1);
-      return ((node.array.length - 1) << (height * branchBits)) + lastSize;
-    }
-  } else {
-    return node.array.length;
-  }
-}
-
 // This array should not be mutated. Thus a dummy element is placed in
 // it. Thus the affix will not be owned and thus not mutated.
 const emptyAffix: any[] = [0];
-
-function affixPush<A>(a: A, array: A[], length: number): A[] {
-  if (array.length === length) {
-    array.push(a);
-    return array;
-  } else {
-    const newArray: A[] = [];
-    copyIndices(array, 0, newArray, 0, length);
-    newArray.push(a);
-    return newArray;
-  }
-}
 
 // We store a bit field in list. From right to left, the first five
 // bits are suffix length, the next five are prefix length and the
@@ -433,14 +301,260 @@ class ListIterator<A> implements Iterator<A> {
   }
 }
 
+/**
+ * Creates a list of the given elements.
+ *
+ * @complexity O(n)
+ * @example
+ * list(0, 1, 2, 3); //=> list(0, 1, 2, 3)
+ */
+export function list<A>(...elements: A[]): List<A> {
+  let l = empty();
+  for (const element of elements) {
+    l = append(element, l);
+  }
+  return l;
+}
+
+/**
+ * Creates an empty list.
+ *
+ * @complexity O(1)
+ * @example
+ * const emptyList = empty(); //=> list()
+ */
+export function empty<A = any>(): List<A> {
+  return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
+}
+
+/**
+ * Takes a single arguments and returns a singleton list that contains it.
+ *
+ * @complexity O(1)
+ * @example
+ * of("foo"); //=> list("foo")
+ */
+export function of<A>(a: A): List<A> {
+  return list(a);
+}
+
+/**
+ * Takes two arguments and returns a list that contains them.
+ *
+ * @complexity O(1)
+ * @example
+ * pair("foo", "bar"); //=> list("foo", "bar")
+ */
+export function pair<A>(first: A, second: A): List<A> {
+  return new List(2, 0, 2, undefined, [first, second], emptyAffix);
+}
+
+/**
+ * Converts an array or anything that is array-like into a list.
+ *
+ * @complexity O(n)
+ * @example
+ * fromArray([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
+ */
+export function fromArray<A>(array: A[]): List<A> {
+  let l = empty();
+  for (let i = 0; i < array.length; ++i) {
+    l = append(array[i], l);
+  }
+  return l;
+}
+
+/**
+ * Converts any iterable into a list.
+ *
+ * @complexity O(n)
+ * @example
+ * fromIterable(new Set([0, 1, 2, 3]); //=> list(0, 1, 2, 3)
+ */
+export function fromIterable<A>(iterable: Iterable<A>): List<A> {
+  let l = empty();
+  let iterator = iterable[Symbol.iterator]();
+  let cur;
+  // tslint:disable-next-line:no-conditional-assignment
+  while ((cur = iterator.next()).done === false) {
+    l = append(cur.value, l);
+  }
+  return l;
+}
+
+/**
+ * Returns a list of numbers between an inclusive lower bound and an exclusive upper bound.
+ *
+ * @example
+ * range(3, 8); //=> list(3, 4, 5, 6, 7)
+ */
+export function range(start: number, end: number): List<number> {
+  let list = empty();
+  for (let i = start; i < end; ++i) {
+    list = append(i, list);
+  }
+  return list;
+}
+
+/**
+ * Returns a list of a given length that contains the specified value
+ * in all positions.
+ *
+ * @complexity O(n)
+ * @example
+ * repeat(1, 7); //=> list(1, 1, 1, 1, 1, 1, 1)
+ * repeat("foo", 3); //=> list("foo", "foo", "foo")
+ */
+export function repeat<A>(value: A, times: number): List<A> {
+  let l = empty();
+  while (--times >= 0) {
+    l = append(value, l);
+  }
+  return l;
+}
+
+/**
+ * Generates a new list by calling a function with the current index
+ * `n` times.
+ *
+ * @example
+ * times(i => i, 5); //=> list(0, 1, 2, 3, 4)
+ * times(i => i * 2 + 1, 4); //=> list(1, 3, 5, 7)
+ * times(() => Math.round(Math.random() * 10), 5); //=> list(9, 1, 4, 3, 4)
+ */
+export function times<A>(func: (index: number) => A, times: number): List<A> {
+  let l = empty();
+  for (let i = 0; i < times; i++) {
+    l = append(func(i), l);
+  }
+  return l;
+}
+
+function nodeNthDense(node: Node, depth: number, index: number): any {
+  let current = node;
+  for (; depth >= 0; --depth) {
+    current = current.array[(index >> (depth * branchBits)) & mask];
+  }
+  return current;
+}
+
+function handleOffset(depth: number, offset: number, index: number): number {
+  index += offset;
+  for (; depth >= 0; --depth) {
+    index = index - (offset & (mask << (depth * branchBits)));
+    if (((index >> (depth * branchBits)) & mask) !== 0) {
+      break;
+    }
+  }
+  return index;
+}
+
+function nodeNth(
+  node: Node,
+  depth: number,
+  offset: number,
+  index: number
+): any {
+  let path;
+  let current = node;
+  while (current.sizes !== undefined) {
+    path = (index >> (depth * branchBits)) & mask;
+    while (current.sizes[path] <= index) {
+      path++;
+    }
+    const traversed = path === 0 ? 0 : current.sizes[path - 1];
+    index -= traversed;
+    depth--;
+    current = current.array[path];
+  }
+  return nodeNthDense(
+    current,
+    depth,
+    offset === 0 ? index : handleOffset(depth, offset, index)
+  );
+}
+
+/**
+ * Gets the nth element of the list. If `n` is out of bounds
+ * `undefined` is returned.
+ *
+ * @complexity O(log(n))
+ * @example
+ * const l = list(0, 1, 2, 3, 4);
+ * nth(2, l); //=> 2
+ */
+export function nth<A>(index: number, l: List<A>): A | undefined {
+  if (index < 0 || l.length <= index) {
+    return undefined;
+  }
+  const prefixSize = getPrefixSize(l);
+  const suffixSize = getSuffixSize(l);
+  const { offset } = l;
+  if (index < prefixSize) {
+    return l.prefix[prefixSize - index - 1];
+  } else if (index >= l.length - suffixSize) {
+    return l.suffix[index - (l.length - suffixSize)];
+  }
+  const depth = getDepth(l);
+  return l.root!.sizes === undefined
+    ? nodeNthDense(
+        l.root!,
+        depth,
+        offset === 0
+          ? index - prefixSize
+          : handleOffset(depth, offset, index - prefixSize)
+      )
+    : nodeNth(l.root!, depth, offset, index - prefixSize);
+}
+
+function setSizes(node: Node, height: number): Node {
+  let sum = 0;
+  const sizeTable = [];
+  for (let i = 0; i < node.array.length; ++i) {
+    sum += sizeOfSubtree(node.array[i], height - 1);
+    sizeTable[i] = sum;
+  }
+  node.sizes = sizeTable;
+  return node;
+}
+
+/**
+ * Returns the number of elements stored in the node.
+ */
+function sizeOfSubtree(node: Node, height: number): number {
+  if (height !== 0) {
+    if (node.sizes !== undefined) {
+      return arrayLast(node.sizes);
+    } else {
+      // the node is leftwise dense so all all but the last child are full
+      const lastSize = sizeOfSubtree(arrayLast(node.array), height - 1);
+      return ((node.array.length - 1) << (height * branchBits)) + lastSize;
+    }
+  } else {
+    return node.array.length;
+  }
+}
+
 // prepend & append
+
+function affixPush<A>(a: A, array: A[], length: number): A[] {
+  if (array.length === length) {
+    array.push(a);
+    return array;
+  } else {
+    const newArray: A[] = [];
+    copyIndices(array, 0, newArray, 0, length);
+    newArray.push(a);
+    return newArray;
+  }
+}
 
 /**
  * Prepends an element to the front of a list and returns the new list.
  *
  * @complexity O(n)
  * @example
- * const newList = prepend(0, list(1, 2, 3)); //=> list(0, 1, 2, 3)
+ * prepend(0, list(1, 2, 3)); //=> list(0, 1, 2, 3)
  */
 export function prepend<A>(value: A, l: List<A>): List<A> {
   const prefixSize = getPrefixSize(l);
@@ -489,6 +603,22 @@ function copyLeft(l: MutableList<any>, k: number, leafSize: number): Node {
     currentNode = newNode;
   }
   return currentNode;
+}
+
+/**
+ * Prepends an element to a node
+ */
+function nodePrepend(value: any, size: number, node: Node): Node {
+  const array = arrayPrepend(value, node.array);
+  let sizes = undefined;
+  if (node.sizes !== undefined) {
+    sizes = new Array(node.sizes.length + 1);
+    sizes[0] = size;
+    for (let i = 0; i < node.sizes.length; ++i) {
+      sizes[i + 1] = node.sizes[i] + size;
+    }
+  }
+  return new Node(sizes, array);
 }
 
 /**
@@ -641,7 +771,7 @@ function prependDense(
  *
  * @complexity O(n)
  * @example
- * const newList = append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
+ * append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
  */
 export function append<A>(value: A, l: List<A>): List<A> {
   const suffixSize = getSuffixSize(l);
@@ -662,78 +792,6 @@ export function append<A>(value: A, l: List<A>): List<A> {
   newList.length++;
   newList.bits = setSuffix(1, newList.bits);
   return newList;
-}
-
-export function list<A>(...elements: A[]): List<A> {
-  let l = empty();
-  for (const element of elements) {
-    l = append(element, l);
-  }
-  return l;
-}
-
-/**
- * Creates an empty list.
- *
- * @complexity O(1)
- * @example
- * const emptyList = empty(); //=> list()
- */
-export function empty<A = any>(): List<A> {
-  return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
-}
-
-/**
- * Takes a single arguments and returns a singleton list that contains it.
- *
- * @complexity O(1)
- * @example
- * of("foo"); //=> list("foo")
- */
-export function of<A>(a: A): List<A> {
-  return list(a);
-}
-
-/**
- * Takes two arguments and returns a list that contains them.
- *
- * @complexity O(1)
- * @example
- * pair("foo", "bar"); //=> list("foo", "bar")
- */
-export function pair<A>(first: A, second: A): List<A> {
-  return new List(2, 0, 2, undefined, [first, second], emptyAffix);
-}
-
-/**
- * Returns a list of a given length that contains the specified value
- * in all positions.
- *
- * @complexity O(n)
- * @example
- * repeat(1, 7); //=> list(1, 1, 1, 1, 1, 1, 1)
- * repeat("foo", 3); //=> list("foo", "foo", "foo")
- */
-export function repeat<A>(value: A, times: number): List<A> {
-  let l = empty();
-  while (--times >= 0) {
-    l = append(value, l);
-  }
-  return l;
-}
-
-/**
- * Generates a new list by calling a function with the current index
- * `n` times.
- * @param func Function used to generate list values.
- * @param times Number of values to generate.
- */
-export function times<A>(func: (index: number) => A, times: number): List<A> {
-  let l = empty();
-  for (let i = 0; i < times; i++) {
-    l = append(func(i), l);
-  }
-  return l;
 }
 
 /**
@@ -848,20 +906,6 @@ export function pluck<A, K extends keyof A>(key: K, l: List<A>): List<A[K]> {
   return map(a => a[key], l);
 }
 
-/**
- * Returns a list of numbers between an inclusive lower bound and an exclusive upper bound.
- *
- * @example
- * range(3, 8); //=> list(3, 4, 5, 6, 7)
- */
-export function range(start: number, end: number): List<number> {
-  let list = empty();
-  for (let i = start; i < end; ++i) {
-    list = append(i, list);
-  }
-  return list;
-}
-
 // fold
 
 function foldlSuffix<A, B>(
@@ -925,7 +969,7 @@ export function foldl<A, B>(
   return foldlSuffix(f, initial, l.suffix, suffixSize);
 }
 
-/** Alias for `foldl` */
+/** Alias for [`foldl`](#foldl). */
 export const reduce = foldl;
 
 export interface Of {
@@ -1141,7 +1185,7 @@ export function foldr<A, B>(
   return foldrPrefix(f, acc, l.prefix, prefixSize);
 }
 
-/** Alias for `foldr` */
+/** Alias for [`foldr`](#foldr). */
 export const reduceRight = foldr;
 
 /**
@@ -1302,7 +1346,7 @@ export function every<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return foldlCb<A, PredState>(everyCb, { predicate, result: true }, l).result;
 }
 
-/** Alias for `all` */
+/** Alias for [`all`](#all). */
 export const all = every;
 
 function someCb<A>(value: A, state: any): boolean {
@@ -2478,25 +2522,6 @@ export function toArray<A>(l: List<A>): A[] {
   return foldl<A, A[]>(arrayPush, [], l);
 }
 
-export function fromArray<A>(array: A[]): List<A> {
-  let l = empty();
-  for (let i = 0; i < array.length; ++i) {
-    l = append(array[i], l);
-  }
-  return l;
-}
-
-export function fromIterable<A>(iterable: Iterable<A>): List<A> {
-  let l = empty();
-  let iterator = iterable[Symbol.iterator]();
-  let cur;
-  // tslint:disable-next-line:no-conditional-assignment
-  while ((cur = iterator.next()).done === false) {
-    l = append(cur.value, l);
-  }
-  return l;
-}
-
 export function insert<A>(index: number, element: A, l: List<A>): List<A> {
   return concat(append(element, slice(0, index, l)), slice(index, l.length, l));
 }
@@ -2526,6 +2551,10 @@ export function isList<A>(l: any): l is List<A> {
   return typeof l === "object" && Array.isArray(l.suffix);
 }
 
+export function zip<A, B>(as: List<A>, bs: List<B>): List<[A, B]> {
+  return zipWith((a, b) => [a, b] as [A, B], as, bs);
+}
+
 export function zipWith<A, B, C>(
   f: (a: A, b: B) => C,
   as: List<A>,
@@ -2540,10 +2569,6 @@ export function zipWith<A, B, C>(
     },
     (swapped ? bs : as) as any
   );
-}
-
-export function zip<A, B>(as: List<A>, bs: List<B>): List<[A, B]> {
-  return zipWith((a, b) => [a, b] as [A, B], as, bs);
 }
 
 function isPrimitive(value: any): value is number | string {
