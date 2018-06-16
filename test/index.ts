@@ -654,6 +654,13 @@ describe("List", () => {
         assert.strictEqual(nth(i, mapped), i * i);
       }
     });
+    it("executes the mapping function from left to right", () => {
+      // This matters if the mapping function isn't pure
+      const l = appendList(32, 32 * 3, prependList(0, 32));
+      const arr: number[] = [];
+      L.map((n) => arr.push(n), l);
+      assert.deepEqual(arr, L.toArray(l));
+    });
   });
   describe("pluck", () => {
     it("gets properties from objects", () => {

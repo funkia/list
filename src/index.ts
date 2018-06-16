@@ -221,10 +221,11 @@ export class List<A> {
   constructor(
     readonly bits: number,
     readonly offset: number,
+    /** The number of elements in the list. */
     readonly length: number,
+    readonly prefix: A[],
     readonly root: Node | undefined,
-    readonly suffix: A[],
-    readonly prefix: A[]
+    readonly suffix: A[]
   ) {}
   [Symbol.iterator](): Iterator<A> {
     return new ListIterator(this);
@@ -243,9 +244,9 @@ function cloneList<A>(l: List<A>): MutableList<A> {
     l.bits,
     l.offset,
     l.length,
+    l.prefix,
     l.root,
-    l.suffix,
-    l.prefix
+    l.suffix
   ) as any;
 }
 
@@ -302,7 +303,7 @@ class ListIterator<A> implements Iterator<A> {
 }
 
 function emptyPushable<A>(): MutableList<A> {
-  return new List(0, 0, 0, undefined, [], []) as any;
+  return new List(0, 0, 0, [], undefined, []) as any;
 }
 
 /** Appends the value to the list by _mutating_ the list and its content. */
@@ -366,7 +367,7 @@ export function list<A>(...elements: A[]): List<A> {
  * const emptyList = empty(); //=> list()
  */
 export function empty<A = any>(): List<A> {
-  return new List(0, 0, 0, undefined, emptyAffix, emptyAffix);
+  return new List(0, 0, 0, emptyAffix, undefined, emptyAffix);
 }
 
 /**
@@ -388,7 +389,7 @@ export function of<A>(a: A): List<A> {
  * pair("foo", "bar"); //=> list("foo", "bar")
  */
 export function pair<A>(first: A, second: A): List<A> {
-  return new List(2, 0, 2, undefined, [first, second], emptyAffix);
+  return new List(2, 0, 2, emptyAffix, undefined, [first, second]);
 }
 
 /**
@@ -605,9 +606,9 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
       incrementPrefix(l.bits),
       l.offset,
       l.length + 1,
+      affixPush(value, l.prefix, prefixSize),
       l.root,
-      l.suffix,
-      affixPush(value, l.prefix, prefixSize)
+      l.suffix
     );
   } else {
     const newList = cloneList(l);
@@ -695,8 +696,8 @@ function prependTopTree<A>(
 }
 
 /**
- * Takes a RRB-tree and a node tail. It then prepends the node to the
- * tree.
+ * Takes a list and a node tail. It then prepends the node to the tree
+ * of the list.
  * @param l The subject for prepending. `l` will be mutated. Nodes in
  * the tree will _not_ be mutated.
  * @param node The node that should be prepended to the tree.
@@ -822,9 +823,9 @@ export function append<A>(value: A, l: List<A>): List<A> {
       incrementSuffix(l.bits),
       l.offset,
       l.length + 1,
+      l.prefix,
       l.root,
-      affixPush(value, l.suffix, suffixSize),
-      l.prefix
+      affixPush(value, l.suffix, suffixSize)
     );
   }
   const newSuffix = [value];
@@ -905,6 +906,14 @@ function mapNode<A, B>(f: (a: A) => B, node: Node, depth: number): Node {
   }
 }
 
+function mapPrefix<A, B>(f: (a: A) => B, prefix: A[], length: number): B[] {
+  const newPrefix = new Array(length);
+  for (let i = length - 1; 0 <= i; --i) {
+    newPrefix[i] = f(prefix[i]);
+  }
+  return newPrefix;
+}
+
 function mapAffix<A, B>(f: (a: A) => B, suffix: A[], length: number): B[] {
   const newSuffix = new Array(length);
   for (let i = 0; i < length; ++i) {
@@ -914,7 +923,8 @@ function mapAffix<A, B>(f: (a: A) => B, suffix: A[], length: number): B[] {
 }
 
 /**
- * Applies a function to each element in the given list and returns a new list of the values that the function return.
+ * Applies a function to each element in the given list and returns a
+ * new list of the values that the function return.
  *
  * @complexity O(n)
  * @example
@@ -925,9 +935,9 @@ export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
     l.bits,
     l.offset,
     l.length,
+    mapPrefix(f, l.prefix, getPrefixSize(l)),
     l.root === undefined ? undefined : mapNode(f, l.root, getDepth(l)),
-    mapAffix(f, l.suffix, getSuffixSize(l)),
-    mapAffix(f, l.prefix, getPrefixSize(l))
+    mapAffix(f, l.suffix, getSuffixSize(l))
   );
 }
 
@@ -2042,7 +2052,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     setSizes(newNode, newDepth);
     const bits = createBits(newDepth, getPrefixSize(newList), rightSuffixSize);
     // FIXME: Return `newList` here
-    return new List(bits, 0, newSize, newNode, right.suffix, newList.prefix);
+    return new List(bits, 0, newSize, newList.prefix, newNode, right.suffix);
   }
 }
 
@@ -2364,9 +2374,9 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       setPrefix(newLength, 0),
       0,
       newLength,
+      l.prefix.slice(l.prefix.length - to, l.prefix.length - from),
       undefined,
-      emptyAffix,
-      l.prefix.slice(l.prefix.length - to, l.prefix.length - from)
+      emptyAffix
     );
   }
 
@@ -2377,9 +2387,9 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       setSuffix(newLength, 0),
       0,
       newLength,
+      emptyAffix,
       undefined,
-      l.suffix.slice(from - suffixStart, to - suffixStart),
-      emptyAffix
+      l.suffix.slice(from - suffixStart, to - suffixStart)
     );
   }
 
