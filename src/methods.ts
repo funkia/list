@@ -27,7 +27,7 @@ declare module "./index" {
     filter(predicate: (a: A) => boolean): List<A>;
     filter<B extends A>(predicate: (a: A) => a is B): List<B>;
     reject(predicate: (a: A) => boolean): List<A>;
-    partition(predicate: (a: A) => boolean): List<List<A>>;
+    partition(predicate: (a: A) => boolean): [List<A>, List<A>];
     join(separator: string): string;
     ap<B>(listF: List<(a: A) => B>): List<B>;
     flatten(this: List<List<A>>): List<A>;
@@ -174,7 +174,7 @@ List.prototype.reject = function<A>(predicate: (a: A) => boolean): List<A> {
 
 List.prototype.partition = function<A>(
   predicate: (a: A) => boolean
-): List<List<A>> {
+): [List<A>, List<A>] {
   return L.partition(predicate, this);
 };
 

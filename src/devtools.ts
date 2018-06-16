@@ -1,4 +1,4 @@
-import * as L from "list";
+import * as L from "./index";
 
 // The code below creates custom object formatter that works in Chrome
 // DevTools.

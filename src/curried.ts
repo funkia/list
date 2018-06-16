@@ -99,9 +99,9 @@ export const filter: typeof L.filter &
 export const reject: typeof filter = curry2(L.reject);
 
 export const partition: typeof L.partition &
-  (<A>(predicate: (a: A) => boolean) => (l: List<A>) => List<List<A>>) = curry2(
-  L.partition
-);
+  (<A>(
+    predicate: (a: A) => boolean
+  ) => (l: List<A>) => [List<A>, List<A>]) = curry2(L.partition);
 
 export const join: typeof L.join &
   ((seperator: string) => (l: List<string>) => List<string>) = curry2(L.join);
