@@ -1152,18 +1152,20 @@ export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
  *
  * @complexity O(n)
  * @example
- * partition(isEven, list(0, 1, 2, 3, 4, 5)); //=> list(list(0, 2, 4), list(1, 3, 5))
+ * partition(isEven, list(0, 1, 2, 3, 4, 5)); //=> [(list(0, 2, 4), list(1, 3, 5)]
  */
 export function partition<A>(
   predicate: (a: A) => boolean,
   l: List<A>
-): List<List<A>> {
-  const { fst, snd } = foldl(
-    (obj, a) => (predicate(a) ? push(a, obj.fst) : push(a, obj.snd), obj),
-    { fst: emptyPushable<A>(), snd: emptyPushable<A>() },
+): [List<A>, List<A>] {
+  return foldl(
+    (arr, a) => (predicate(a) ? push(a, arr[0]) : push(a, arr[1]), arr),
+    [emptyPushable<A>(), emptyPushable<A>()] as [
+      MutableList<A>,
+      MutableList<A>
+    ],
     l
   );
-  return pair(fst, snd);
 }
 
 /**

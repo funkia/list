@@ -810,10 +810,10 @@ describe("List", () => {
         assert.isFalse(isEven(nth(i, l2)!), `${i} is ${nth(i, l2)}`);
       }
     });
-    it("partitions elements in two lists", () => {
-      const l = partition(isEven, list(0, 1, 2, 3, 4, 5));
-      assert.isTrue(equals(nth(0, l)!, list(0, 2, 4)));
-      assert.isTrue(equals(nth(1, l)!, list(1, 3, 5)));
+    it("partitions elements in two arrays", () => {
+      const [fst, snd] = partition(isEven, list(0, 1, 2, 3, 4, 5));
+      assert.isTrue(equals(fst, list(0, 2, 4)));
+      assert.isTrue(equals(snd, list(1, 3, 5)));
     });
   });
   describe("foldl based functions", () => {
