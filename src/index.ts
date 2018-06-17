@@ -1154,6 +1154,14 @@ export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
  * @example
  * partition(isEven, list(0, 1, 2, 3, 4, 5)); //=> [(list(0, 2, 4), list(1, 3, 5)]
  */
+export function partition<A, B extends A>(
+  predicate: (a: A) => a is B,
+  l: List<A>
+): [List<B>, List<Exclude<A, B>>];
+export function partition<A>(
+  predicate: (a: A) => boolean,
+  l: List<A>
+): [List<A>, List<A>];
 export function partition<A>(
   predicate: (a: A) => boolean,
   l: List<A>

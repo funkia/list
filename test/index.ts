@@ -658,7 +658,7 @@ describe("List", () => {
       // This matters if the mapping function isn't pure
       const l = appendList(32, 32 * 3, prependList(0, 32));
       const arr: number[] = [];
-      L.map((n) => arr.push(n), l);
+      L.map(n => arr.push(n), l);
       assert.deepEqual(arr, L.toArray(l));
     });
   });
@@ -785,6 +785,9 @@ describe("List", () => {
     });
   });
   describe("filter and reject", () => {
+    function isString(a: any): a is string {
+      return typeof a === "string";
+    }
     it("filters element", () => {
       const l1 = list(0, 1, 2, 3, 4, 5, 6);
       const l2 = filter(isEven, l1);
@@ -794,11 +797,8 @@ describe("List", () => {
       }
     });
     it("works with user-defined type guards", () => {
-      function pred(a: any): a is string {
-        return typeof a === "string";
-      }
       const l = L.list<number | string>(0, "one", 2, "three", 4, "five");
-      const l2 = L.filter(pred, l);
+      const l2 = L.filter(isString, l);
       const l3 = L.map(s => s[0], l2);
       assertListEqual(l3, L.list("o", "t", "f"));
     });
@@ -814,6 +814,12 @@ describe("List", () => {
       const [fst, snd] = partition(isEven, list(0, 1, 2, 3, 4, 5));
       assert.isTrue(equals(fst, list(0, 2, 4)));
       assert.isTrue(equals(snd, list(1, 3, 5)));
+    });
+    it("partition works with type predicate", () => {
+      const l = L.list<number | string>(0, "one", 2, "three", 4, "five");
+      const [strings, numbers] = L.partition(isString, l);
+      assertListEqual(strings, L.list("one", "three", "five"));
+      assertListEqual(numbers, L.list(0, 2, 4));
     });
   });
   describe("foldl based functions", () => {
@@ -1564,10 +1570,13 @@ describe("List", () => {
       assert.deepEqual(arr, L.toArray(L.fromArray(arr)));
     });
     it("fromArray and toArray are inverses", () => {
-      fc.assert(fc.property(fc.nat(800000), (n) => {
-        const arr = numberArray(0, n);
-        assert.deepEqual(arr, L.toArray(L.fromArray(arr)));
-      }), {numRuns: 10});
+      fc.assert(
+        fc.property(fc.nat(800000), n => {
+          const arr = numberArray(0, n);
+          assert.deepEqual(arr, L.toArray(L.fromArray(arr)));
+        }),
+        { numRuns: 10 }
+      );
     });
   });
   describe("fromIterable", () => {
