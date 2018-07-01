@@ -1212,17 +1212,17 @@ describe("List", () => {
       assertIndicesFromTo(l2, 0, 100);
     });
     it("reduces height", () => {
-      const size = 32 ** 3 + 32;
+      const size = 32 ** 3 + 33;
       // This test case tests that the height of the tree is reduced
       // when a deep tree is sliced into a very small tree.
       const l = range(0, size);
-      const left = 15808;
+      const left = 15809;
       const right = left + 2 * 32 + 16;
       const l2 = L.slice(left, right, l);
       // Tree should have one layer so we should find number in array
       assert.isNumber(l2.root!.array[0]);
       assert.strictEqual(nth(40, l2), left + 40);
-      assertIndicesFromTo(l2, left, left + 2 * 32 + 16);
+      assertIndicesFromTo(l2, left, right);
     });
     it("reduces height when joining slices", () => {
       // This test creates a tree with three layers and slices down
@@ -1231,12 +1231,12 @@ describe("List", () => {
       // in the middle. The left slice becomes undefined so the single
       // right slice becomes the top of the tree and the height can
       // then be reduced.
-      const size = 32 ** 3;
+      const size = 32 ** 3 + 1;
       const l = range(0, size);
-      const l2 = L.slice(1027, 1090, l);
+      const l2 = L.slice(1028, 1090, l);
       // Tree should have one layer so we should find number in array
-      assert.isNumber(l2.root!.array[0].array[0]);
-      assertIndicesFromTo(l2, 1027, 1090);
+      assert.isNumber(l2.root!.array[0]);
+      assertIndicesFromTo(l2, 1028, 1090);
     });
     it("slice handles size tables from concat when slicing from left", () => {
       const size = 32 ** 2;

@@ -352,9 +352,9 @@ function push<A>(value: A, l: MutableList<A>): MutableList<A> {
  * list(0, 1, 2, 3); //=> list(0, 1, 2, 3)
  */
 export function list<A>(...elements: A[]): List<A> {
-  let l = empty();
+  let l = emptyPushable<A>();
   for (const element of elements) {
-    l = append(element, l);
+    push(element, l);
   }
   return l;
 }
@@ -432,9 +432,9 @@ export function fromIterable<A>(iterable: Iterable<A>): List<A> {
  * range(3, 8); //=> list(3, 4, 5, 6, 7)
  */
 export function range(start: number, end: number): List<number> {
-  let list = empty();
+  let list = emptyPushable<number>();
   for (let i = start; i < end; ++i) {
-    list = append(i, list);
+    push(i, list);
   }
   return list;
 }
@@ -532,12 +532,12 @@ export function nth<A>(index: number, l: List<A>): A | undefined {
   }
   const prefixSize = getPrefixSize(l);
   const suffixSize = getSuffixSize(l);
-  const { offset } = l;
   if (index < prefixSize) {
     return l.prefix[prefixSize - index - 1];
   } else if (index >= l.length - suffixSize) {
     return l.suffix[index - (l.length - suffixSize)];
   }
+  const { offset } = l;
   const depth = getDepth(l);
   return l.root!.sizes === undefined
     ? nodeNthDense(
@@ -1087,7 +1087,11 @@ export function scan<A, B>(
   initial: B,
   l: List<A>
 ): List<B> {
-  return foldl((l2, a) => append(f(last(l2)!, a), l2), of(initial), l);
+  return foldl(
+    (l2, a) => push(f(last(l2)!, a), l2),
+    push(initial, emptyPushable<B>()),
+    l
+  );
 }
 
 /**
@@ -2518,8 +2522,8 @@ export function dropRepeatsWith<A>(
 ): List<A> {
   return foldl(
     (acc, a) =>
-      acc.length !== 0 && predicate(last(acc)!, a) ? acc : append(a, acc),
-    empty(),
+      acc.length !== 0 && predicate(last(acc)!, a) ? acc : push(a, acc),
+    emptyPushable(),
     l
   );
 }
@@ -2553,7 +2557,7 @@ export function splitEvery<A>(size: number, l: List<A>): List<List<A>> {
     { l2: emptyPushable<List<A>>(), buffer: emptyPushable<A>() },
     l
   );
-  return buffer.length === 0 ? l2 : append(buffer, l2);
+  return buffer.length === 0 ? l2 : push(buffer, l2);
 }
 
 export function remove<A>(from: number, amount: number, l: List<A>): List<A> {
@@ -2679,9 +2683,9 @@ export function sortWith<A>(
     const c = comparator(a, b);
     return c !== 0 ? c : i < j ? -1 : 1;
   });
-  let newL = empty();
+  let newL = emptyPushable<A>();
   for (let i = 0; i < arr.length; ++i) {
-    newL = append(arr[i].elm, newL);
+    push(arr[i].elm, newL);
   }
   return newL;
 }
@@ -2703,9 +2707,9 @@ export function sortBy<A, B extends Comparable>(
     const c = comparator(a, b);
     return c !== 0 ? c : i < j ? -1 : 1;
   });
-  let newL = empty();
+  let newL = emptyPushable<A>();
   for (let i = 0; i < arr.length; ++i) {
-    newL = append(arr[i].elm, newL);
+    push(arr[i].elm, newL);
   }
   return newL;
 }
@@ -2718,17 +2722,16 @@ export function groupWith<A>(
   f: (a: A, b: A) => boolean,
   l: List<A>
 ): List<List<A>> {
-  let result = empty();
-  let buffer = empty();
+  const result = emptyPushable<MutableList<A>>();
+  let buffer = emptyPushable<A>();
   forEach(a => {
-    if (buffer.length === 0 || f(last(buffer), a)) {
-      buffer = append(a, buffer);
-    } else {
-      result = append(buffer, result);
-      buffer = of(a);
+    if (buffer.length !== 0 && !f(last(buffer)!, a)) {
+      push(buffer, result);
+      buffer = emptyPushable();
     }
+    push(a, buffer);
   }, l);
-  return buffer.length === 0 ? result : append(buffer, result);
+  return buffer.length === 0 ? result : push(buffer, result);
 }
 
 /**
@@ -2737,7 +2740,7 @@ export function groupWith<A>(
  * @param l The list to insert the separator in.
  */
 export function intersperse<A>(separator: A, l: List<A>): List<A> {
-  return pop(foldl((l2, a) => append(separator, append(a, l2)), empty(), l));
+  return pop(foldl((l2, a) => push(separator, push(a, l2)), emptyPushable(), l));
 }
 
 /**

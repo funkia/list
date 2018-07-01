@@ -1,14 +1,11 @@
 const shuffle = require("knuth-shuffle").knuthShuffle;
 
-import * as _ from "lodash";
 import * as R from "ramda";
 
 import { benchmark } from "./report";
 
 import { List } from "immutable";
-import * as Finger from "@paldepind/finger-tree";
 
-import * as Benchmark from "benchmark";
 
 import * as L from "../../dist/index";
 import "../../dist/methods";
@@ -16,7 +13,6 @@ import * as Lo from "./list-old/dist/index";
 import "./list-old/dist/methods";
 
 let arr: number[];
-let list: L.List<number>;
 let l: any;
 let imm: any;
 
@@ -67,6 +63,14 @@ benchmark(
       },
       run: () => {
         return L.sort(l).length;
+      }
+    },
+    "List, old": {
+      before: _ => {
+        l = Lo.fromArray(arr);
+      },
+      run: () => {
+        return Lo.sort(l).length;
       }
     },
     Array: {

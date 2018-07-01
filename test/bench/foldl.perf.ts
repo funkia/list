@@ -13,13 +13,20 @@ import * as Benchmark from "benchmark";
 import * as L from "../../dist/index";
 import * as Lo from "./list-old/dist/index";
 
-function arrayFold<A>(f, initial, array: A[]): A[] {
+function arrayFold<A>(f, initial: A, array: A[]): A {
   let value = initial;
   for (var i = 0; i < array.length; ++i) {
     value = f(value, array[i]);
   }
   return value;
 }
+
+arrayFold((n, m) => n + m, 0, [0, 1, 2, 3]);
+arrayFold((n, m) => n - m, 0, [0, 1, 2, 3]);
+L.foldl((n, m) => n + m, 0, L.list(0, 1, 2, 3));
+L.foldl((n, m) => n - m, 0, L.list(0, 1, 2, 3));
+Lo.foldl((n, m) => n + m, 0, Lo.list(0, 1, 2, 3));
+Lo.foldl((n, m) => n - m, 0, Lo.list(0, 1, 2, 3));
 
 function subtract(n: number, m: number) {
   return n - m;
