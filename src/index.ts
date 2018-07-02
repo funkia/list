@@ -505,8 +505,10 @@ function nodeNth(
     while (current.sizes[path] <= index) {
       path++;
     }
-    const traversed = path === 0 ? 0 : current.sizes[path - 1];
-    index -= traversed;
+    if (path !== 0) {
+      index -= current.sizes[path - 1];
+      offset = 0; // Offset is discarded if the left spine isn't traversed
+    }
     depth--;
     current = current.array[path];
   }

@@ -98,7 +98,7 @@ function prependList(
   return l;
 }
 
-function prependConcat<A>(l1: List<A>, l2: List<A>): List<A> {
+function prependAll<A>(l1: List<A>, l2: List<A>): List<A> {
   return L.foldr((a, l) => L.prepend(a, l), l2, l1);
 }
 
@@ -307,16 +307,26 @@ describe("List", () => {
       const final = prependList(0, prependSize, concatenated);
       assertIndicesFromTo(final, 0, prependSize + 2 * size);
     });
-    check(
-      "prepend and concat similair",
-      P.three(genBigList),
-      ([a, b, c]) => {
-        const bc = L.concat(b, c);
-        assertListEqual(L.concat(a, bc), prependConcat(a, bc));
-        return true;
-      },
-      { tests: 20 }
-    );
+    it("prepend to concatenated list", () => {
+      fc.assert(
+        fc.property(
+          fc.tuple(fc.nat(10000), fc.nat(100000), fc.nat(100000)),
+          ([n, m, p]) => {
+            const [a, b, c] = [
+              L.range(0, n),
+              L.range(n, n + m),
+              L.range(n + m, n + m + p)
+            ];
+            const bc = L.concat(b, c);
+            const abc = prependAll(a, bc);
+            assertIndicesFromTo(abc, 0, n + m + p);
+          }
+        ),
+        {
+          numRuns: 5
+        }
+      );
+    });
   });
   describe("append and prepend", () => {
     it("prepend to 32 size appended", () => {
@@ -396,6 +406,7 @@ describe("List", () => {
       assert.strictEqual(last(prependList(0, 33)), 32);
     });
     it("returns undefined on empty list", () => {
+      assert.strictEqual(first(list()), undefined);
       assert.strictEqual(last(list()), undefined);
     });
     it("gets the last element of prepended list", () => {
