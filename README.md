@@ -1003,15 +1003,22 @@ group(list(0, 0, 1, 2, 2, 2, 3, 3)); //=> list(list(0, 0), list(1), list(2, 2, 2
 Returns a list of lists where each sublist's elements are pairwise
 equal based on the given comparison function.
 
+Note that only adjacent elements are compared for equality. If all
+equal elements should be grouped together the list should be sorted
+before grouping.
+
 **Complexity**: `O(n)`
 
 **Example**
 
 ```js
-groupWith(
-  (a, b) => Math.round(a) === Math.round(b),
-  list(1.1, 1.3, 1.8, 2, 2.2, 3.3, 3.4)
-); //=> list(list(1.1, 1.3), list(1.8, 2, 2.2), list(3.3, 3.4))
+const floorEqual = (a, b) => Math.round(a) === Math.round(b);
+groupWith(floorEqual, list(1.1, 1.3, 1.8, 2, 2.2, 3.3, 3.4));
+//=> list(list(1.1, 1.3), list(1.8, 2, 2.2), list(3.3, 3.4))
+
+const sameLength = (a, b) => a.length === b.length;
+groupWith(sameLength, list("foo", "bar", "ab", "bc", "baz"));
+//=> list(list("foo", "bar"), list("ab", "bc"), list("baz))
 ```
 
 ### Folds
