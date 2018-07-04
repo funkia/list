@@ -393,34 +393,28 @@ export function pair<A>(first: A, second: A): List<A> {
 }
 
 /**
- * Converts an array or anything that is array-like into a list.
+ * Converts an array, an array-like, or an iterable into a list.
  *
  * @complexity O(n)
  * @example
- * fromArray([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
+ * from([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
+ * from(new Set([0, 1, 2, 3]); //=> list(0, 1, 2, 3)
+ * from("hello"); //=> list("h", "e", "l", "l", "o"));
  */
-export function fromArray<A>(array: A[]): List<A> {
-  const l = emptyPushable<A>();
-  for (let i = 0; i < array.length; ++i) {
-    push(array[i], l);
-  }
-  return l;
-}
-
-/**
- * Converts any iterable into a list.
- *
- * @complexity O(n)
- * @example
- * fromIterable(new Set([0, 1, 2, 3]); //=> list(0, 1, 2, 3)
- */
-export function fromIterable<A>(iterable: Iterable<A>): List<A> {
+export function from<A>(sequence: A[] | ArrayLike<A> | Iterable<A>): List<A>;
+export function from<A>(sequence: any): List<A> {
   let l = emptyPushable<A>();
-  let iterator = iterable[Symbol.iterator]();
+  if (sequence.length > 0 && (sequence[0] !== undefined || 0 in sequence)) {
+    for (let i = 0; i < sequence.length; ++i) {
+      push(sequence[i], l);
+  }
+  } else if (Symbol.iterator in sequence) {
+    const iterator = sequence[Symbol.iterator]();
   let cur;
   // tslint:disable-next-line:no-conditional-assignment
   while ((cur = iterator.next()).done === false) {
     push(cur.value, l);
+  }
   }
   return l;
 }
@@ -2668,7 +2662,7 @@ export function sort<A extends Comparable>(l: List<A>): List<A> {
   if (l.length === 0) {
     return l;
   } else if (isPrimitive(first(l))) {
-    return fromArray(toArray(l).sort(comparePrimitive as any));
+    return from(toArray(l).sort(comparePrimitive as any));
   } else {
     return sortWith(compareOrd, l as any) as any;
   }
@@ -2742,7 +2736,9 @@ export function groupWith<A>(
  * @param l The list to insert the separator in.
  */
 export function intersperse<A>(separator: A, l: List<A>): List<A> {
-  return pop(foldl((l2, a) => push(separator, push(a, l2)), emptyPushable(), l));
+  return pop(
+    foldl((l2, a) => push(separator, push(a, l2)), emptyPushable(), l)
+  );
 }
 
 /**

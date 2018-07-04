@@ -13,8 +13,7 @@ const exceptions = [
   "repeat",
   "times",
   "range",
-  "fromArray",
-  "fromIterable",
+  "from",
   "isList"
 ];
 

@@ -23,8 +23,7 @@ import {
   foldl,
   foldr,
   forEach,
-  fromArray,
-  fromIterable,
+  from,
   includes,
   insert,
   insertAll,
@@ -1445,7 +1444,7 @@ describe("List", () => {
         const sliced = L.slice(from, to, cat);
         assertListEqual(
           sliced,
-          L.fromArray(
+          L.from(
             numberArray(0, n)
               .concat(numberArray(n, n + m))
               .slice(from, to)
@@ -1568,41 +1567,42 @@ describe("List", () => {
       assert.deepEqual(array, [0, 1, 2, 3, 4, 5, 6, 7]);
     });
   });
-  describe("fromArray", () => {
+  describe("from", () => {
     it("converts an array into a list", () => {
       const array = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-      const l = fromArray(array);
+      const l = from(array);
       assert.strictEqual(l.length, array.length);
       assertIndicesFromTo(l, 0, 9);
     });
-    it("fromArray and toArray are inverses in case", () => {
+    it("from and toArray are inverses in case", () => {
       const n = 1058;
       const arr = numberArray(0, n);
-      assert.deepEqual(arr, L.toArray(L.fromArray(arr)));
+      assert.deepEqual(arr, L.toArray(L.from(arr)));
     });
-    it("fromArray and toArray are inverses", () => {
+    it("from and toArray are inverses", () => {
       fc.assert(
         fc.property(fc.nat(800000), n => {
           const arr = numberArray(0, n);
-          assert.deepEqual(arr, L.toArray(L.fromArray(arr)));
+          assert.deepEqual(arr, L.toArray(L.from(arr)));
         }),
         { numRuns: 10 }
       );
     });
-  });
-  describe("fromIterable", () => {
     function* iterable(n: number): IterableIterator<number> {
       for (let i = 0; i < n; ++i) {
         yield i;
       }
     }
     it("converts an iterable into a list", () => {
-      const l = fromIterable(iterable(20));
+      const l = from(iterable(20));
       assert.strictEqual(l.length, 20);
       assertIndicesFromTo(l, 0, 20);
     });
     it("converts an array into a list", () => {
-      assertListEqual(L.list(0, 1, 2, 3, 4), L.fromIterable([0, 1, 2, 3, 4]));
+      assertListEqual(L.list(0, 1, 2, 3, 4), L.from([0, 1, 2, 3, 4]));
+    });
+    it("converts a string into a list", () => {
+      assertListEqual(L.from("hello"), L.list("h", "e", "l", "l", "o"));
     });
   });
   describe("insert and insertAll", () => {
