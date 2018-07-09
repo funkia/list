@@ -217,14 +217,23 @@ function createBits(
  * 2. If a tree or sub-tree does not have a size-table then all leaf
  *    nodes in the tree are of size 32.
  */
+
+/**
+ * Represents a list of elements.
+ */
 export class List<A> {
   constructor(
+    /** @private */
     readonly bits: number,
+    /** @private */
     readonly offset: number,
     /** The number of elements in the list. */
     readonly length: number,
+    /** @private */
     readonly prefix: A[],
+    /** @private */
     readonly root: Node | undefined,
+    /** @private */
     readonly suffix: A[]
   ) {}
   [Symbol.iterator](): Iterator<A> {
@@ -407,14 +416,14 @@ export function from<A>(sequence: any): List<A> {
   if (sequence.length > 0 && (sequence[0] !== undefined || 0 in sequence)) {
     for (let i = 0; i < sequence.length; ++i) {
       push(sequence[i], l);
-  }
+    }
   } else if (Symbol.iterator in sequence) {
     const iterator = sequence[Symbol.iterator]();
-  let cur;
-  // tslint:disable-next-line:no-conditional-assignment
-  while ((cur = iterator.next()).done === false) {
-    push(cur.value, l);
-  }
+    let cur;
+    // tslint:disable-next-line:no-conditional-assignment
+    while ((cur = iterator.next()).done === false) {
+      push(cur.value, l);
+    }
   }
   return l;
 }
