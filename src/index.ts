@@ -322,7 +322,8 @@ function push<A>(value: A, l: MutableList<A>): MutableList<A> {
     l.bits = setPrefix(1, l.bits);
     l.prefix = [value];
   } else if (suffixSize < 32) {
-    (l.bits = incrementSuffix(l.bits)), l.suffix.push(value);
+    l.bits = incrementSuffix(l.bits);
+    l.suffix.push(value);
   } else if (l.root === undefined) {
     l.root = new Node(undefined, l.suffix);
     l.suffix = [value];
@@ -630,11 +631,9 @@ export function prepend<A>(value: A, l: List<A>): List<A> {
  * Traverses down the left edge of the tree and copies k nodes.
  * Returns the last copied node.
  * @param l
- * @param k The number of nodes to copy. Will always be at least 1.
- * @param leafSize The number of elements in the leaf that will be
- * inserted.
+ * @param k The number of nodes to copy. Should always be at least 1.
  */
-function copyLeft(l: MutableList<any>, k: number, leafSize: number): Node {
+function copyLeft(l: MutableList<any>, k: number): Node {
   let currentNode = cloneNode(l.root!); // copy root
   l.root = currentNode; // install copy of root
 
@@ -642,7 +641,7 @@ function copyLeft(l: MutableList<any>, k: number, leafSize: number): Node {
     const index = 0; // go left
     if (currentNode.sizes !== undefined) {
       for (let i = 0; i < currentNode.sizes.length; ++i) {
-        currentNode.sizes[i] += leafSize;
+        currentNode.sizes[i] += 32;
       }
     }
     const newNode = cloneNode(currentNode.array[index]);
@@ -746,7 +745,7 @@ function prependNodeToTree<A>(l: MutableList<A>, array: A[]): List<A> {
         currentNode = currentNode.array[0];
       }
       if (l.offset !== 0) {
-        const copiedNode = copyLeft(l, nodesTraversed, 32);
+        const copiedNode = copyLeft(l, nodesTraversed);
         for (let i = 0; i < copiedNode.sizes!.length; ++i) {
           copiedNode.sizes![i] += branchingFactor;
         }
@@ -766,7 +765,7 @@ function prependNodeToTree<A>(l: MutableList<A>, array: A[]): List<A> {
           let prependableNode: Node;
           // Copy the part of the path with size tables
           if (copyableCount > 1) {
-            parent = copyLeft(l, copyableCount - 1, 32);
+            parent = copyLeft(l, copyableCount - 1);
             prependableNode = parent.array[0];
           } else {
             parent = undefined;
@@ -1919,27 +1918,25 @@ function appendNodeToTree<A>(l: MutableList<A>, array: A[]): MutableList<A> {
     l.root = newRoot;
     l.bits = incrementDepth(l.bits);
   } else {
-    const copiedNode = copyFirstK(l, l, nodesToCopy, array.length);
-    const leaf = appendEmpty(copiedNode, depth - nodesToCopy);
-    leaf.array.push(node);
+    const copiedNode = copyFirstK(l, nodesToCopy, array.length);
+    copiedNode.array.push(createPath(depth - nodesToCopy, node));
   }
   return l;
 }
 
 /**
- * Traverses down the right edge of the tree and copies k nodes
+ * Traverses down the right edge of the tree and copies k nodes.
  * @param oldList
  * @param newList
  * @param k The number of nodes to copy. Will always be at least 1.
  * @param leafSize The number of elements in the leaf that will be inserted.
  */
 function copyFirstK(
-  oldList: List<any>,
   newList: MutableList<any>,
   k: number,
   leafSize: number
 ): Node {
-  let currentNode = cloneNode(oldList.root!); // copy root
+  let currentNode = cloneNode(newList.root!); // copy root
   newList.root = currentNode; // install root
 
   for (let i = 1; i < k; ++i) {
@@ -1957,35 +1954,6 @@ function copyFirstK(
   }
   return currentNode;
 }
-
-function appendEmpty(node: Node, depth: number): Node {
-  if (depth === 0) {
-    return node;
-  }
-  let current = new Node(undefined, []);
-  node.array.push(current);
-  for (let i = 1; i < depth; ++i) {
-    let newNode = new Node(undefined, []);
-    current.array[0] = newNode;
-    current = newNode;
-  }
-  return current;
-}
-
-/*
-function concatSuffix<A>(
-  left: A[], lSize: number, right: A[], rSize: number
-): A[] {
-  const newArray = new Array(lSize + rSize);
-  for (let i = 0; i < lSize; ++i) {
-    newArray[i] = left[i];
-  }
-  for (let i = 0; i < rSize; ++i) {
-    newArray[lSize + i] = right[i];
-  }
-  return newArray;
-}
-*/
 
 const concatBuffer = new Array(3);
 
