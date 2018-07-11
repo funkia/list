@@ -760,7 +760,8 @@ dropRepeatsWith(
 
 ### `tail`
 
-Returns a new list with the first element removed.
+Returns a new list with the first element removed. If the list is
+empty the empty list is returne.
 
 **Complexity**: `O(1)`
 
@@ -768,11 +769,13 @@ Returns a new list with the first element removed.
 
 ```js
 tail(list(0, 1, 2, 3)); //=> list(1, 2, 3)
+tail(empty()); //=> list()
 ```
 
 ### `pop`
 
-Returns a new list with the last element removed.
+Returns a new list with the last element removed. If the list is empty
+the empty list is returned.
 
 **Aliases**: `init`
 

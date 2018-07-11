@@ -1548,6 +1548,9 @@ describe("List", () => {
       assert.strictEqual(tailed.length, 19);
       assertIndicesFromTo(tailed, 1, 20);
     });
+    it("returns the empty list when given the empty list", () => {
+      assertListEqual(L.tail(L.empty()), L.empty());
+    });
   });
   describe("pop", () => {
     it("removes the last element", () => {
