@@ -6,7 +6,6 @@ import {
   List,
   adjust,
   ap,
-  append,
   chain,
   concat,
   drop,
@@ -81,7 +80,7 @@ function appendList(
   l: List<number> = empty()
 ): List<number> {
   for (let i = start; i < end; ++i) {
-    l = append(i, l);
+    l = L.append(i, l);
   }
   return l;
 }
@@ -199,17 +198,17 @@ describe("List", () => {
     });
   });
   describe("append", () => {
-    it("can append small", () => {
-      const list = appendList(0, 4);
-      assertIndicesFromTo(list, 0, 4);
+    it("can append 129 elements", () => {
+      let l = appendList(0, 129);
+      assertIndicesFromTo(l, 0, 129);
     });
-    it("can append 1000 elements", () => {
-      const l = appendList(0, 1000);
-      assertIndicesFromTo(l, 0, 1000);
-    });
-    it("can append 97 elements", () => {
-      let l = appendList(0, 97);
-      assertIndicesFromTo(l, 0, 97);
+    it("can append elements", () => {
+      fc.assert(
+        fc.property(fc.nat(32 ** 3 + 32), n => {
+          const l = appendList(0, n);
+          assertIndicesFromTo(l, 0, n);
+        })
+      , {numRuns: 5});
     });
     it("can append tree of depth 2", () => {
       const size = 32 * 32 * 32 + 32;
@@ -217,9 +216,9 @@ describe("List", () => {
       assertIndicesFromTo(list, 0, size);
     });
     it("copies suffix when it should", () => {
-      const l1 = append(0, empty());
-      const l2 = append(1, l1);
-      const l3 = append(2, l1);
+      const l1 = L.append(0, empty());
+      const l2 = L.append(1, l1);
+      const l3 = L.append(2, l1);
       assert.strictEqual(last(l2), 1);
       assert.strictEqual(last(l3), 2);
     });
@@ -321,9 +320,7 @@ describe("List", () => {
             assertIndicesFromTo(abc, 0, n + m + p);
           }
         ),
-        {
-          numRuns: 5
-        }
+        { numRuns: 5 }
       );
     });
   });
@@ -332,7 +329,7 @@ describe("List", () => {
       let l = empty();
       const n = 32;
       for (let i = 1; i < n + 1; ++i) {
-        l = append(i, l);
+        l = L.append(i, l);
       }
       l = prepend(0, l);
       assertIndicesFromTo(l, 0, n + 1);
@@ -342,7 +339,7 @@ describe("List", () => {
       const n = 1000;
       for (let i = 0; i < n; ++i) {
         l = prepend(n - i - 1, l);
-        l = append(n + i, l);
+        l = L.append(n + i, l);
       }
     });
     it("can append when there is offset", () => {
@@ -358,7 +355,7 @@ describe("List", () => {
       }
       // next we append elements to fill the right space up
       for (let i = 0; i < m; ++i) {
-        l = append(n + nm + i, l);
+        l = L.append(n + nm + i, l);
       }
       // finally we push enough elements to trigger one more prefix to
       // be pushed down
@@ -417,7 +414,7 @@ describe("List", () => {
       assert.strictEqual(first(l), 0);
     });
     it("gets first element of appended list", () => {
-      const l = append(3, append(2, append(1, append(0, empty()))));
+      const l = L.append(3, L.append(2, L.append(1, L.append(0, empty()))));
       assert.strictEqual(first(l), 0);
     });
     it("can get the first element when suffix overflows", () => {
@@ -446,7 +443,7 @@ describe("List", () => {
     );
     it("is associative on concrete examples", () => {
       const xs = list(0);
-      const ys = append(0, append(0, append(1, repeat(0, 30))));
+      const ys = L.append(0, L.append(0, L.append(1, repeat(0, 30))));
       const zs = repeat(0, 31);
       const lhs = concat(xs, concat(ys, zs));
       const rhs = concat(concat(xs, ys), zs);
@@ -467,9 +464,9 @@ describe("List", () => {
       });
       it("right has prefix and suffix that can be combined", () => {
         let l1 = appendList(0, 12);
-        let l2 = append(
+        let l2 = L.append(
           16,
-          append(15, prepend(12, prepend(13, prepend(14, empty()))))
+          L.append(15, prepend(12, prepend(13, prepend(14, empty()))))
         );
         const concatenated = concat(l1, l2);
         assert.strictEqual(length(concatenated), 17);
