@@ -6,7 +6,6 @@ import {
   List,
   adjust,
   ap,
-  chain,
   concat,
   drop,
   dropLast,
@@ -18,7 +17,6 @@ import {
   find,
   findIndex,
   first,
-  flatten,
   foldl,
   foldr,
   forEach,
@@ -699,13 +697,13 @@ describe("List", () => {
         empty(),
         list(5, 6, 7, 8, 9)
       );
-      const flattened = flatten(nested);
+      const flattened = L.flatten(nested);
       assert.strictEqual(flattened.length, 10);
       assertIndicesFromTo(flattened, 0, 10);
     });
-    it("has chain", () => {
+    it("has flatMap", () => {
       const l = list(1, 2, 3);
-      const l2 = chain(n => list(n, 2 * n, n * n), l);
+      const l2 = L.flatMap(n => list(n, 2 * n, n * n), l);
       assert.isTrue(equals(l2, list(1, 2, 1, 2, 4, 4, 3, 6, 9)));
     });
   });

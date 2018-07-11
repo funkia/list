@@ -1290,11 +1290,16 @@ export function flatten<A>(nested: List<List<A>>): List<A> {
  * lists together.
  *
  * @example
- * chain(n => list(n, 2 * n, n * n), list(1, 2, 3)); //=> list(1, 2, 1, 2, 4, 4, 3, 6, 9)
+ * flatMap(n => list(n, 2 * n, n * n), list(1, 2, 3)); //=> list(1, 2, 1, 2, 4, 4, 3, 6, 9)
  */
-export function chain<A, B>(f: (a: A) => List<B>, l: List<A>): List<B> {
+export function flatMap<A, B>(f: (a: A) => List<B>, l: List<A>): List<B> {
   return flatten(map(f, l));
 }
+
+/**
+ * Alias for [`flatMap`](#flatMap).
+ */
+export const chain = flatMap;
 
 // callback fold
 

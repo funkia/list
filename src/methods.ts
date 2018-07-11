@@ -31,6 +31,7 @@ declare module "./index" {
     join(separator: string): string;
     ap<B>(listF: List<(a: A) => B>): List<B>;
     flatten(this: List<List<A>>): List<A>;
+    flatMap<B>(f: (a: A) => List<B>): List<B>;
     chain<B>(f: (a: A) => List<B>): List<B>;
     every(predicate: (a: A) => boolean): boolean;
     some(predicate: (a: A) => boolean): boolean;
@@ -190,9 +191,11 @@ List.prototype.flatten = function<A>(this: List<List<A>>): List<A> {
   return L.flatten(this);
 };
 
-List.prototype.chain = function<A, B>(f: (a: A) => List<B>): List<B> {
-  return L.chain(f, this);
+List.prototype.flatMap = function<A, B>(f: (a: A) => List<B>): List<B> {
+  return L.flatMap(f, this);
 };
+
+List.prototype.chain = List.prototype.flatMap;
 
 List.prototype.every = function<A>(predicate: (a: A) => boolean): boolean {
   return L.every(predicate, this);

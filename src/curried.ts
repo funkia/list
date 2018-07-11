@@ -108,8 +108,10 @@ export const join: typeof L.join &
 export const ap: typeof L.ap &
   (<A, B>(listF: List<(a: A) => B>) => (l: List<A>) => List<B>) = curry2(L.ap);
 
-export const chain: typeof L.chain &
-  (<A, B>(f: (a: A) => List<B>) => (l: List<A>) => List<B>) = curry2(L.chain);
+export const flatMap: typeof L.flatMap &
+  (<A, B>(f: (a: A) => List<B>) => (l: List<A>) => List<B>) = curry2(L.flatMap);
+
+export const chain = flatMap;
 
 export const every: typeof L.every &
   (<A>(predicate: (a: A) => boolean) => (l: List<A>) => boolean) = curry2(
