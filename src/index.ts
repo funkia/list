@@ -358,6 +358,7 @@ function push<A>(value: A, l: MutableList<A>): MutableList<A> {
  * Creates a list of the given elements.
  *
  * @complexity O(n)
+ * @category Constructors
  * @example
  * list(0, 1, 2, 3); //=> list(0, 1, 2, 3)
  */
@@ -373,6 +374,7 @@ export function list<A>(...elements: A[]): List<A> {
  * Creates an empty list.
  *
  * @complexity O(1)
+ * @category Constructors
  * @example
  * const emptyList = empty(); //=> list()
  */
@@ -384,6 +386,7 @@ export function empty<A = any>(): List<A> {
  * Takes a single arguments and returns a singleton list that contains it.
  *
  * @complexity O(1)
+ * @category Constructors
  * @example
  * of("foo"); //=> list("foo")
  */
@@ -395,6 +398,7 @@ export function of<A>(a: A): List<A> {
  * Takes two arguments and returns a list that contains them.
  *
  * @complexity O(1)
+ * @category Constructors
  * @example
  * pair("foo", "bar"); //=> list("foo", "bar")
  */
@@ -406,6 +410,7 @@ export function pair<A>(first: A, second: A): List<A> {
  * Converts an array, an array-like, or an iterable into a list.
  *
  * @complexity O(n)
+ * @category Constructors
  * @example
  * from([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
  * from(new Set([0, 1, 2, 3]); //=> list(0, 1, 2, 3)
@@ -432,6 +437,8 @@ export function from<A>(sequence: any): List<A> {
 /**
  * Returns a list of numbers between an inclusive lower bound and an exclusive upper bound.
  *
+ * @complexity O(n)
+ * @category Constructors
  * @example
  * range(3, 8); //=> list(3, 4, 5, 6, 7)
  */
@@ -448,6 +455,7 @@ export function range(start: number, end: number): List<number> {
  * in all positions.
  *
  * @complexity O(n)
+ * @category Constructors
  * @example
  * repeat(1, 7); //=> list(1, 1, 1, 1, 1, 1, 1)
  * repeat("foo", 3); //=> list("foo", "foo", "foo")
@@ -464,6 +472,8 @@ export function repeat<A>(value: A, times: number): List<A> {
  * Generates a new list by calling a function with the current index
  * `n` times.
  *
+ * @complexity O(n)
+ * @category Constructors
  * @example
  * times(i => i, 5); //=> list(0, 1, 2, 3, 4)
  * times(i => i * 2 + 1, 4); //=> list(1, 3, 5, 7)
@@ -528,6 +538,7 @@ function nodeNth(
  * `undefined` is returned.
  *
  * @complexity O(log(n))
+ * @category Folds
  * @example
  * const l = list(0, 1, 2, 3, 4);
  * nth(2, l); //=> 2
@@ -602,6 +613,7 @@ function affixPush<A>(a: A, array: A[], length: number): A[] {
  * Prepends an element to the front of a list and returns the new list.
  *
  * @complexity O(1)
+ * @category Transformers
  * @example
  * prepend(0, list(1, 2, 3)); //=> list(0, 1, 2, 3)
  * prepend("h", list("e", "l", "l", "o")); //=> list("h", "e", "l", "l", "o")
@@ -818,6 +830,7 @@ function prependDense(
  * Appends an element to the end of a list and returns the new list.
  *
  * @complexity O(n)
+ * @category Transformers
  * @example
  * append(3, list(0, 1, 2)); //=> list(0, 1, 2, 3)
  */
@@ -845,6 +858,8 @@ export function append<A>(value: A, l: List<A>): List<A> {
 /**
  * Gets the length of a list.
  *
+ * @complexity `O(1)`
+ * @category Folds
  * @example
  * length(list(0, 1, 2, 3)); //=> 4
  */
@@ -857,6 +872,7 @@ export function length(l: List<any>): number {
  * function returns undefined.
  *
  * @complexity O(1)
+ * @category Folds
  * @example
  * first(list(0, 1, 2, 3)); //=> 0
  * first(list()); //=> undefined
@@ -874,6 +890,7 @@ export function first<A>(l: List<A>): A | undefined {
  * function returns `undefined`.
  *
  * @complexity O(1)
+ * @category Folds
  * @example
  * last(list(0, 1, 2, 3)); //=> 3
  * last(list()); //=> undefined
@@ -930,6 +947,7 @@ function mapAffix<A, B>(f: (a: A) => B, suffix: A[], length: number): B[] {
  * new list of the values that the function return.
  *
  * @complexity O(n)
+ * @category Transformers
  * @example
  * map(n => n * n, list(0, 1, 2, 3, 4)); //=> list(0, 1, 4, 9, 16)
  */
@@ -947,6 +965,7 @@ export function map<A, B>(f: (a: A) => B, l: List<A>): List<B> {
 /**
  * Extracts the specified property from each object in the list.
  *
+ * @category Transformers
  * @example
  *
  * const l = list(
@@ -1006,6 +1025,7 @@ function foldlNode<A, B>(
 /**
  * Folds a function over a list. Left-associative.
  *
+ * @category Folds
  * @example
  * foldl((n, m) => n - m, 1, list(2, 3, 4, 5));
  * //=> (((1 - 2) - 3) - 4) - 5 === -13
@@ -1024,7 +1044,11 @@ export function foldl<A, B>(
   return foldlSuffix(f, initial, l.suffix, suffixSize);
 }
 
-/** Alias for [`foldl`](#foldl). */
+/**
+ * Alias for [`foldl`](#foldl).
+ *
+ * @category Folds
+ */
 export const reduce = foldl;
 
 export interface Of {
@@ -1043,6 +1067,7 @@ export interface Applicative<A> {
  * This works with Fantasy Land
  * [applicatives](https://github.com/fantasyland/fantasy-land#applicative).
  *
+ * @category Folds
  * @example
  * const l = list(1, 3, 5, 4, 2);
  * L.scan((n, m) => n + m, 0, l); //=> list(0, 1, 4, 9, 13, 15));
@@ -1068,6 +1093,7 @@ export function traverse<A, B>(
  * collect the results.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * L.sequence(Maybe, list(just(1), just(2), just(3))); //=> just(list(1, 2, 3))
  * L.sequence(Maybe, list(just(1), just(2), nothing())); //=> nothing
@@ -1080,6 +1106,7 @@ export function sequence<A>(ofObj: Of, l: List<Applicative<A>>): any {
  * Folds a function over a list from left to right while collecting
  * all the intermediate steps in a resulting list.
  *
+ * @category Transformers
  * @example
  * const l = list(1, 3, 5, 4, 2);
  * L.scan((n, m) => n + m, 0, l); //=> list(0, 1, 4, 9, 13, 15));
@@ -1107,6 +1134,7 @@ export function scan<A, B>(
  * makes `forEach` faster when the new list is unneeded.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * const l = list(0, 1, 2);
  * forEach(element => console.log(element)); // Prints 0, then 1, and then 2
@@ -1120,6 +1148,7 @@ export function forEach<A>(callback: (a: A) => void, l: List<A>): void {
  * list for which the predicate returns `true`.
  *
  * @complexity O(n)
+ * @category Transformers
  * @example
  * filter(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 2, 4, 6)
  */
@@ -1141,6 +1170,7 @@ export function filter<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
  * list for which the predicate returns `false`.
  *
  * @complexity O(n)
+ * @category Transformers
  * @example
  * reject(isEven, list(0, 1, 2, 3, 4, 5, 6)); //=> list(1, 3, 5)
  */
@@ -1158,6 +1188,7 @@ export function reject<A>(predicate: (a: A) => boolean, l: List<A>): List<A> {
  * the values for which it returns `false`.
  *
  * @complexity O(n)
+ * @category Transformers
  * @example
  * partition(isEven, list(0, 1, 2, 3, 4, 5)); //=> [(list(0, 2, 4), list(1, 3, 5)]
  */
@@ -1186,6 +1217,7 @@ export function partition<A>(
 /**
  * Concats the strings in the list separated by a specified separator.
  *
+ * @category Folds
  * @example
  * join(", ", list("one", "two", "three")); //=> "one, two, three"
  */
@@ -1239,6 +1271,7 @@ function foldrNode<A, B>(
  * Folds a function over a list. Right-associative.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
  * 1 - (2 - (3 - (4 - 5))); //=> 3
@@ -1257,12 +1290,17 @@ export function foldr<A, B>(
   return foldrPrefix(f, acc, l.prefix, prefixSize);
 }
 
-/** Alias for [`foldr`](#foldr). */
+/**
+ * Alias for [`foldr`](#foldr).
+ *
+ * @category Folds
+ */
 export const reduceRight = foldr;
 
 /**
  * Applies a list of functions to a list of values.
  *
+ * @category Transformers
  * @example
  * ap(list((n: number) => n + 2, n => 2 * n, n => n * n), list(1, 2, 3));
  * //=> list(3, 4, 5, 2, 4, 6, 1, 4, 9)
@@ -1276,6 +1314,7 @@ export function ap<A, B>(listF: List<(a: A) => B>, l: List<A>): List<B> {
  * not flatten recursively. It removes one level of nesting only.
  *
  * @complexity O(n * log(m)), where n is the length of the outer list and m the length of the inner lists.
+ * @category Transformers
  * @example
  * const nested = list(list(0, 1, 2, 3), list(4), empty(), list(5, 6));
  * flatten(nested); //=> list(0, 1, 2, 3, 4, 5, 6)
@@ -1288,6 +1327,7 @@ export function flatten<A>(nested: List<List<A>>): List<A> {
  * Maps a function over a list and concatenates all the resulting
  * lists together.
  *
+ * @category Transformers
  * @example
  * flatMap(n => list(n, 2 * n, n * n), list(1, 2, 3)); //=> list(1, 2, 1, 2, 4, 4, 3, 6, 9)
  */
@@ -1297,6 +1337,7 @@ export function flatMap<A, B>(f: (a: A) => List<B>, l: List<A>): List<B> {
 
 /**
  * Alias for [`flatMap`](#flatMap).
+ * @category Transformers
  */
 export const chain = flatMap;
 
@@ -1413,6 +1454,7 @@ function everyCb<A>(value: A, state: any): boolean {
  * for all elements in the given list.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * every(isEven, empty()); //=> true
  * every(isEven, list(2, 4, 6, 8)); //=> true
@@ -1423,7 +1465,11 @@ export function every<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return foldlCb<A, PredState>(everyCb, { predicate, result: true }, l).result;
 }
 
-/** Alias for [`every`](#every). */
+/**
+ * Alias for [`every`](#every).
+ *
+ * @category Folds
+ */
 export const all = every;
 
 function someCb<A>(value: A, state: any): boolean {
@@ -1435,6 +1481,7 @@ function someCb<A>(value: A, state: any): boolean {
  * which the predicate returns true.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * const isEven = n => n % 2 === 0;
  * some(isEven, empty()); //=> false
@@ -1446,7 +1493,11 @@ export function some<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return foldlCb<A, PredState>(someCb, { predicate, result: false }, l).result;
 }
 
-/** Alias for [`some`](#some). */
+/**
+ * Alias for [`some`](#some).
+ *
+ * @category Folds
+ */
 // tslint:disable-next-line:variable-name
 export const any = some;
 
@@ -1455,6 +1506,7 @@ export const any = some;
  * `false` for every element in the given list.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * none(isEven, empty()); //=> true
  * none(isEven, list(2, 4, 6, 8)); //=> false
@@ -1479,6 +1531,7 @@ function findCb<A>(value: A, state: PredState): boolean {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * find(isEven, list(1, 3, 5, 6, 7, 8, 9)); //=> 6
  * find(isEven, list(1, 3, 5, 7, 9)); //=> undefined
@@ -1496,6 +1549,7 @@ export function find<A>(
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * find(isEven, list(1, 3, 5, 6, 7, 8, 9)); //=> 8
  * find(isEven, list(1, 3, 5, 7, 9)); //=> undefined
@@ -1524,6 +1578,7 @@ function indexOfCb(value: any, state: IndexOfState): boolean {
  * to the given element. If no such element is found `-1` is returned.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * const l = list(12, 4, 2, 89, 6, 18, 7);
  * indexOf(12, l); //=> 0
@@ -1541,6 +1596,7 @@ export function indexOf<A>(element: A, l: List<A>): number {
  * to the given element. If no such element is found `-1` is returned.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * const l = L.list(12, 4, 2, 18, 89, 2, 18, 7);
  * L.lastIndexOf(18, l); //=> 6
@@ -1570,6 +1626,7 @@ function findIndexCb<A>(value: A, state: FindIndexState): boolean {
  * `-1`.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * findIndex(isEven, list(1, 3, 5, 6, 7, 9, 10)); //=> 3
  * findIndex(isEven, list(1, 3, 5, 7, 9)); //=> -1
@@ -1602,6 +1659,7 @@ function containsCb(value: any, state: ContainsState): boolean {
  * Otherwise it returns `false`.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * includes(3, list(0, 1, 2, 3, 4, 5)); //=> true
  * includes(3, list(0, 1, 2, 4, 5)); //=> false
@@ -1612,7 +1670,11 @@ export function includes<A>(element: A, l: List<A>): boolean {
   return foldlCb(containsCb, containsState, l).result;
 }
 
-/** Alias for [`includes`](#includes) */
+/**
+ * Alias for [`includes`](#includes).
+ *
+ * @category Folds
+ */
 export const contains = includes;
 
 type EqualsState<A> = {
@@ -1630,6 +1692,7 @@ function equalsCb<A>(value2: A, state: EqualsState<A>): boolean {
  * Returns true if the two lists are equivalent.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * equals(list(0, 1, 2, 3), list(0, 1, 2, 3)); //=> true
  * equals(list("a", "b", "c"), list("a", "z", "c")); //=> false
@@ -1643,6 +1706,7 @@ export function equals<A>(l1: List<A>, l2: List<A>): boolean {
  * pair of elements with the given comparison function.
  *
  * @complexity O(n)
+ * @category Folds
  * @example
  * equalsWith(
  *   (n, m) => n.length === m.length,
@@ -1997,6 +2061,7 @@ function concatAffixes<A>(left: List<A>, right: List<A>): number {
  * Concatenates two lists.
  *
  * @complexity O(log(n))
+ * @category Transformers
  * @example
  * concat(list(0, 1, 2), list(3, 4)); //=> list(0, 1, 2, 3, 4)
  */
@@ -2054,6 +2119,7 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
  * If the index is out of bounds the given list is returned unchanged.
  *
  * @complexity O(log(n))
+ * @category Transformers
  * @example
  * update(2, "X", list("a", "b", "c", "d", "e")); //=> list("a", "b", "X", "d", "e")
  */
@@ -2092,6 +2158,7 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
  * returned unchanged.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * adjust(2, inc, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 3, 3, 4, 5)
  */
@@ -2351,6 +2418,7 @@ function sliceTreeList<A>(
  * from the right end of the list.
  *
  * @complexity**: `O(log(n))`
+ * @category Transformers
  * @example**
  * const l = list(0, 1, 2, 3, 4, 5);
  * slice(1, 4, l); //=> list(1, 2, 3)
@@ -2474,6 +2542,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
  * Takes the first `n` elements from a list and returns them in a new list.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
  */
@@ -2501,6 +2570,7 @@ function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
  *
  * @complexity `O(k + log(n))` where `k` is the number of elements satisfying
  * the predicate.
+ * @category Transformers
  * @example
  * takeWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 1, 2, 3)
  * takeWhile(_ => false, list(0, 1, 2, 3, 4, 5)); //=> list()
@@ -2519,6 +2589,7 @@ export function takeWhile<A>(
  *
  * @complexity `O(k + log(n))` where `k` is the number of elements
  * satisfying the predicate.
+ * @category Transformers
  * @example
  * takeLastWhile(n => n > 2, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
  * takeLastWhile(_ => false, list(0, 1, 2, 3, 4, 5)); //=> list()
@@ -2537,6 +2608,7 @@ export function takeLastWhile<A>(
  *
  * @complexity `O(k + log(n))` where `k` is the number of elements
  * satisfying the predicate.
+ * @category Transformers
  * @example
  * dropWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(4, 5, 6)
  */
@@ -2552,6 +2624,7 @@ export function dropWhile<A>(
  * Returns a new list without repeated elements.
  *
  * @complexity `O(n)`
+ * @category Transformers
  * @example
  * dropRepeats(L.list(0, 0, 1, 1, 1, 2, 3, 3, 4, 4)); //=> list(0, 1, 2, 3, 4)
  */
@@ -2564,6 +2637,7 @@ export function dropRepeats<A>(l: List<A>): List<A> {
  * function to determine when elements are equal.
  *
  * @complexity `O(n)`
+ * @category Transformers
  * @example
  *
  * dropRepeatsWith(
@@ -2588,6 +2662,7 @@ export function dropRepeatsWith<A>(
  * list.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * takeLast(3, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
  */
@@ -2602,6 +2677,7 @@ export function takeLast<A>(n: number, l: List<A>): List<A> {
  * index and all elements after it.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
  * splitAt(4, l); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7, 8)]
@@ -2615,6 +2691,7 @@ export function splitAt<A>(index: number, l: List<A>): [List<A>, List<A>] {
  * predicate returns `true`.
  *
  * @complexity `O(n)`
+ * @category Transformers
  * @example
  * const l = list(0, 1, 2, 3, 4, 5, 6, 7);
  * splitWhen((n) => n > 3, l); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7)]
@@ -2630,6 +2707,7 @@ export function splitWhen<A>(
 /**
  * Splits the list into chunks of the given size.
  *
+ * @category Transformers
  * @example
  * splitEvery(2, list(0, 1, 2, 3, 4)); //=> list(list(0, 1), list(2, 3), list(4))
  */
@@ -2655,6 +2733,7 @@ export function splitEvery<A>(size: number, l: List<A>): List<List<A>> {
  * index.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
  * remove(4, 3, l); //=> list(0, 1, 2, 3, 7, 8)
@@ -2668,6 +2747,7 @@ export function remove<A>(from: number, amount: number, l: List<A>): List<A> {
  * Returns a new list without the first `n` elements.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * drop(2, list(0, 1, 2, 3, 4, 5)); //=> list(2, 3, 4, 5)
  */
@@ -2679,6 +2759,7 @@ export function drop<A>(n: number, l: List<A>): List<A> {
  * Returns a new list without the last `n` elements.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * dropLast(2, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2, 3)
  */
@@ -2691,6 +2772,7 @@ export function dropLast<A>(n: number, l: List<A>): List<A> {
  * empty the empty list is returned.
  *
  * @complexity `O(1)`
+ * @category Transformers
  * @example
  * pop(list(0, 1, 2, 3)); //=> list(0, 1, 2)
  */
@@ -2698,7 +2780,11 @@ export function pop<A>(l: List<A>): List<A> {
   return slice(0, -1, l);
 }
 
-/** Alias for [`pop`](#pop). */
+/**
+ * Alias for [`pop`](#pop).
+ *
+ * @category Transformers
+ */
 export const init = pop;
 
 /**
@@ -2706,6 +2792,7 @@ export const init = pop;
  * empty the empty list is returned.
  *
  * @complexity `O(1)`
+ * @category Transformers
  * @example
  * tail(list(0, 1, 2, 3)); //=> list(1, 2, 3)
  * tail(empty()); //=> list()
@@ -2723,6 +2810,7 @@ function arrayPush<A>(array: A[], a: A): A[] {
  * Converts a list into an array.
  *
  * @complexity `O(n)`
+ * @category Folds
  * @example
  * toArray(list(0, 1, 2, 3, 4)); //=> [0, 1, 2, 3, 4]
  */
@@ -2734,6 +2822,7 @@ export function toArray<A>(l: List<A>): A[] {
  * Inserts the given element at the given index in the list.
  *
  * @complexity O(log(n))
+ * @category Transformers
  * @example
  * insert(2, "c", list("a", "b", "d", "e")); //=> list("a", "b", "c", "d", "e")
  */
@@ -2745,6 +2834,7 @@ export function insert<A>(index: number, element: A, l: List<A>): List<A> {
  * Inserts the given list of elements at the given index in the list.
  *
  * @complexity `O(log(n))`
+ * @category Transformers
  * @example
  * insertAll(2, list("c", "d"), list("a", "b", "e", "f")); //=> list("a", "b", "c", "d", "e", "f")
  */
@@ -2761,7 +2851,7 @@ export function insertAll<A>(
 
 /**
  * Reverses a list.
- * @category Updater
+ * @category Transformers
  * @complexity O(n)
  * @example
  * reverse(list(0, 1, 2, 3, 4, 5)); //=> list(5, 4, 3, 2, 1, 0)
@@ -2775,6 +2865,7 @@ export function reverse<A>(l: List<A>): List<A> {
  * otherwise.
  *
  * @complexity O(1)
+ * @category Folds
  * @example
  * isList(list(0, 1, 2)); //=> true
  * isList([0, 1, 2]); //=> false
@@ -2791,6 +2882,7 @@ export function isList<A>(l: any): l is List<A> {
  * @complexity `O(log(n))`, where `n` is the length of the smallest
  * list.
  *
+ * @category Transformers
  * @example
  * const names = list("a", "b", "c", "d", "e");
  * const years = list(0, 1, 2, 3, 4, 5, 6);
@@ -2809,6 +2901,7 @@ export function zip<A, B>(as: List<A>, bs: List<B>): List<[A, B]> {
  *
  * @complexity `O(log(n))` where `n` is the length of the smallest
  * list.
+ * @category Transformers
  * @example
  * const names = list("Turing", "Curry");
  * const years = list(1912, 1900);
@@ -2862,6 +2955,7 @@ function compareOrd(a: Ord, b: Ord): Ordering {
  * Performs a stable sort.
  *
  * @complexity O(n * log(n))
+ * @category Transformers
  * @example
  * sort(list(5, 3, 1, 8, 2)); //=> list(1, 2, 3, 5, 8)
  * sort(list("e", "a", "c", "b", "d"); //=> list("a", "b", "c", "d", "e")
@@ -2890,7 +2984,7 @@ export function sort<A extends Comparable>(l: List<A>): List<A> {
  * Performs a stable sort.
  *
  * @complexity O(n * log(n))
- *
+ * @category Transformers
  * @example
  *
  * sortWith((a, b) => {
@@ -2931,7 +3025,7 @@ export function sortWith<A>(
  * Performs a stable sort.
  *
  * @complexity O(n * log(n))
- *
+ * @category Transformers
  * @example
  *
  * sortBy(
@@ -2970,6 +3064,7 @@ export function sortBy<A, B extends Comparable>(
  * Returns a list of lists where each sublist's elements are all
  * equal.
  *
+ * @category Transformers
  * @example
  * group(list(0, 0, 1, 2, 2, 2, 3, 3)); //=> list(list(0, 0), list(1), list(2, 2, 2), list(3, 3))
  */
@@ -2985,6 +3080,7 @@ export function group<A>(l: List<A>): List<List<A>> {
  * equal elements should be grouped together the list should be sorted
  * before grouping.
  *
+ * @category Transformers
  * @example
  * const floorEqual = (a, b) => Math.round(a) === Math.round(b);
  * groupWith(floorEqual, list(1.1, 1.3, 1.8, 2, 2.2, 3.3, 3.4));
@@ -3013,6 +3109,7 @@ export function groupWith<A>(
 /**
  * Inserts a separator between each element in a list.
  *
+ * @category Transformers
  * @example
  * intersperse("n", list("ba", "a", "a")); //=> list("ba", "n", "a", "n", "a")
  */
@@ -3025,6 +3122,7 @@ export function intersperse<A>(separator: A, l: List<A>): List<A> {
 /**
  * Returns `true` if the given list is empty and `false` otherwise.
  *
+ * @category Folds
  * @example
  * isEmpty(list()); //=> true
  * isEmpty(list(0, 1, 2)); //=> false
