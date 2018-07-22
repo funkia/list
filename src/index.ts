@@ -601,9 +601,10 @@ function affixPush<A>(a: A, array: A[], length: number): A[] {
 /**
  * Prepends an element to the front of a list and returns the new list.
  *
- * @complexity O(n)
+ * @complexity O(1)
  * @example
  * prepend(0, list(1, 2, 3)); //=> list(0, 1, 2, 3)
+ * prepend("h", list("e", "l", "l", "o")); //=> list("h", "e", "l", "l", "o")
  */
 export function prepend<A>(value: A, l: List<A>): List<A> {
   const prefixSize = getPrefixSize(l);
@@ -846,8 +847,6 @@ export function append<A>(value: A, l: List<A>): List<A> {
  *
  * @example
  * length(list(0, 1, 2, 3)); //=> 4
- *
- * @param l The list to get the length of.
  */
 export function length(l: List<any>): number {
   return l.length;
@@ -1424,7 +1423,7 @@ export function every<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return foldlCb<A, PredState>(everyCb, { predicate, result: true }, l).result;
 }
 
-/** Alias for [`all`](#all). */
+/** Alias for [`every`](#every). */
 export const all = every;
 
 function someCb<A>(value: A, state: any): boolean {
@@ -1447,6 +1446,7 @@ export function some<A>(predicate: (a: A) => boolean, l: List<A>): boolean {
   return foldlCb<A, PredState>(someCb, { predicate, result: false }, l).result;
 }
 
+/** Alias for [`some`](#some). */
 // tslint:disable-next-line:variable-name
 export const any = some;
 
@@ -2084,6 +2084,17 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
   return newList;
 }
 
+/**
+ * Returns a list that has the entry specified by the index replaced with
+ * the value returned by applying the function to the value.
+ *
+ * If the index is out of bounds the given list is
+ * returned unchanged.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * adjust(2, inc, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 3, 3, 4, 5)
+ */
 export function adjust<A>(index: number, f: (a: A) => A, l: List<A>): List<A> {
   if (index < 0 || l.length <= index) {
     return l;
@@ -2334,6 +2345,17 @@ function sliceTreeList<A>(
   }
 }
 
+/**
+ * Returns a slice of a list. Elements are removed from the beginning and
+ * end. Both the indices can be negative in which case they will count
+ * from the right end of the list.
+ *
+ * @complexity**: `O(log(n))`
+ * @example**
+ * const l = list(0, 1, 2, 3, 4, 5);
+ * slice(1, 4, l); //=> list(1, 2, 3)
+ * slice(2, -2, l); //=> list(2, 3)
+ */
 export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   let { bits, length } = l;
 
@@ -2448,6 +2470,13 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   return newList;
 }
 
+/**
+ * Takes the first `n` elements from a list and returns them in a new list.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * take(3, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2)
+ */
 export function take<A>(n: number, l: List<A>): List<A> {
   return slice(0, n, l);
 }
@@ -2466,6 +2495,16 @@ function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
   }
 }
 
+/**
+ * Takes the first elements in the list for which the predicate returns
+ * `true`.
+ *
+ * @complexity `O(k + log(n))` where `k` is the number of elements satisfying
+ * the predicate.
+ * @example
+ * takeWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(0, 1, 2, 3)
+ * takeWhile(_ => false, list(0, 1, 2, 3, 4, 5)); //=> list()
+ */
 export function takeWhile<A>(
   predicate: (a: A) => boolean,
   l: List<A>
@@ -2474,6 +2513,16 @@ export function takeWhile<A>(
   return slice(0, index, l);
 }
 
+/**
+ * Takes the last elements in the list for which the predicate returns
+ * `true`.
+ *
+ * @complexity `O(k + log(n))` where `k` is the number of elements
+ * satisfying the predicate.
+ * @example
+ * takeLastWhile(n => n > 2, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
+ * takeLastWhile(_ => false, list(0, 1, 2, 3, 4, 5)); //=> list()
+ */
 export function takeLastWhile<A>(
   predicate: (a: A) => boolean,
   l: List<A>
@@ -2482,6 +2531,15 @@ export function takeLastWhile<A>(
   return slice(l.length - index, l.length, l);
 }
 
+/**
+ * Removes the first elements in the list for which the predicate returns
+ * `true`.
+ *
+ * @complexity `O(k + log(n))` where `k` is the number of elements
+ * satisfying the predicate.
+ * @example
+ * dropWhile(n => n < 4, list(0, 1, 2, 3, 4, 5, 6)); //=> list(4, 5, 6)
+ */
 export function dropWhile<A>(
   predicate: (a: A) => boolean,
   l: List<A>
@@ -2490,10 +2548,29 @@ export function dropWhile<A>(
   return slice(index, l.length, l);
 }
 
+/**
+ * Returns a new list without repeated elements.
+ *
+ * @complexity `O(n)`
+ * @example
+ * dropRepeats(L.list(0, 0, 1, 1, 1, 2, 3, 3, 4, 4)); //=> list(0, 1, 2, 3, 4)
+ */
 export function dropRepeats<A>(l: List<A>): List<A> {
   return dropRepeatsWith(elementEquals, l);
 }
 
+/**
+ * Returns a new list without repeated elements by using the given
+ * function to determine when elements are equal.
+ *
+ * @complexity `O(n)`
+ * @example
+ *
+ * dropRepeatsWith(
+ *   (n, m) => Math.floor(n) === Math.floor(m),
+ *   list(0, 0.4, 1.2, 1.1, 1.8, 2.2, 3.8, 3.4, 4.7, 4.2)
+ * ); //=> list(0, 1, 2, 3, 4)
+ */
 export function dropRepeatsWith<A>(
   predicate: (a: A, b: A) => Boolean,
   l: List<A>
@@ -2506,14 +2583,42 @@ export function dropRepeatsWith<A>(
   );
 }
 
+/**
+ * Takes the last `n` elements from a list and returns them in a new
+ * list.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * takeLast(3, list(0, 1, 2, 3, 4, 5)); //=> list(3, 4, 5)
+ */
 export function takeLast<A>(n: number, l: List<A>): List<A> {
   return slice(l.length - n, l.length, l);
 }
 
+/**
+ * Splits a list at the given index and return the two sides in a pair.
+ * The left side will contain all elements before but not including the
+ * element at the given index. The right side contains the element at the
+ * index and all elements after it.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+ * splitAt(4, l); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7, 8)]
+ */
 export function splitAt<A>(index: number, l: List<A>): [List<A>, List<A>] {
   return [slice(0, index, l), slice(index, l.length, l)];
 }
 
+/**
+ * Splits a list at the first element in the list for which the given
+ * predicate returns `true`.
+ *
+ * @complexity `O(n)`
+ * @example
+ * const l = list(0, 1, 2, 3, 4, 5, 6, 7);
+ * splitWhen((n) => n > 3, l); //=> [list(0, 1, 2, 3), list(4, 5, 6, 7)]
+ */
 export function splitWhen<A>(
   predicate: (a: A) => boolean,
   l: List<A>
@@ -2522,6 +2627,12 @@ export function splitWhen<A>(
   return idx === -1 ? [l, empty()] : splitAt(idx, l);
 }
 
+/**
+ * Splits the list into chunks of the given size.
+ *
+ * @example
+ * splitEvery(2, list(0, 1, 2, 3, 4)); //=> list(list(0, 1), list(2, 3), list(4))
+ */
 export function splitEvery<A>(size: number, l: List<A>): List<List<A>> {
   const { l2, buffer } = foldl(
     ({ l2, buffer }, elm) => {
@@ -2538,24 +2649,67 @@ export function splitEvery<A>(size: number, l: List<A>): List<List<A>> {
   return buffer.length === 0 ? l2 : push(buffer, l2);
 }
 
+/**
+ * Takes an index, a number of elements to remove and a list. Returns a
+ * new list with the given amount of elements removed from the specified
+ * index.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * const l = list(0, 1, 2, 3, 4, 5, 6, 7, 8);
+ * remove(4, 3, l); //=> list(0, 1, 2, 3, 7, 8)
+ * remove(2, 5, l); //=> list(0, 1, 7, 8)
+ */
 export function remove<A>(from: number, amount: number, l: List<A>): List<A> {
   return concat(slice(0, from, l), slice(from + amount, l.length, l));
 }
 
+/**
+ * Returns a new list without the first `n` elements.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * drop(2, list(0, 1, 2, 3, 4, 5)); //=> list(2, 3, 4, 5)
+ */
 export function drop<A>(n: number, l: List<A>): List<A> {
   return slice(n, l.length, l);
 }
 
+/**
+ * Returns a new list without the last `n` elements.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * dropLast(2, list(0, 1, 2, 3, 4, 5)); //=> list(0, 1, 2, 3)
+ */
 export function dropLast<A>(n: number, l: List<A>): List<A> {
   return slice(0, l.length - n, l);
 }
 
+/**
+ * Returns a new list with the last element removed. If the list is
+ * empty the empty list is returned.
+ *
+ * @complexity `O(1)`
+ * @example
+ * pop(list(0, 1, 2, 3)); //=> list(0, 1, 2)
+ */
 export function pop<A>(l: List<A>): List<A> {
   return slice(0, -1, l);
 }
 
+/** Alias for [`pop`](#pop). */
 export const init = pop;
 
+/**
+ * Returns a new list with the first element removed. If the list is
+ * empty the empty list is returned.
+ *
+ * @complexity `O(1)`
+ * @example
+ * tail(list(0, 1, 2, 3)); //=> list(1, 2, 3)
+ * tail(empty()); //=> list()
+ */
 export function tail<A>(l: List<A>): List<A> {
   return slice(1, l.length, l);
 }
@@ -2565,14 +2719,35 @@ function arrayPush<A>(array: A[], a: A): A[] {
   return array;
 }
 
+/**
+ * Converts a list into an array.
+ *
+ * @complexity `O(n)`
+ * @example
+ * toArray(list(0, 1, 2, 3, 4)); //=> [0, 1, 2, 3, 4]
+ */
 export function toArray<A>(l: List<A>): A[] {
   return foldl<A, A[]>(arrayPush, [], l);
 }
 
+/**
+ * Inserts the given element at the given index in the list.
+ *
+ * @complexity O(log(n))
+ * @example
+ * insert(2, "c", list("a", "b", "d", "e")); //=> list("a", "b", "c", "d", "e")
+ */
 export function insert<A>(index: number, element: A, l: List<A>): List<A> {
   return concat(append(element, slice(0, index, l)), slice(index, l.length, l));
 }
 
+/**
+ * Inserts the given list of elements at the given index in the list.
+ *
+ * @complexity `O(log(n))`
+ * @example
+ * insertAll(2, list("c", "d"), list("a", "b", "e", "f")); //=> list("a", "b", "c", "d", "e", "f")
+ */
 export function insertAll<A>(
   index: number,
   elements: List<A>,
@@ -2587,21 +2762,59 @@ export function insertAll<A>(
 /**
  * Reverses a list.
  * @category Updater
- * @param l The list to reverse.
- * @returns A reversed list.
+ * @complexity O(n)
+ * @example
+ * reverse(list(0, 1, 2, 3, 4, 5)); //=> list(5, 4, 3, 2, 1, 0)
  */
 export function reverse<A>(l: List<A>): List<A> {
   return foldl((newL, element) => prepend(element, newL), empty(), l);
 }
 
+/**
+ * Returns `true` if the given argument is a list and `false`
+ * otherwise.
+ *
+ * @complexity O(1)
+ * @example
+ * isList(list(0, 1, 2)); //=> true
+ * isList([0, 1, 2]); //=> false
+ * isList("string"); //=> false
+ * isList({ foo: 0, bar: 1 }); //=> false
+ */
 export function isList<A>(l: any): l is List<A> {
   return typeof l === "object" && Array.isArray(l.suffix);
 }
 
+/**
+ * Iterate over two lists in parallel and collect the pairs.
+ *
+ * @complexity `O(log(n))`, where `n` is the length of the smallest
+ * list.
+ *
+ * @example
+ * const names = list("a", "b", "c", "d", "e");
+ * const years = list(0, 1, 2, 3, 4, 5, 6);
+ * //=> list(["a", 0], ["b", 1], ["c", 2], ["d", 3], ["e", 4]);
+ */
 export function zip<A, B>(as: List<A>, bs: List<B>): List<[A, B]> {
   return zipWith((a, b) => [a, b] as [A, B], as, bs);
 }
 
+/**
+ * This is like mapping over two lists at the same time. The two lists
+ * are iterated over in parallel and each pair of elements is passed
+ * to the function. The returned values are assembled into a new list.
+ *
+ * The shortest list determines the size of the result.
+ *
+ * @complexity `O(log(n))` where `n` is the length of the smallest
+ * list.
+ * @example
+ * const names = list("Turing", "Curry");
+ * const years = list(1912, 1900);
+ * zipWith((name, year) => ({ name, year }), names, years);
+ * //=> list({ name: "Turing", year: 1912 }, { name: "Curry", year: 1900 });
+ */
 export function zipWith<A, B, C>(
   f: (a: A, b: B) => C,
   as: List<A>,
@@ -2640,6 +2853,19 @@ function compareOrd(a: Ord, b: Ord): Ordering {
   return a[ord](b) ? (b[ord](a) ? 0 : -1) : 1;
 }
 
+/**
+ * Sorts the given list. The list should contain values that can be
+ * compared using the `<` operator or values that implement the
+ * Fantasy Land [Ord](https://github.com/fantasyland/fantasy-land#ord)
+ * specification.
+ *
+ * Performs a stable sort.
+ *
+ * @complexity O(n * log(n))
+ * @example
+ * sort(list(5, 3, 1, 8, 2)); //=> list(1, 2, 3, 5, 8)
+ * sort(list("e", "a", "c", "b", "d"); //=> list("a", "b", "c", "d", "e")
+ */
 export function sort<A extends Comparable>(l: List<A>): List<A> {
   if (l.length === 0) {
     return l;
@@ -2650,6 +2876,33 @@ export function sort<A extends Comparable>(l: List<A>): List<A> {
   }
 }
 
+/**
+ * Sort the given list by comparing values using the given function.
+ * The function receieves two values and should return `-1` if the
+ * first value is stricty larger than the second, `0` is they are
+ * equal and `1` if the first values is strictly smaller than the
+ * second.
+ *
+ * Note that the comparison function is equivalent to the one required
+ * by
+ * [`Array.prototype.sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
+ *
+ * Performs a stable sort.
+ *
+ * @complexity O(n * log(n))
+ *
+ * @example
+ *
+ * sortWith((a, b) => {
+ *   if (a === b) {
+ *     return 0;
+ *   } else if (a < b) {
+ *     return -1;
+ *   } else {
+ *     return 1;
+ *   }
+ * }, list(5, 3, 1, 8, 2)); //=> list(1, 2, 3, 5, 8)
+ */
 export function sortWith<A>(
   comparator: (a: A, b: A) => Ordering,
   l: List<A>
@@ -2668,6 +2921,27 @@ export function sortWith<A>(
   return newL;
 }
 
+/**
+ * Sort the given list by passing each value through the function and
+ * comparing the resulting value. The function should either return
+ * values comparable using `<` or values that implement the Fantasy
+ * Land [Ord](https://github.com/fantasyland/fantasy-land#ord)
+ * specification.
+ *
+ * Performs a stable sort.
+ *
+ * @complexity O(n * log(n))
+ *
+ * @example
+ *
+ * sortBy(
+ *   o => o.n,
+ *   list({ n: 4, m: "foo" }, { n: 3, m: "bar" }, { n: 1, m: "baz" })
+ * ); //=> list({ n: 1, m: "baz" }, { n: 3, m: "bar" }, { n: 4, m: "foo" })
+ *
+ * sortBy(s => s.length, list("foo", "bar", "ba", "aa", "list", "z"));
+ * //=> list("z", "ba", "aa", "foo", "bar", "list")
+ */
 export function sortBy<A, B extends Comparable>(
   f: (a: A) => B,
   l: List<A>
@@ -2692,10 +2966,34 @@ export function sortBy<A, B extends Comparable>(
   return newL;
 }
 
+/**
+ * Returns a list of lists where each sublist's elements are all
+ * equal.
+ *
+ * @example
+ * group(list(0, 0, 1, 2, 2, 2, 3, 3)); //=> list(list(0, 0), list(1), list(2, 2, 2), list(3, 3))
+ */
 export function group<A>(l: List<A>): List<List<A>> {
   return groupWith(elementEquals, l);
 }
 
+/**
+ * Returns a list of lists where each sublist's elements are pairwise
+ * equal based on the given comparison function.
+ *
+ * Note that only adjacent elements are compared for equality. If all
+ * equal elements should be grouped together the list should be sorted
+ * before grouping.
+ *
+ * @example
+ * const floorEqual = (a, b) => Math.round(a) === Math.round(b);
+ * groupWith(floorEqual, list(1.1, 1.3, 1.8, 2, 2.2, 3.3, 3.4));
+ * //=> list(list(1.1, 1.3), list(1.8, 2, 2.2), list(3.3, 3.4))
+ *
+ * const sameLength = (a, b) => a.length === b.length;
+ * groupWith(sameLength, list("foo", "bar", "ab", "bc", "baz"));
+ * //=> list(list("foo", "bar"), list("ab", "bc"), list("baz))
+ */
 export function groupWith<A>(
   f: (a: A, b: A) => boolean,
   l: List<A>
@@ -2714,8 +3012,9 @@ export function groupWith<A>(
 
 /**
  * Inserts a separator between each element in a list.
- * @param separator The separator to insert between each element.
- * @param l The list to insert the separator in.
+ *
+ * @example
+ * intersperse("n", list("ba", "a", "a")); //=> list("ba", "n", "a", "n", "a")
  */
 export function intersperse<A>(separator: A, l: List<A>): List<A> {
   return pop(
@@ -2725,6 +3024,10 @@ export function intersperse<A>(separator: A, l: List<A>): List<A> {
 
 /**
  * Returns `true` if the given list is empty and `false` otherwise.
+ *
+ * @example
+ * isEmpty(list()); //=> true
+ * isEmpty(list(0, 1, 2)); //=> false
  */
 export function isEmpty(l: List<any>): boolean {
   return l.length === 0;
