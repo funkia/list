@@ -205,8 +205,9 @@ describe("List", () => {
         fc.property(fc.nat(32 ** 3 + 32), n => {
           const l = appendList(0, n);
           assertIndicesFromTo(l, 0, n);
-        })
-      , {numRuns: 5});
+        }),
+        { numRuns: 5 }
+      );
     });
     it("can append tree of depth 2", () => {
       const size = 32 * 32 * 32 + 32;
@@ -641,6 +642,17 @@ describe("List", () => {
       },
       { tests: 10 }
     );
+    it("concatenates prepended list with appended list", () => {
+      fc.assert(
+        fc.property(fc.nat(32 ** 2), fc.nat(32 ** 2), (n, m) => {
+          const l1 = prependList(0, n);
+          const l2 = appendList(n, n + m);
+          const l = L.concat(l1, l2);
+          assertIndicesFromTo(l, 0, n + m);
+        }),
+        { numRuns: 25, examples: [[1089, 273], [1089, 1089]] }
+      );
+  });
   });
   describe("map", () => {
     it("maps function over list", () => {

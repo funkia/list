@@ -199,14 +199,6 @@ function decrementDepth(bits: number): number {
   return bits - (1 << (affixBits * 2));
 }
 
-function createBits(
-  depth: number,
-  prefixSize: number,
-  suffixSize: number
-): number {
-  return (depth << (affixBits * 2)) | (prefixSize << affixBits) | suffixSize;
-}
-
 /*
  * Invariants that any list `l` should satisfy
  *
@@ -1936,7 +1928,7 @@ function appendNodeToTree<A>(l: MutableList<A>, array: A[]): MutableList<A> {
     return l;
   }
   const depth = getDepth(l);
-  let index = l.length - 1 - getPrefixSize(l);
+  let index = handleOffset(depth, l.offset, l.length - 1 - getPrefixSize(l));
   let nodesToCopy = 0;
   let nodesVisited = 0;
   let shift = depth * 5;
@@ -2107,9 +2099,12 @@ export function concat<A>(left: List<A>, right: List<A>): List<A> {
     );
     const newDepth = getHeight(newNode);
     setSizes(newNode, newDepth);
-    const bits = createBits(newDepth, getPrefixSize(newList), rightSuffixSize);
-    // FIXME: Return `newList` here
-    return new List(bits, 0, newSize, newList.prefix, newNode, right.suffix);
+    newList.root = newNode;
+    newList.offset &= ~(mask << (getDepth(left) * branchBits));
+    newList.length = newSize;
+    newList.bits = setSuffix(rightSuffixSize, setDepth(newDepth, newList.bits));
+    newList.suffix = right.suffix;
+    return newList;
   }
 }
 
