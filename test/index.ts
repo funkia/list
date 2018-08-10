@@ -1608,6 +1608,19 @@ describe("List", () => {
       assert.strictEqual(l.length, 20);
       assertIndicesFromTo(l, 0, 20);
     });
+    it("converts an iterable into a list same as Array.from even with falsy done", () => {
+      const iterable = () =>
+        <any>{
+          [Symbol.iterator]() {
+            let idx = 0;
+            return {
+              next: () => (idx++ === 0 ? { value: 1 } : { done: true })
+            };
+          }
+        };
+      const l = from(iterable());
+      assert.deepEqual(Array.from(iterable()), L.toArray(l));
+    });
     it("converts an array into a list", () => {
       assertListEqual(L.list(0, 1, 2, 3, 4), L.from([0, 1, 2, 3, 4]));
     });
