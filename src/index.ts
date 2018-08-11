@@ -419,7 +419,7 @@ export function from<A>(sequence: any): List<A> {
     const iterator = sequence[Symbol.iterator]();
     let cur;
     // tslint:disable-next-line:no-conditional-assignment
-    while ((cur = iterator.next()).done === false) {
+    while (!(cur = iterator.next()).done) {
       push(cur.value, l);
     }
   }
