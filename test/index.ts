@@ -404,6 +404,11 @@ describe("List", () => {
       assert.strictEqual(first(list()), undefined);
       assert.strictEqual(last(list()), undefined);
     });
+    it("returns the first element based on prefix size", () => {
+      const l = L.prepend(0, L.empty());
+      L.prepend(1, l);
+      assert.strictEqual(L.first(l), 0);
+    });
     it("gets the last element of prepended list", () => {
       const l = prepend(0, prepend(1, prepend(2, empty())));
       assert.strictEqual(last(l), 2);
@@ -419,6 +424,11 @@ describe("List", () => {
     it("can get the first element when suffix overflows", () => {
       assert.strictEqual(first(appendList(0, 33)), 0);
     });
+    it("returns the last element based on suffix size", () => {
+      const l = L.append(0, L.empty());
+      L.append(1, l);
+      assert.strictEqual(L.last(l), 0);
+  });
   });
   describe("concat", () => {
     check("has left identity", genList, l => {
