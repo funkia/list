@@ -1292,6 +1292,22 @@ describe("List", () => {
       const sliced = L.slice(left, right, l);
       cheapAssertIndicesFromTo(sliced, left, right);
     });
+    it("can slice off front and back in short list with elements in both affixes", () => {
+      const l = L.append(3, prependList(0, 3));
+      const a = L.dropLast(1, L.drop(1, l));
+      const b = L.slice(1, 3, l);
+      assertListEqual(a, b);
+    });
+    it("can slice several times off of a last list", () => {
+      const a = appendList(0, 1329);
+      const b = L.drop(L.length(L.takeWhile(l => l <= 200, a)), a);
+      const c = L.takeWhile(l => l <= 203, b);
+      const d = L.drop(L.length(c), b);
+
+      const c1 = L.append(L.nth(0, d), c);
+      const c2 = L.dropLast(1, L.drop(1, c1));
+      assertListEqual(c2, list(202, 203));
+    });
   });
   describe("drop", () => {
     it("drops element from the left", () => {
