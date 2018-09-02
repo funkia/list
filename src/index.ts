@@ -870,11 +870,12 @@ export function length(l: List<any>): number {
  * first(list()); //=> undefined
  */
 export function first<A>(l: List<A>): A | undefined {
-  if (getPrefixSize(l) !== 0) {
-    return arrayLast(l.prefix);
-  } else if (getSuffixSize(l) !== 0) {
-    return arrayFirst(l.suffix);
-  }
+  const prefixSize = getPrefixSize(l);
+  return prefixSize !== 0
+    ? l.prefix[prefixSize - 1]
+    : l.length !== 0
+      ? l.suffix[0]
+      : undefined;
 }
 
 /**
@@ -888,11 +889,12 @@ export function first<A>(l: List<A>): A | undefined {
  * last(list()); //=> undefined
  */
 export function last<A>(l: List<A>): A | undefined {
-  if (getSuffixSize(l) !== 0) {
-    return arrayLast(l.suffix);
-  } else if (getPrefixSize(l) !== 0) {
-    return arrayFirst(l.prefix);
-  }
+  const suffixSize = getSuffixSize(l);
+  return suffixSize !== 0
+    ? l.suffix[suffixSize - 1]
+    : l.length !== 0
+      ? l.prefix[0]
+      : undefined;
 }
 
 // map
