@@ -2453,7 +2453,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       setPrefix(newLength, 0),
       0,
       newLength,
-      l.prefix.slice(l.prefix.length - to, l.prefix.length - from),
+      l.prefix.slice(prefixSize - to, prefixSize - from),
       undefined,
       emptyAffix
     );
