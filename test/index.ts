@@ -53,6 +53,7 @@ import {
 } from "../src";
 import { checkList, installCheck } from "./check";
 import { nothing, just, Maybe, isJust } from "./utils";
+import * as R from "ramda";
 
 const L: typeof Loriginal = installCheck(Loriginal);
 
@@ -1511,6 +1512,13 @@ describe("List", () => {
         return true;
       }
     );
+    it("slices after concat", () => {
+      let l1 = prependList(0, 1089);
+      const l2 = L.from(R.repeat(0, 34));
+      const cat = L.concat(l1, l2);
+      const sliced = L.slice(0, 2, cat);
+      assertListEqual(sliced, L.list(0, 1));
+    });
   });
   describe("splitAt", () => {
     it("splits at index", () => {

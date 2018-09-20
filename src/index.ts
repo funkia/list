@@ -98,7 +98,7 @@ function getPath(
   const curOffset = (offset >> (depth * branchBits)) & mask;
   let path = ((index >> (depth * branchBits)) & mask) - curOffset;
   if (sizes !== undefined) {
-    while (sizes[path] <= index) {
+    while (sizes[path] <= index - offset) {
       path++;
     }
     const traversed = path === 0 ? 0 : sizes[path - 1];
@@ -2526,6 +2526,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       );
       if (newList.root === undefined) {
         bits = setDepth(0, bits);
+        newList.offset = 0;
       }
       bits = setSuffix(newAffix.length, bits);
       newList.suffix = newAffix;
