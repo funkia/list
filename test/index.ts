@@ -1886,5 +1886,20 @@ describe("List", () => {
 
       assertListEqual(f, L.from(g));
     });
+    it("handles slice well, second case", () => {
+      let f = L.list<number>();
+      let g: number[] = [];
+
+      f = L.concat(f, L.from(arrayOfLength(2891)));
+      g = [...g, ...arrayOfLength(2891)];
+
+      f = L.reverse(f);
+      g = g.reverse();
+
+      f = L.drop(267, f);
+      g = g.slice(267);
+
+      assertListEqual(f, L.from(g));
+    });
   });
 });
