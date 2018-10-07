@@ -1860,4 +1860,31 @@ describe("List", () => {
       assert.isFalse(L.isEmpty(L.list(0, 1, 2, 3)));
     });
   });
+  describe("check slice issue", () => {
+    function arrayOfLength(l: number) {
+      const r = [];
+      for (let i = 0; i < l; i++) {
+        r.push(i);
+      }
+      return r;
+    }
+    it("handles slice well when offset is present", () => {
+      let f = L.list<number>();
+      let g: number[] = [];
+
+      f = L.concat(f, L.from(arrayOfLength(5440)));
+      g = [...g, ...arrayOfLength(5440)];
+
+      f = L.concat(f, L.from(arrayOfLength(6338)));
+      g = [...g, ...arrayOfLength(6338)];
+
+      f = L.drop(4194, f);
+      g = g.slice(4194);
+
+      f = L.drop(6229, f);
+      g = g.slice(6229);
+
+      assertListEqual(f, L.from(g));
+    });
+  });
 });
