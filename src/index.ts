@@ -2500,7 +2500,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       newList.root = sliceLeft(
         newList.root!,
         getDepth(l),
-        from - prefixSize + l.offset,
+        from - prefixSize,
         l.offset,
         true
       );
