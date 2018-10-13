@@ -86,7 +86,7 @@ function arrayLast<A>(array: A[]): A {
   return array[array.length - 1];
 }
 
-const pathResult = { path: 0, index: 0 };
+const pathResult = { path: 0, index: 0, updatedOffset: 0 };
 type PathResult = typeof pathResult;
 
 function getPath(
@@ -95,14 +95,18 @@ function getPath(
   depth: number,
   sizes: Sizes
 ): PathResult {
-  const curOffset = (offset >> (depth * branchBits)) & mask;
-  let path = ((index >> (depth * branchBits)) & mask) - curOffset;
+  if (sizes === undefined && offset !== 0) {
+    pathResult.updatedOffset = 0;
+    index = handleOffset(depth, offset, index);
+  }
+  let path = (index >> (depth * branchBits)) & mask;
   if (sizes !== undefined) {
-    while (sizes[path] <= index - offset) {
+    while (sizes[path] <= index) {
       path++;
     }
     const traversed = path === 0 ? 0 : sizes[path - 1];
     index -= traversed;
+    pathResult.updatedOffset = offset;
   }
   pathResult.path = path;
   pathResult.index = index;
@@ -116,17 +120,16 @@ function updateNode(
   offset: number,
   value: any
 ): Node {
-  const { path, index: newIndex } = getPath(index, offset, depth, node.sizes);
+  const { path, index: newIndex, updatedOffset } = getPath(
+    index,
+    offset,
+    depth,
+    node.sizes
+  );
   const array = copyArray(node.array);
   array[path] =
     depth > 0
-      ? updateNode(
-          array[path],
-          depth - 1,
-          newIndex,
-          path === 0 ? offset : 0,
-          value
-        )
+      ? updateNode(array[path], depth - 1, newIndex, updatedOffset, value)
       : value;
   return new Node(node.sizes, array);
 }
@@ -2139,7 +2142,7 @@ export function update<A>(index: number, a: A, l: List<A>): List<A> {
     newList.root = updateNode(
       l.root!,
       getDepth(l),
-      index - prefixSize + l.offset,
+      index - prefixSize,
       l.offset,
       a
     );
@@ -2235,7 +2238,12 @@ function sliceLeft(
   offset: number,
   top: boolean
 ): Node | undefined {
-  let { path, index: newIndex } = getPath(index, offset, depth, tree.sizes);
+  let { path, index: newIndex, updatedOffset } = getPath(
+    index,
+    offset,
+    depth,
+    tree.sizes
+  );
   if (depth === 0) {
     newAffix = tree.array.slice(path).reverse();
     // This leaf node is moved up as a suffix so there is nothing here
@@ -2246,7 +2254,7 @@ function sliceLeft(
       tree.array[path],
       depth - 1,
       newIndex,
-      path === 0 ? offset : 0,
+      updatedOffset,
       false
     );
     if (child === undefined) {
@@ -2500,7 +2508,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       newList.root = sliceLeft(
         newList.root!,
         getDepth(l),
-        from - prefixSize + l.offset,
+        from - prefixSize,
         l.offset,
         true
       );
@@ -2521,7 +2529,7 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
       newList.root = sliceRight(
         newList.root!,
         getDepth(l),
-        to - prefixSize + newList.offset - 1,
+        to - prefixSize - 1,
         newList.offset
       );
       if (newList.root === undefined) {
