@@ -2491,7 +2491,9 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
   if (0 < from) {
     // we need to slice something off of the left
     if (from < prefixSize) {
-      // do a cheap slice by setting prefix length
+      // shorten the prefix even though it's not strictly needed,
+      // so that referenced items can be GC'd
+      newList.prefix = l.prefix.slice(0, prefixSize - from);
       bits = setPrefix(prefixSize - from, bits);
     } else {
       // if we're here `to` can't lie in the tree, so we can set the
@@ -2517,6 +2519,9 @@ export function slice<A>(from: number, to: number, l: List<A>): List<A> {
     // we need to slice something off of the right
     if (length - to < suffixSize) {
       bits = setSuffix(suffixSize - (length - to), bits);
+      // slice the suffix even though it's not strictly needed,
+      // to allow the removed items to be GC'd
+      newList.suffix = l.suffix.slice(0, suffixSize - (length - to));
     } else {
       newList.root = sliceRight(
         newList.root!,
