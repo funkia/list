@@ -429,7 +429,7 @@ describe("List", () => {
       const l = L.append(0, L.empty());
       L.append(1, l);
       assert.strictEqual(L.last(l), 0);
-  });
+    });
   });
   describe("concat", () => {
     check("has left identity", genList, l => {
@@ -663,7 +663,7 @@ describe("List", () => {
         }),
         { numRuns: 25, examples: [[1089, 273], [1089, 1089]] }
       );
-  });
+    });
   });
   describe("map", () => {
     it("maps function over list", () => {
@@ -1308,6 +1308,24 @@ describe("List", () => {
       const c1 = L.append(L.nth(0, d), c);
       const c2 = L.dropLast(1, L.drop(1, c1));
       assertListEqual(c2, list(202, 203));
+    });
+    it("handles size tables and offset at the same time", () => {
+      let f: List<number> = L.list();
+      let g: number[] = [];
+
+      f = L.concat(f, L.from(numberArray(0, 5440)));
+      g = [...g, ...numberArray(0, 5440)];
+
+      f = L.concat(f, L.from(numberArray(0, 6338)));
+      g = [...g, ...numberArray(0, 6338)];
+
+      f = L.drop(4194, f);
+      g = g.slice(4194);
+
+      f = L.drop(6229, f);
+      g = g.slice(6229);
+
+      assert.deepEqual(L.toArray(f), g);
     });
   });
   describe("drop", () => {
