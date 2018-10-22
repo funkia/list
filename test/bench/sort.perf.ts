@@ -6,7 +6,6 @@ import { benchmark } from "./report";
 
 import { List } from "immutable";
 
-
 import * as L from "../../dist/index";
 import "../../dist/methods";
 import * as Lo from "./list-old/dist/index";
@@ -35,7 +34,7 @@ function comparePrimitive(a: number, b: number): -1 | 0 | 1 {
 }
 
 function sortUnstable<A extends number | string>(l: L.List<A>): L.List<A> {
-  return L.fromArray(L.toArray(l).sort(comparePrimitive as any));
+  return L.from(L.toArray(l).sort(comparePrimitive as any));
 }
 
 benchmark(
@@ -59,7 +58,7 @@ benchmark(
     },
     List: {
       before: _ => {
-        l = L.fromArray(arr);
+        l = L.from(arr);
       },
       run: () => {
         return L.sort(l).length;
@@ -67,7 +66,7 @@ benchmark(
     },
     "List, old": {
       before: _ => {
-        l = Lo.fromArray(arr);
+        l = Lo.from(arr);
       },
       run: () => {
         return Lo.sort(l).length;
@@ -110,7 +109,7 @@ benchmark(
   {
     List: {
       before: _ => {
-        l = L.fromArray(arr);
+        l = L.from(arr);
       },
       run: () => {
         return L.sort(l).length; // Uses unstable sort since numbers
@@ -118,7 +117,7 @@ benchmark(
     },
     "List, stable": {
       before: _ => {
-        l = L.fromArray(arr);
+        l = L.from(arr);
       },
       run: () => {
         return L.sortWith(comparePrimitive, l).length; // Uses stable sort

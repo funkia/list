@@ -23,7 +23,8 @@ async function runTest<A>(
   input: A[]
 ): Promise<Benchmark[]> {
   const results = [];
-  for (const n of input) {
+  for (let i = 0; i < input.length; i++) {
+    const n = input[i];
     if (suite.before !== undefined) {
       suite.before(n);
     }
@@ -32,6 +33,9 @@ async function runTest<A>(
     }
     const b = new Benchmark(name + n.toString(), {
       fn: test.run
+    });
+    b.on("complete", event => {
+      console.log(`${i + 1}:${input.length}`, String(event.target));
     });
     await runAsync(b);
     results.push(b);
@@ -111,7 +115,9 @@ async function runBenchmarks(argv: any): Promise<void> {
       exP !== undefined
         ? names2.filter(name => !areSubstrings(name, exP))
         : names2;
-    for (const testName of names3) {
+    for (let i = 0; i < names3.length; i++) {
+      console.log(`${i} out of ${names3.length}`);
+      const testName = names3[i];
       const testData = tests[testName];
       const test =
         typeof testData === "function" ? { run: testData } : testData;
