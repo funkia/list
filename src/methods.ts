@@ -67,6 +67,7 @@ declare module "./index" {
     insert(index: number, element: A): List<A>;
     insertAll(index: number, elements: List<A>): List<A>;
     reverse(): List<A>;
+    backwards(): Iterable<A>;
     zipWith<B, C>(f: (a: A, b: B) => C, bs: List<B>): List<C>;
     zip<B>(bs: List<B>): List<[A, B]>;
     sort<A extends Comparable>(this: List<A>, l: List<A>): List<A>;
@@ -343,6 +344,10 @@ List.prototype.insertAll = function<A>(
 
 List.prototype.reverse = function<A>(): List<A> {
   return L.reverse(this);
+};
+
+List.prototype.backwards = function<A>(): Iterable<A> {
+  return L.backwards(this);
 };
 
 List.prototype.zipWith = function<A, B, C>(

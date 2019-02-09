@@ -216,7 +216,7 @@ function decrementDepth(bits: number): number {
 /**
  * Represents a list of elements.
  */
-export class List<A> {
+export class List<A> implements Iterable<A> {
   constructor(
     /** @private */
     readonly bits: number,
@@ -232,7 +232,7 @@ export class List<A> {
     readonly suffix: A[]
   ) {}
   [Symbol.iterator](): Iterator<A> {
-    return new ListIterator(this);
+    return new ForwardListIterator(this);
   }
 }
 
@@ -254,15 +254,15 @@ function cloneList<A>(l: List<A>): MutableList<A> {
   ) as any;
 }
 
-class ListIterator<A> implements Iterator<A> {
+abstract class ListIterator<A> implements Iterator<A> {
   stack: any[][];
   indices: number[];
   idx: number;
   prefixSize: number;
   middleSize: number;
   result: IteratorResult<A> = { done: false, value: undefined as any };
-  constructor(private l: List<A>) {
-    this.idx = -1;
+  constructor(protected l: List<A>, direction: 1 | -1) {
+    this.idx = direction === 1 ? -1 : l.length;
     this.prefixSize = getPrefixSize(l);
     this.middleSize = l.length - getSuffixSize(l);
     if (l.root !== undefined) {
@@ -272,17 +272,23 @@ class ListIterator<A> implements Iterator<A> {
       let currentNode = l.root.array;
       for (let i = depth; 0 <= i; --i) {
         this.stack[i] = currentNode;
-        this.indices[i] = 0;
-        currentNode = currentNode[0].array;
+        const idx = direction === 1 ? 0 : currentNode.length - 1;
+        this.indices[i] = idx;
+        currentNode = currentNode[idx].array;
       }
-      this.indices[0] = -1;
+      this.indices[0] -= direction;
     }
   }
+  abstract next(): IteratorResult<A>;
+}
+
+class ForwardListIterator<A> extends ListIterator<A> {
+  constructor(l: List<A>) {
+    super(l, 1);
+  }
   nextInTree(): void {
-    let i = 0;
-    while (++this.indices[i] === this.stack[i].length) {
+    for (var i = 0; ++this.indices[i] === this.stack[i].length; ++i) {
       this.indices[i] = 0;
-      ++i;
     }
     for (; 0 < i; --i) {
       this.stack[i - 1] = this.stack[i][this.indices[i]].array;
@@ -304,6 +310,48 @@ class ListIterator<A> implements Iterator<A> {
     this.result.value = newVal;
     return this.result;
   }
+}
+
+class BackwardsListIterator<A> extends ListIterator<A> {
+  constructor(l: List<A>) {
+    super(l, -1);
+  }
+  prevInTree(): void {
+    for (var i = 0; this.indices[i] === 0; ++i) {}
+    --this.indices[i];
+    for (; 0 < i; --i) {
+      const n = this.stack[i][this.indices[i]].array;
+      this.stack[i - 1] = n;
+      this.indices[i - 1] = n.length - 1;
+    }
+  }
+  next(): IteratorResult<A> {
+    let newVal;
+    const idx = --this.idx;
+    if (this.middleSize <= idx) {
+      newVal = this.l.suffix[idx - this.middleSize];
+    } else if (this.prefixSize <= idx) {
+      this.prevInTree();
+      newVal = this.stack[0][this.indices[0]];
+    } else if (0 <= idx) {
+      newVal = this.l.prefix[this.prefixSize - idx - 1];
+    } else {
+      this.result.done = true;
+    }
+    this.result.value = newVal;
+    return this.result;
+  }
+}
+
+/**
+ * Returns an iterable that iterates backwards over the given list.
+ */
+export function backwards<A>(l: List<A>): Iterable<A> {
+  return {
+    [Symbol.iterator](): Iterator<A> {
+      return new BackwardsListIterator(l);
+    }
+  };
 }
 
 function emptyPushable<A>(): MutableList<A> {

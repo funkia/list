@@ -19,6 +19,7 @@ export {
   from,
   toArray,
   reverse,
+  backwards,
   sort,
   group,
   dropRepeats,

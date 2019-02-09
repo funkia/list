@@ -63,7 +63,7 @@ to JavaScript's `Array` List has three major benefits.
 * **Fantasy Land support**. List
   [implements](#fantasy-land--static-land) both the Fantasy Land and the Static
   Land specification.
-  
+
 | Package | Version                                                                                 | Downloads                                                                                  | Dependencies                                                                                          | Dev Deps                                                                                                              | Install size                                                                                             | GZIP size                                                                                                                                                 |
 | ------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `list`  | [![npm version](https://badge.fury.io/js/list.svg)](https://www.npmjs.com/package/list) | [![Downloads](https://img.shields.io/npm/dt/list.svg)](https://www.npmjs.com/package/list) | [![Dependency Status](https://david-dm.org/funkia/list/status.svg)](https://david-dm.org/funkia/list) | [![devDependency Status](https://david-dm.org/funkia/list/dev-status.svg)](https://david-dm.org/funkia/list?type=dev) | [![install size](https://packagephobia.now.sh/badge?p=list)](https://packagephobia.now.sh/result?p=list) | [![gzip size](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/list/dist/index.js?compression=gzip)](https://cdn.jsdelivr.net/npm/list/dist/index.js) |
@@ -188,8 +188,8 @@ for (const element of myList) {
 // logs: first, second, third, fourth
 ```
 
-And they can be passed to any function that takes an iterable as its
-argument. As an example a list can be converted into a native
+And they can be passed to any function that takes an iterable as its argument.
+As an example a list can be converted into a native
 [`Set`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set).
 
 ```js
@@ -200,13 +200,20 @@ mySet.has("third"); //=> true
 This works because the `Set` constructor accepts any iterable as
 argument.
 
-Lists also work with [spread syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax). For instance, you can call a function like this.
+Lists also work with [spread
+syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax).
+For instance, you can call a function like this.
 
 ```js
 console.log(...list("hello", "there", "i'm", "logging", "elements"));
 ```
 
-And each element of the list will be passed as an argument to `console.log`.
+Then each element of the list will be passed as an argument to `console.log`.
+
+List also suports iterating backwards over lists through the
+[`backwards`](#backwards) function.
+
+### Iterator anti-patterns
 
 The iterable protocol allows for some very convenient patterns and
 means that lists can integrate nicely with JavaScript syntax. But,
@@ -1080,6 +1087,25 @@ Converts a list into an array.
 
 ```js
 toArray(list(0, 1, 2, 3, 4)); //=> [0, 1, 2, 3, 4]
+```
+
+### `backwards`
+
+Returns an iterable that iterates backwards over the given list.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+const l = list(0, 1, 2, 3, 4)
+for (const n of backwards(l)) {
+  if (l < 2) {
+    break;
+  }
+  console.log(l);
+}
+// => logs 4, 3, and then 2
 ```
 
 ### `nth`

@@ -1014,6 +1014,23 @@ describe("List", () => {
         assert.strictEqual(last, n - 1);
       });
     });
+    it("iterates backwards over a list", () => {
+      [
+        20, // a list where there is no elements in tree
+        50, // both suffix and prefix
+        3 * 32, // both suffix and prefix
+        1000, // a tree with larger depth,
+        32 ** 2 + 3 // an even larger tree
+      ].forEach(n => {
+        const l = L.range(0, n);
+        let l2 = L.empty();
+        for (const n of L.backwards(l)) {
+          l2 = L.prepend(n, l2);
+        }
+        // console.log(L.toArray(l2));
+        assertListEqual(l, l2);
+      });
+    });
   });
   describe("update", () => {
     it("changes element in prefix", () => {
