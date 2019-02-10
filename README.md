@@ -117,11 +117,11 @@ L.concat(myList, L.list(6, 7, 8)); //=> list(0, 1, 2, 3, 4, 5, 6, 7, 8);
 ```
 
 You'll probably also end up needing to convert between arrays and
-List. You can do that with the functions `fromArray` and `toArray`.
+List. You can do that with the functions `from` and `toArray`.
 
 ```js
 L.toArray(L.list("foo", "bar")); //=> ["foo", "bar"];
-L.fromArray(["foo", "bar"]); //=> L.list("foo", "bar");
+L.from(["foo", "bar"]); //=> L.list("foo", "bar");
 ```
 
 List offers a wealth of other useful and high-performing functions.
@@ -388,28 +388,16 @@ Takes two arguments and returns a list that contains them.
 pair("foo", "bar"); //=> list("foo", "bar")
 ```
 
-### `fromArray`
+### `from`
 
-Converts an array or anything that is array-like into a list.
-
-**Complexity**: `O(n)`
-
-**Example**
-
-```js
-fromArray([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
-```
-
-### `fromIterable`
-
-Converts any iterable into a list.
+Converts an array, an array-like or an itearble into a list.
 
 **Complexity**: `O(n)`
 
 **Example**
 
 ```js
-fromIterable(new Set([0, 1, 2, 3]); //=> list(0, 1, 2, 3)
+from([0, 1, 2, 3, 4]); //=> list(0, 1, 2, 3, 4)
 ```
 
 ### `range`
