@@ -27,8 +27,14 @@ export {
 } from "./index";
 
 export interface Curried2<A, B, R> {
-  (t1: A): (t2: B) => R;
-  (t1: A, t2: B): R;
+  (a: A): (b: B) => R;
+  (a: A, b: B): R;
+}
+
+export interface Curried3<A, B, C, R> {
+  (a: A, b: B, c: C): R;
+  (a: A, b: B): (c: C) => R;
+  (a: A): Curried2<B, C, R>;
 }
 
 function curry2(f: Function): any {
@@ -47,6 +53,22 @@ function curry3(f: (a: any, b: any, c: any) => any): any {
       default:
         // Assume 1
         return curry2((b: any, c: any) => f(a, b, c));
+    }
+  };
+}
+
+function curry4(f: (a: any, b: any, c: any, d: any) => any): any {
+  return function curried(a: any, b: any, c: any, d: any): any {
+    switch (arguments.length) {
+      case 4:
+        return f(a, b, c, d);
+      case 3:
+        return (d: any) => f(a, b, c, d);
+      case 2:
+        return curry2((c: any, d: any) => f(a, b, c, d));
+      default:
+        // Assume 1
+        return curry3((b, c, d) => f(a, b, c, d));
     }
   };
 }
@@ -249,10 +271,10 @@ export const update: typeof L.update & {
 
 export const adjust: typeof L.adjust & {
   <A>(index: number, f: (value: A) => A): (l: List<A>) => List<A>;
-  (index: number): (<A>(
+  (index: number): <A>(
     f: (value: A) => A,
     l: List<A>
-  ) => List<A> & (<A>(f: (value: A) => A) => (l: List<A>) => List<A>));
+  ) => List<A> & (<A>(f: (value: A) => A) => (l: List<A>) => List<A>);
 } = curry3(L.adjust);
 
 export const slice: typeof L.slice & {
@@ -275,3 +297,28 @@ export const zipWith: typeof L.zipWith & {
   <A, B, C>(f: (a: A, b: B) => C, as: List<A>): (bs: List<B>) => List<C>;
   <A, B, C>(f: (a: A, b: B) => C): Curried2<List<A>, List<B>, List<C>>;
 } = curry3(L.zipWith);
+
+// Arity 4
+
+export const foldlWhile: typeof L.foldlWhile & {
+  // Three arguments
+  <A, B>(
+    predicate: (acc: B, value: A) => boolean,
+    f: (acc: B, value: A) => B,
+    initial: B
+  ): (l: List<A>) => B;
+  // Two arguments
+  <A, B>(
+    predicate: (acc: B, value: A) => boolean,
+    f: (acc: B, value: A) => B
+  ): Curried2<B, List<A>, B>;
+  // One argument
+  <A, B>(predicate: (acc: B, value: A) => boolean): Curried3<
+    (acc: B, value: A) => B,
+    B,
+    List<A>,
+    B
+  >;
+} = curry4(L.foldlWhile);
+
+export const reduceWhile: typeof foldlWhile = foldlWhile;

@@ -70,4 +70,25 @@ describe("curried", () => {
     assert.isTrue(Lc.equals(l3, Lc.list(1, 2, 3, 4)));
     assert.isTrue(Lc.equals(l4, Lc.list(1, 2, 3, 4)));
   });
+  it("supports reduceWhile in all combinations", () => {
+    const sum = (a: number, b: number) => a + b;
+    const isOdd = (_acc: any, x: number) => x % 2 === 1;
+    const xs = Lc.list(1, 3, 5, 60, 777, 800);
+    const a = Lc.foldlWhile(isOdd, sum, 0, xs);
+    const b = Lc.foldlWhile(isOdd, sum, 0)(xs);
+    const c = Lc.foldlWhile(isOdd, sum)(0, xs);
+    const d = Lc.foldlWhile(isOdd, sum)(0)(xs);
+    const e = Lc.foldlWhile(isOdd)(sum, 0, xs);
+    const f = Lc.foldlWhile(isOdd)(sum, 0)(xs);
+    const g = Lc.foldlWhile(isOdd)(sum)(0, xs);
+    const h = Lc.foldlWhile(isOdd)(sum)(0)(xs);
+    assert.strictEqual(a, 9);
+    assert.strictEqual(b, 9);
+    assert.strictEqual(c, 9);
+    assert.strictEqual(d, 9);
+    assert.strictEqual(e, 9);
+    assert.strictEqual(f, 9);
+    assert.strictEqual(g, 9);
+    assert.strictEqual(h, 9);
+  });
 });

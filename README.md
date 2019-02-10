@@ -275,24 +275,22 @@ as Ramdas functions.
 
 The goal is to implement the entirety of Ramda's array functions for
 List. The list below keeps track of how many of Ramda functions that
-are missing and of how many that are already implemented. Currently 60
+are missing and of how many that are already implemented. Currently 61
 out of 76 functions have been implemented.
 
-Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`,
-`contains`, `drop`, `dropLast`, `dropRepeats`, `dropRepeatsWith`,
-`dropWhile`, `filter`, `find`, `findIndex`, `findLast`, `group`,
-`groupWith`, `head`, `flatten`, `indexOf`, `intersperse`, `init`,
-`insert`, `insertAll`, `last`, `lastIndexOf`, `length`, `join`, `map`,
-`none`, `nth`, `pair`, `partition`, `pluck`, `prepend`, `range`,
-`reduce`, `reduceRight`, `reject`, `remove`, `reverse`, `repeat`,
-`scan`, `sequence`, `slice`, `sort`, `splitAt`, `splitEvery`,
-`splitWhen`, `take`, `takeWhile`, `tail`, `takeLast`,`takeLastWhile`,
-`traverse`, `times`, `update`, `zip`, `zipWith`.
+Implemented: `adjust`, `all`, `any`, `append`, `chain`, `concat`, `contains`,
+`drop`, `dropLast`, `dropRepeats`, `dropRepeatsWith`, `dropWhile`, `filter`,
+`find`, `findIndex`, `findLast`, `group`, `groupWith`, `head`, `flatten`,
+`indexOf`, `intersperse`, `init`, `insert`, `insertAll`, `last`, `lastIndexOf`,
+`length`, `join`, `map`, `none`, `nth`, `pair`, `partition`, `pluck`,
+`prepend`, `range`, `reduce`, `reduceRight`, `reduceWhile`, `reject`, `remove`,
+`reverse`, `repeat`, `scan`, `sequence`, `slice`, `sort`, `splitAt`,
+`splitEvery`, `splitWhen`, `take`, `takeWhile`, `tail`,
+`takeLast`,`takeLastWhile`, `traverse`, `times`, `update`, `zip`, `zipWith`.
 
-Not implemented: `aperture`, `dropLastWhile`, `endsWith`,
-`findLastIndex`, `indexBy`, `mapAccum`, `mapAccumRight`,
-`reduceWhile`, `startsWith`, `transpose`, `unfold`, `uniq`, `uniqBy`,
-`uniqWith`, `unnest` `without`, `xprod`.
+Not implemented: `aperture`, `dropLastWhile`, `endsWith`, `findLastIndex`,
+`indexBy`, `mapAccum`, `mapAccumRight`, `startsWith`, `transpose`, `unfold`,
+`uniq`, `uniqBy`, `uniqWith`, `unnest` `without`, `xprod`.
 
 ### Differences compared to Ramda
 
@@ -1193,6 +1191,27 @@ Folds a function over a list. Right-associative.
 ```js
 foldr((n, m) => n - m, 5, list(1, 2, 3, 4));
 1 - (2 - (3 - (4 - 5))); //=> 3
+```
+
+### `foldlWhile`
+
+Similar to `foldl`. But, for each element it calls the predicate function
+_before_ the folding function and stops folding if it returns `false`.
+
+**Aliases**: `reduceWhile`
+
+**Complexity**: `O(n)`
+
+**Example**
+
+```js
+const isOdd = (_acc:, x) => x % 2 === 1;
+
+const xs = L.list(1, 3, 5, 60, 777, 800);
+foldlWhile(isOdd, (n, m) => n + m, 0, xs) //=> 9
+
+const ys = L.list(2, 4, 6);
+foldlWhile(isOdd, (n, m) => n + m, 111, ys) //=> 111
 ```
 
 ### `scan`

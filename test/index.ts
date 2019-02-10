@@ -938,6 +938,16 @@ describe("List", () => {
       }
     );
   });
+  describe("foldlWhile", () => {
+    it("stops folding when false", () => {
+      const isOdd = (_acc: any, x: number) => x % 2 === 1;
+      const xs = L.list(1, 3, 5, 60, 777, 800);
+      assert.strictEqual(L.foldlWhile(isOdd, sum, 0, xs), 9);
+
+      const ys = L.list(2, 4, 6);
+      assert.strictEqual(L.foldlWhile(isOdd, sum, 111, ys), 111);
+    });
+  });
   describe("indexOf", () => {
     const l = L.list(12, 4, 2, 89, 6, 18, 7);
     it("finds first element by strict equality", () => {

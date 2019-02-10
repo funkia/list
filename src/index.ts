@@ -345,6 +345,19 @@ class BackwardsListIterator<A> extends ListIterator<A> {
 
 /**
  * Returns an iterable that iterates backwards over the given list.
+ *
+ * @complexity O(1)
+ * @category Folds
+ * @example
+ * const emptyList = empty(); //=> list()
+ * const l = list(0, 1, 2, 3, 4)
+ * for (const n of backwards(l)) {
+ *   if (l < 2) {
+ *     break;
+ *   }
+ *   console.log(l);
+ * }
+ * // => logs 4, 3, and then 2
  */
 export function backwards<A>(l: List<A>): Iterable<A> {
   return {
@@ -925,8 +938,8 @@ export function first<A>(l: List<A>): A | undefined {
   return prefixSize !== 0
     ? l.prefix[prefixSize - 1]
     : l.length !== 0
-      ? l.suffix[0]
-      : undefined;
+    ? l.suffix[0]
+    : undefined;
 }
 
 /**
@@ -944,8 +957,8 @@ export function last<A>(l: List<A>): A | undefined {
   return suffixSize !== 0
     ? l.suffix[suffixSize - 1]
     : l.length !== 0
-      ? l.prefix[0]
-      : undefined;
+    ? l.prefix[0]
+    : undefined;
 }
 
 // map
@@ -1469,7 +1482,7 @@ function foldrNodeCb<A, B>(
   return true;
 }
 
-function foldrCb<A, B>(cb: (a: A, acc: B) => boolean, state: B, l: List<A>): B {
+function foldrCb<A, B>(cb: FoldCb<A, B>, state: B, l: List<A>): B {
   const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
   if (
@@ -1484,6 +1497,54 @@ function foldrCb<A, B>(cb: (a: A, acc: B) => boolean, state: B, l: List<A>): B {
 }
 
 // functions based on foldlCb
+
+type FoldlWhileState<A, B> = {
+  predicate: (b: B, a: A) => boolean;
+  result: B;
+  f: (acc: B, value: A) => B;
+};
+
+/**
+ * Similar to `foldl`. But, for each element it calls the predicate function
+ * _before_ the folding function and stops folding if it returns `false`.
+ *
+ * @category Folds
+ * @example
+ * const isOdd = (_acc:, x) => x % 2 === 1;
+ *
+ * const xs = L.list(1, 3, 5, 60, 777, 800);
+ * foldlWhile(isOdd, (n, m) => n + m, 0, xs) //=> 9
+ *
+ * const ys = L.list(2, 4, 6);
+ * foldlWhile(isOdd, (n, m) => n + m, 111, ys) //=> 111
+ */
+function foldlWhileCb<A, B>(a: A, state: FoldlWhileState<A, B>): boolean {
+  if (state.predicate(state.result, a) === false) {
+    return false;
+  }
+  state.result = state.f(state.result, a);
+  return true;
+}
+
+export function foldlWhile<A, B>(
+  predicate: (acc: B, value: A) => boolean,
+  f: (acc: B, value: A) => B,
+  initial: B,
+  l: List<A>
+): B {
+  return foldlCb<A, FoldlWhileState<A, B>>(
+    foldlWhileCb,
+    { predicate, f, result: initial },
+    l
+  ).result;
+}
+
+/**
+ * Alias for [`foldlWhile`](#foldlWhile).
+ *
+ * @category Folds
+ */
+export const reduceWhile = foldlWhile;
 
 type PredState = {
   predicate: (a: any) => boolean;
@@ -2446,8 +2507,8 @@ function sliceTreeList<A>(
           childRight !== undefined
             ? childRight
             : childLeft !== undefined
-              ? childLeft
-              : tree.array[pathLeft];
+            ? childLeft
+            : tree.array[pathLeft];
         l.root = new Node(newRoot.sizes, newRoot.array); // Is this size handling good enough?
       }
     } else {

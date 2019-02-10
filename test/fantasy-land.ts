@@ -53,10 +53,9 @@ describe("Fantasy Land", () => {
   describe("traversable", () => {
     it("has reduce method", () => {
       const l = L.list(0, 1, 2, 3, 4, 5);
-      const result = l["fantasy-land/reduce"](
-        (arr, i) => (arr.push(i), arr),
-        <number[]>[]
-      );
+      const result = l["fantasy-land/reduce"]((arr, i) => (arr.push(i), arr), <
+        number[]
+      >[]);
       assert.deepEqual(result, [0, 1, 2, 3, 4, 5]);
     });
     it("has traverse method", () => {

@@ -21,6 +21,16 @@ declare module "./index" {
     scan<B>(f: (acc: B, value: A) => B, initial: B): List<B>;
     foldr<B>(f: (value: A, acc: B) => B, initial: B): B;
     reduceRight<B>(f: (value: A, acc: B) => B, initial: B): B;
+    foldlWhile<B>(
+      predicate: (acc: B, value: A) => boolean,
+      f: (value: A, acc: B) => B,
+      initial: B
+    ): B;
+    reduceWhile<B>(
+      predicate: (acc: B, value: A) => boolean,
+      f: (value: A, acc: B) => B,
+      initial: B
+    ): B;
     traverse<A, B>(of: Of, f: (a: A) => Applicative<B>): any;
     sequence<A, B>(this: List<Applicative<A>>, of: Of): any;
     forEach(callback: (a: A) => void): void;
@@ -150,6 +160,16 @@ List.prototype.foldr = function<A, B>(
 };
 
 List.prototype.reduceRight = List.prototype.foldr;
+
+List.prototype.foldlWhile = function foldlWhile<A, B>(
+  predicate: (acc: B, value: A) => boolean,
+  f: (acc: B, value: A) => B,
+  initial: B
+): B {
+  return L.foldlWhile(predicate, f, initial, this);
+};
+
+List.prototype.reduceWhile = List.prototype.foldlWhile;
 
 List.prototype.traverse = function<A, B>(
   of: Of,
