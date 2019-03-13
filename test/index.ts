@@ -1905,4 +1905,21 @@ describe("List", () => {
       assert.isFalse(L.isEmpty(L.list(0, 1, 2, 3)));
     });
   });
+  describe("toJSON", () => {
+    it("works with numbers", () => {
+      const l = list(0, 1, 2, 3, 4);
+      const a = [0, 1, 2, 3, 4];
+      assert.strictEqual(JSON.stringify(l), JSON.stringify(a));
+    });
+    it("works with strings", () => {
+      const l = list("one", "two", "three");
+      const a = ["one", "two", "three"];
+      assert.strictEqual(JSON.stringify(l), JSON.stringify(a));
+    });
+    it("works with objects", () => {
+      const l = list({ one: 1 }, { two: 2 }, { three: 3 });
+      const a = [{ one: 1 }, { two: 2 }, { three: 3 }];
+      assert.strictEqual(JSON.stringify(l), JSON.stringify(a));
+    });
+  });
 });

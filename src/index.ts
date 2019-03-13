@@ -234,6 +234,9 @@ export class List<A> implements Iterable<A> {
   [Symbol.iterator](): Iterator<A> {
     return new ForwardListIterator(this);
   }
+  toJSON(): A[] {
+    return toArray(this);
+  }
 }
 
 type MutableList<A> = { -readonly [K in keyof List<A>]: List<A>[K] } & {
