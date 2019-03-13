@@ -1,6 +1,6 @@
 {
   "name": "list",
-  "version": "2.0.17",
+  "version": "2.0.18",
   "description": "Fast purely functional immutable lists.",
   "author": "Simon Friis Vindum",
   "license": "MIT",
