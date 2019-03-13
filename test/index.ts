@@ -54,6 +54,15 @@ import {
 import { checkList, installCheck } from "./check";
 import { nothing, just, Maybe, isJust } from "./utils";
 import * as R from "ramda";
+import {
+  DropCommand,
+  ConcatCommand,
+  TakeCommand,
+  MapCommand,
+  ReverseCommand,
+  ConcatPreCommand,
+  FilterCommand
+} from "./commands";
 
 const L: typeof Loriginal = installCheck(Loriginal);
 
@@ -179,6 +188,31 @@ class Identity<A> {
 }
 
 describe("List", () => {
+  it("against built-in array", () => {
+    const integerArrayArb = fc.array(fc.integer(), 10000);
+    fc.assert(
+      fc.property(
+        integerArrayArb,
+        fc.commands(
+          [
+            integerArrayArb.map(vs => new ConcatCommand(vs)),
+            integerArrayArb.map(vs => new ConcatPreCommand(vs)),
+            fc.nat().map(num => new DropCommand(num)),
+            fc.nat().map(num => new TakeCommand(num)),
+            fc.integer().map(val => new FilterCommand(val)),
+            fc.integer().map(val => new MapCommand(val)),
+            fc.constant(new ReverseCommand())
+          ],
+          25
+        ),
+        (initialValues, cmds) => {
+          const model = { data: Array.from(initialValues) };
+          const real = { data: L.from(initialValues) };
+          fc.modelRun(() => ({ model, real }), cmds);
+        }
+      )
+    );
+  });
   describe("repeat", () => {
     it("creates list of n repeated elements", () => {
       [10, 100].forEach(n => {
