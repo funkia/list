@@ -1238,7 +1238,7 @@ L.traverse(Maybe, safeDiv(10), list(2, 0, 5)); //=> nothing
 
 ### `sequence`
 
-Evaluate each applicative in the list from left to right, and and
+Evaluate each applicative in the list from left to right, and
 collect the results.
 
 **Complexity**: `O(n)`
