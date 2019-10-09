@@ -14,6 +14,7 @@ export const repeat = curry(L.repeat);
 export const times = curry(L.times);
 export const length = curry(L.length);
 export const first = curry(L.first);
+export const head = first;
 export const last = curry(L.last);
 export const nth = curry(L.nth);
 export const map = curry(L.map);

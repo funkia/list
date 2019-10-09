@@ -13,6 +13,7 @@ declare module "./index" {
     append(value: A): List<A>;
     intersperse(separator: A): List<A>;
     first(): A | undefined;
+    head(): A | undefined;
     last(): A | undefined;
     map<B>(f: (a: A) => B): List<B>;
     pluck<K extends keyof A>(key: K): List<A[K]>;
@@ -120,6 +121,8 @@ List.prototype.append = function<A>(value: A): List<A> {
 List.prototype.first = function<A>(): A | undefined {
   return L.first(this);
 };
+
+List.prototype.head = List.prototype.first;
 
 List.prototype.last = function<A>(): A | undefined {
   return L.last(this);

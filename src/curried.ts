@@ -11,6 +11,7 @@ export {
   of,
   empty,
   first,
+  head,
   last,
   flatten,
   pop,

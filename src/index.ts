@@ -946,6 +946,13 @@ export function first<A>(l: List<A>): A | undefined {
 }
 
 /**
+ * Alias for [`first`](#first).
+ *
+ * @category Folds
+ */
+export const head = first;
+
+/**
  * Returns the last element of the list. If the list is empty the
  * function returns `undefined`.
  *
