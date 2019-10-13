@@ -139,7 +139,7 @@ The default export offers normal plain function.
 ```ts
 import * as L from "list";
 
-const l = take(5, sortBy(p => p.name, filter(p => p.age > 22, people)));
+const l = L.take(5, L.sortBy(p => p.name, L.filter(p => p.age > 22, people)));
 ```
 
 In `list/methods` all functions are available as chainable methods.
