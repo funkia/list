@@ -832,7 +832,7 @@ ap(list((n: number) => n + 2, n => 2 * n, n => n * n), list(1, 2, 3)); //=> list
 Maps a function over a list and concatenates all the resulting lists
 together.
 
-Also known as `flatMap`.
+**Aliases**: `flatMap`
 
 **Example**
 
@@ -1031,6 +1031,20 @@ isList([0, 1, 2]); //=> false
 isList("string"); //=> false
 isList({ foo: 0, bar: 1 }); //=> false
 isList(list(0, 1, 2)); //=> true
+```
+
+### `isEmpty`
+
+Returns `true` if the list is empty.
+
+**Complexity**: `O(1)`
+
+**Example**
+
+```js
+isEmpty(empty()); //=> true
+isEmpty(list()); //=> true
+isEmpty(list(0, 1, 2)); //=> false
 ```
 
 ### `equals`
