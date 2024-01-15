@@ -38,7 +38,7 @@ to JavaScript's `Array` List has three major benefits.
 * **Extremely fast**. List is a carefully optimized implementation of
   the highly efficient data-structure _relaxed radix balanced trees_. We have
   an [extensive benchmark suite](https://funkia.github.io/list/benchmarks/) to
-  ensure optimal performance. Here is an explanation [how](http://vindum.io/blog/how-can-list-be-faster-than-native-arrays/)
+  ensure optimal performance. Here is an explanation [how](https://monoid.dk/post/how-can-list-be-faster-than-native-arrays/)
 * **Several API styles**. In addition to the base API List offers [additional
   API styles](#api-styles). Import `list/methods` to get chainable methods or
   alterntively import `list/curried` to get a version of the API where every
